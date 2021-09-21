@@ -1,8 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 IFS=$'\n\t'
+
+
 set -vx
 
 bundle install
 
-# Do any other automated setup that you need to do here
+# For running tests it's going to use PG_URI env variable.
+# Please make sure  you set it properly to a TEST database!"
