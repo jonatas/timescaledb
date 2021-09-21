@@ -2,32 +2,34 @@ RSpec.describe Timescale do
   it "has a version number" do
     expect(Timescale::VERSION).not_to be nil
   end
-  before :all do
-    ActiveRecord::Base.establish_connection(ENV['PG_URI'])
 
-    # Simple example
-    class Event < ActiveRecord::Base
-      self.primary_key = "identifier"
+  describe ".chunks" do
+    subject { Timescale.chunks }
 
-      include Timescale::HypertableHelpers
+    context "when no data is inserted" do
+      it { is_expected.to be_empty }
     end
 
-    ActiveRecord::Base.connection.instance_exec do
-      ActiveRecord::Base.logger = Logger.new(STDOUT)
+    context "when data is added" do
+      before do
+        Event.create identifier: "sign_up", payload: {"name" => "Eon"}
+      end
 
-      drop_table(:events) if Event.table_exists?
+      it { is_expected.not_to be_empty }
+      it { expect(Event.chunks).not_to be_empty }
+      it { expect(subject.first.hypertable_name).to eq('events') }
+      it { expect(subject.first.attributes).to eq(Event.chunks.first.attributes) }
+    end
+  end
 
-      hypertable_options = {
-        time_column: 'created_at',
-        chunk_time_interval: '1 min',
-        compress_segmentby: 'identifier',
-        compression_interval: '7 days'
-      }
+  describe ".hypertables" do
+    subject { Timescale.hypertables }
 
-      create_table(:events, id: false, hypertable: hypertable_options) do |t|
-        t.string :identifier, null: false
-        t.jsonb :payload
-        t.timestamps
+    context "with default example from main setup" do
+      it { is_expected.not_to be_empty }
+      specify do
+        expect(subject.first.attributes)
+          .to eq(Event.hypertable.attributes)
       end
     end
   end

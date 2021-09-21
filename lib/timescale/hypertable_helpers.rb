@@ -1,4 +1,5 @@
 require_relative 'chunk'
+require_relative 'hypertable'
 module Timescale
   module HypertableHelpers
     extend ActiveSupport::Concern
@@ -6,6 +7,9 @@ module Timescale
     included do
       scope :chunks, -> () do
         Chunk.where(hypertable_name: self.table_name)
+      end
+      scope :hypertable, -> () do
+        Hypertable.find_by(hypertable_name: self.table_name)
       end
 
       scope :last_month, -> { where('created_at > ?', 1.month.ago) }

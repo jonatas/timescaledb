@@ -7,5 +7,5 @@ set -vx
 
 bundle install
 
-# For running tests it's going to use PG_URI env variable.
+# For running tests it's going to use PG_URI_TEST env variable.
 # Please make sure  you set it properly to a TEST database!"
