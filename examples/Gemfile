@@ -1,0 +1,9 @@
+
+source 'https://rubygems.org'
+
+gem "timescale", path: "../"
+gem "pg"
+gem "activerecord"
+gem "composite_primary_keys", "~> 6.0"
+gem 'pry'
+

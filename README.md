@@ -22,7 +22,69 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+You can see some [examples]() available and here are a few step by step you can
+follow:
+
+### Migrations
+
+Create table is now with the `hypertable` keyword allowing to pass a few options
+to the function call while also using `create_table` method:
+
+```ruby
+hypertable_options = {
+  time_column: 'created_at',
+  chunk_time_interval: '1 min',
+  compress_segmentby: 'identifier',
+  compression_interval: '7 days'
+}
+
+create_table(:events, id: false, hypertable: hypertable_options) do |t|
+  t.string :identifier, null: false
+  t.jsonb :payload
+  t.timestamps
+end
+```
+
+### Model Helpers
+
+You can also use `HypertableHelpers` to get access to some basic scopes for your
+model:
+
+```ruby
+class Event < ActiveRecord::Base
+  self.primary_key = "identifier"
+
+  include Timescale::HypertableHelpers
+end
+```
+
+Examples after the include:
+
+```ruby
+Event.chunks
+Event.hypertable
+```
+
+### RSpec Hooks
+
+Add this to your `spec/rspec_helper.rb` file:
+
+```ruby
+  config.before(:suite) do
+    hypertable_models = ApplicationRecord
+      .descendants
+      .select{|clazz| clazz.ancestors.include?( Timescale::HypertableHelpers)}
+    hypertable_models.each do |clazz|
+      if clazz.hypertable.exists?
+        ApplicationRecord.logger.info "skip recreating hypertable for '#{clazz.table_name}'."
+        next
+      end
+      ApplicationRecord.connection.execute <<~SQL
+        SELECT create_hypertable('#{clazz.table_name}', 'created_at')
+      SQL
+    end
+  end
+```
 
 ## Development
 
