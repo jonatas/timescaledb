@@ -1,7 +1,12 @@
-
 module Timescale
   class Chunk < ActiveRecord::Base
     self.table_name = "timescaledb_information.chunks"
+    self.primary_key = "chunk_name"
+
+    belongs_to :hypertable, foreign_key: :hypertable_name
+
+    scope :compressed, -> { where(is_compressed: true) }
+    scope :uncompressed, -> { where(is_compressed: false) }
 
     def compress!
       execute("SELECT compress_chunk(#{chunk_relation})")
