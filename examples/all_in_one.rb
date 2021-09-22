@@ -5,8 +5,10 @@ require 'pp'
 require 'pry'
 require 'ostruct'
 
+require 'dotenv'
+Dotenv.load!
 # set PG_URI=postgres://user:pass@host:port/db_name
-ActiveRecord::Base.establish_connection(ENV['PG_URI'])
+ActiveRecord::Base.establish_connection(ENV['PG_URI_TEST'])
 
 # Simple example
 class Event < ActiveRecord::Base
@@ -45,7 +47,6 @@ end
 end
 
 puts Event.last_hour.group(:identifier).count # {"login"=>2, "click"=>1, "logout"=>1, "sign_up"=>1, "scroll"=>1}
-pp Event.last_week.counts_per('1 min')
 puts "compressing #{ Event.chunks.count }"
 Event.chunks.first.compress!
 pp Event.detailed_size

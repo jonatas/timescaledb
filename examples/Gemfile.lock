@@ -21,6 +21,7 @@ GEM
     composite_primary_keys (6.0.5)
       activerecord (>= 4.0.0)
     concurrent-ruby (1.1.9)
+    dotenv (2.7.6)
     i18n (1.8.10)
       concurrent-ruby (~> 1.0)
     method_source (1.0.0)
@@ -39,6 +40,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   composite_primary_keys (~> 6.0)
+  dotenv (~> 2.7)
   pg
   pry
   timescale!
