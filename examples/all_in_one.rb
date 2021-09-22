@@ -17,6 +17,7 @@ class Event < ActiveRecord::Base
   include Timescale::HypertableHelpers
 end
 
+# Setup Hypertable as in a migration
 ActiveRecord::Base.connection.instance_exec do
   ActiveRecord::Base.logger = Logger.new(STDOUT)
 
@@ -36,6 +37,7 @@ ActiveRecord::Base.connection.instance_exec do
   end
 end
 
+# Create some data just to see how it works
 1.times do
   Event.transaction do
     Event.create identifier: "sign_up", payload: {"name" => "Eon"}
@@ -46,17 +48,18 @@ end
   end
 end
 
-puts Event.last_hour.group(:identifier).count # {"login"=>2, "click"=>1, "logout"=>1, "sign_up"=>1, "scroll"=>1}
+# Now let's see what we have in the scopes
+Event.last_hour.group(:identifier).count # => {"login"=>2, "click"=>1, "logout"=>1, "sign_up"=>1, "scroll"=>1}
+
+
 puts "compressing #{ Event.chunks.count }"
 Event.chunks.first.compress!
-pp Event.detailed_size
-pp Event.compression_stats
+
+puts "detailed size"
+pp Event.hypertable.detailed_size
+puts "compression stats"
+pp Event.hypertable.compression_stats
 
 puts "decompressing"
 Event.chunks.first.decompress!
-# [[2021-08-30 20:03:00 UTC, "logout", 1],
-# [2021-08-30 20:03:00 UTC, "login", 2],
-# [2021-08-30 20:03:00 UTC, "sign_up", 1],
-# [2021-08-30 20:03:00 UTC, "click", 1],
-# [2021-08-30 20:03:00 UTC, "scroll", 1]]
 Pry.start
