@@ -3,12 +3,13 @@
 require "bundler/setup"
 require "timescale"
 
-# You can add fixtures and/or initialization code here to make experimenting
-# with your gem easier. You can also use a different console, if you like.
+def uri_from_test
+  require 'dotenv'
+  Dotenv.load!
+  ENV['PG_URI_TEST']
+end
 
-# (If you use this, don't forget to add pry to your Gemfile!)
-# require "pry"
-# Pry.start
+ActiveRecord::Base.establish_connection(ARGV[0] || uri_from_test)
 
-require "irb"
-IRB.start(__FILE__)
+require "pry"
+Pry.start(Timescale)

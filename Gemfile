@@ -10,3 +10,4 @@ gem 'rspec-its'
 
 gem "pg", "~> 1.2"
 gem 'activerecord'
+gem 'pry'
