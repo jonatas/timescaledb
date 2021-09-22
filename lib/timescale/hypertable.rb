@@ -11,6 +11,10 @@ module Timescale
       foreign_key: "hypertable_name",
       class_name: "Timescale::CompressionSettings"
 
+    has_many :continuous_aggregates,
+      foreign_key: "hypertable_name",
+      class_name: "Timescale::ContinuousAggregates"
+
     def detailed_size
       struct_from "SELECT * from chunks_detailed_size('#{self.hypertable_name}')"
     end

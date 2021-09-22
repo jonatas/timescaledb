@@ -20,13 +20,16 @@ module Timescale
       scope :job_stats, -> () do
         JobStats.where(hypertable_name: self.table_name)
       end
-      has_many :compression_settings, foreign_key: :hypertable_name
+
+      scope :compression_settings, -> () do
+        CompressionSettings.where(hypertable_name: self.table_name)
+      end
+
       scope :last_month, -> { where('created_at > ?', 1.month.ago) }
       scope :last_week, -> { where('created_at > ?', 1.week.ago) }
       scope :last_hour, -> { where('created_at > ?', 1.hour.ago) }
       scope :yesterday, -> { where('DATE(created_at) = ?', 1.day.ago.to_date) }
       scope :today, -> { where('DATE(created_at) = ?', Date.today) }
-
     end
   end
 end

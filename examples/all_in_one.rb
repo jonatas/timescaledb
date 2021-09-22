@@ -1,10 +1,7 @@
 require 'bundler/setup'
-require 'active_record'
 require 'timescale'
 require 'pp'
 require 'pry'
-require 'ostruct'
-
 require 'dotenv'
 Dotenv.load!
 # set PG_URI=postgres://user:pass@host:port/db_name
@@ -57,6 +54,7 @@ Event.chunks.first.compress!
 
 puts "detailed size"
 pp Event.hypertable.detailed_size
+
 puts "compression stats"
 pp Event.hypertable.compression_stats
 
