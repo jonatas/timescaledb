@@ -10,6 +10,7 @@ module Timescale
     #    time_column: 'created_at',
     #    chunk_time_interval: '1 min',
     #    compress_segmentby: 'identifier',
+    #    compress_orderby: 'created_at',
     #    compression_interval: '7 days'
     #  }
     #
@@ -29,15 +30,18 @@ module Timescale
                                  time_column: 'created_at',
                                  chunk_time_interval: '1 week',
                                  compress_segmentby: nil,
+                                 compress_orderby: 'created_at',
                                  compression_interval: nil
                                 )
-      execute "SELECT create_hypertable('#{table_name}', '#{time_column}',
-      chunk_time_interval => INTERVAL '#{chunk_time_interval}')"
+
+      ActiveRecord::Base.logger = Logger.new(STDOUT)
+      execute "SELECT create_hypertable('#{table_name}', '#{time_column}', chunk_time_interval => INTERVAL '#{chunk_time_interval}')"
 
       if compress_segmentby
         execute <<~SQL
-        ALTER TABLE events SET (
+        ALTER TABLE #{table_name} SET (
           timescaledb.compress,
+          timescaledb.compress_orderby = '#{compress_orderby}',
           timescaledb.compress_segmentby = '#{compress_segmentby}'
         )
         SQL

@@ -1,8 +1,16 @@
 # Timescale
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/timescale`. To experiment with that code, run `bin/console` for an interactive prompt.
+Welcome to the Timescale gem! To experiment with the code, run `bin/console` for an interactive prompt.
 
-TODO: Delete this and the text above, and describe your gem
+This library was made a a few streams on [twitch.tv/timescaledb](https://twitch.tv/timescaledb).
+
+You can also follow step by step every episode here:
+
+1. [Wrapping Functions to Ruby Helpers](https://www.youtube.com/watch?v=hGPsUxLFAYk).
+2. [Extending ActiveRecord with Timescale Helpers](https://www.youtube.com/watch?v=IEyJIHk1Clk).
+3. [Setup Hypertables for Rails testing environment](https://www.youtube.com/watch?v=wM6hVrZe7xA).
+4. [Packing the code to this repository](https://www.youtube.com/watch?v=CMdGAl_XlL4).
+
 
 ## Installation
 
@@ -22,8 +30,8 @@ Or install it yourself as:
 
 ## Usage
 
-You can see some [examples]() available and here are a few step by step you can
-follow:
+You can see the [all_in_one.rb](examples/all_in_one.rb) available and here are
+a few step by step you can follow too:
 
 ### Migrations
 
@@ -94,8 +102,7 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/timescale. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/[USERNAME]/timescale/blob/master/CODE_OF_CONDUCT.md).
-
+Bug reports and pull requests are welcome on GitHub at https://github.com/jonatas/timescale. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/jonatas/timescale/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -103,4 +110,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Timescale project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/timescale/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Timescale project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/jonatas/timescale/blob/master/CODE_OF_CONDUCT.md).
