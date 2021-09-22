@@ -1,4 +1,3 @@
-
 module Timescale
   class Hypertable < ActiveRecord::Base
     self.table_name = "timescaledb_information.hypertables"
@@ -7,6 +6,10 @@ module Timescale
 
     has_many :jobs, foreign_key: "hypertable_name"
     has_many :chunks, foreign_key: "hypertable_name"
+
+    has_many :compression_settings,
+      foreign_key: "hypertable_name",
+      class_name: "Timescale::CompressionSettings"
 
     def detailed_size
       struct_from "SELECT * from chunks_detailed_size('#{self.hypertable_name}')"
