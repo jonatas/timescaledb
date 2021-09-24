@@ -15,6 +15,10 @@ RSpec.describe Timescale do
         Event.create identifier: "sign_up", payload: {"name" => "Eon"}
       end
 
+      after do
+        Event.destroy_all_chunks!
+      end
+
       it { is_expected.not_to be_empty }
       it { expect(Event.chunks).not_to be_empty }
       it { expect(subject.first.hypertable_name).to eq('events') }
@@ -32,5 +36,11 @@ RSpec.describe Timescale do
           .to eq(Event.hypertable.attributes)
       end
     end
+  end
+
+  describe ".default_hypertable_options" do
+    subject { Timescale.default_hypertable_options }
+
+    it { is_expected.to eq(Timescale::ActsAsHypertable::DEFAULT_OPTIONS) }
   end
 end
