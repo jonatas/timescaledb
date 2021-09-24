@@ -1,7 +1,7 @@
 require_relative 'lib/timescale/version'
 
 Gem::Specification.new do |spec|
-  spec.name          = "timescale"
+  spec.name          = "timescaledb"
   spec.version       = Timescale::VERSION
   spec.authors       = ["Jônatas Davi Paganini"]
   spec.email         = ["jonatasdp@gmail.com"]

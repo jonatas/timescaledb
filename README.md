@@ -51,7 +51,7 @@ You can watch all episodes here:
 Add this line to your application's Gemfile:
 
 ```ruby
-gem 'timescale'
+gem 'timescaledb'
 ```
 
 And then execute:
@@ -60,7 +60,7 @@ And then execute:
 
 Or install it yourself as:
 
-    $ gem install timescale
+    $ gem install timescaledb
 
 ## Usage
 
