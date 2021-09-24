@@ -2,6 +2,8 @@ PATH
   remote: ..
   specs:
     timescale (0.1.0)
+      activerecord
+      pg (~> 1.2)
 
 GEM
   remote: https://rubygems.org/

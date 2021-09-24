@@ -2,6 +2,8 @@ PATH
   remote: .
   specs:
     timescale (0.1.0)
+      activerecord
+      pg (~> 1.2)
 
 GEM
   remote: https://rubygems.org/
@@ -54,9 +56,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  activerecord
   dotenv
-  pg (~> 1.2)
   pry
   rake (~> 12.0)
   rspec (~> 3.0)

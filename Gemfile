@@ -7,7 +7,4 @@ gem 'dotenv'
 gem "rake", "~> 12.0"
 gem "rspec", "~> 3.0"
 gem 'rspec-its'
-
-gem "pg", "~> 1.2"
-gem 'activerecord'
 gem 'pry'
