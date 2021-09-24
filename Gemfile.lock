@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    timescale (0.1.0)
+    timescaledb (0.1.0)
       activerecord
       pg (~> 1.2)
 
@@ -61,7 +61,7 @@ DEPENDENCIES
   rake (~> 12.0)
   rspec (~> 3.0)
   rspec-its
-  timescale!
+  timescaledb!
 
 BUNDLED WITH
    2.1.4

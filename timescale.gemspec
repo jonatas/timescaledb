@@ -6,7 +6,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Jônatas Davi Paganini"]
   spec.email         = ["jonatasdp@gmail.com"]
 
-  spec.summary       = %q{TimesaleDB helpers for Ruby ecosystem.}
+  spec.summary       = %q{TimescaleDB helpers for Ruby ecosystem.}
   spec.description   = %q{Functions from timescaledb available in the ActiveRecord models.}
   spec.homepage      = "https://github.com/jonatas/timescale"
   spec.license       = "MIT"
