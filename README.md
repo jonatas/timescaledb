@@ -273,12 +273,9 @@ To install this gem onto your local machine, run `bundle exec rake install`. To 
 
 Here is a list of functions that would be great to have:
 
-1. Add continuous aggregates support to [MigrationsHelpers](lib/timescale/migration_helpers.rb).
-2. Add refresh policy to caggs
-3. Add `has_many :jobs` to [ContinuousAggregates](lib/timescale/continuous_aggregates.rb).
-4. Add data nodes support
-5. Implement the `timescale` CLI to explore the full API.
-6. Dump and Restore Timescale metadata - Like db/schema.rb but for Timescale configuration.
+- [ ] Dump and Restore Timescale metadata - Like db/schema.rb but for Timescale configuration.
+- [ ] Add data nodes support
+- [ ] Implement the `timescale` CLI to explore the full API.
 
 ## Contributing
 
