@@ -220,6 +220,17 @@ After checking out the repo, run `bin/setup` to install dependencies. Then, run 
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
+### TODO
+
+Here is a list of functions that would be great to have:
+
+1. Add continuous aggregates support to [MigrationsHelpers](lib/timescale/migration_helpers.rb).
+2. Add refresh policy to caggs
+3. Add `has_many :jobs` to [ContinuousAggregates](lib/timescale/continuous_aggregates.rb).
+4. Add data nodes support
+5. Implement the `timescale` CLI to explore the full API.
+6. Dump and Restore Timescale metadata - Like db/schema.rb but for Timescale configuration.
+
 ## Contributing
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/jonatas/timescale. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/jonatas/timescale/blob/master/CODE_OF_CONDUCT.md).
