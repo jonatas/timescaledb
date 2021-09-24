@@ -25,6 +25,10 @@ module Timescale
         CompressionSettings.where(hypertable_name: self.table_name)
       end
 
+      scope :continuous_aggregates, -> () do
+        ContinuousAggregates.where(hypertable_name: self.table_name)
+      end
+
       scope :last_month, -> { where('created_at > ?', 1.month.ago) }
       scope :last_week, -> { where('created_at > ?', 1.week.ago) }
       scope :last_hour, -> { where('created_at > ?', 1.hour.ago) }
