@@ -16,7 +16,7 @@ RSpec.describe Timescale do
       end
 
       after do
-        Event.destroy_all_chunks!
+        destroy_all_chunks_for!(Event)
       end
 
       it { is_expected.not_to be_empty }
