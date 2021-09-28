@@ -25,7 +25,7 @@ module Timescale
 
     DEFAULT_OPTIONS = {
       time_column: :created_at
-    }
+    }.freeze
 
     module ClassMethods
       # == Configuration options
@@ -48,7 +48,7 @@ module Timescale
 
         class_attribute :hypertable_options, instance_writer: false
 
-        self.hypertable_options = DEFAULT_OPTIONS
+        self.hypertable_options = DEFAULT_OPTIONS.dup
         hypertable_options.merge!(options)
         normalize_hypertable_options
 
