@@ -15,12 +15,24 @@ module Timescale
       foreign_key: "hypertable_name",
       class_name: "Timescale::ContinuousAggregates"
 
-    def detailed_size
+    def chunks_detailed_size
       struct_from "SELECT * from chunks_detailed_size('#{self.hypertable_name}')"
     end
 
     def compression_stats
-      struct_from "SELECT * from hypertable_compression_stats('#{self.hypertable_name}')"
+      struct_from("SELECT * from hypertable_compression_stats('#{self.hypertable_name}')").first || {}
+    end
+
+    def detailed_size
+      struct_from("SELECT * FROM hypertable_detailed_size('#{self.hypertable_name}')").first
+    end
+
+    def before_total_bytes
+      compression_stats["before_compression_total_bytes"] || detailed_size.total_bytes
+    end
+
+    def after_total_bytes
+      compression_stats["after_compression_total_bytes"] || 0
     end
 
     private

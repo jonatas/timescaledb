@@ -4,6 +4,7 @@ require_relative 'timescale/chunk'
 require_relative 'timescale/hypertable'
 require_relative 'timescale/job'
 require_relative 'timescale/job_stats'
+require_relative 'timescale/stats_report'
 require_relative 'timescale/continuous_aggregates'
 require_relative 'timescale/compression_settings'
 require_relative 'timescale/hypertable_helpers'
@@ -33,5 +34,9 @@ module Timescale
 
   def job_stats
     JobStats.all
+  end
+
+  def show_stats
+    StatsReport.resume
   end
 end
