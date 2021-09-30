@@ -7,6 +7,9 @@ module Timescale
         hypertables: {
           count: Hypertable.count,
           uncompressed: Hypertable.all.to_a.count { |h| h.compression_stats.empty? },
+          approximate_row_count: Hypertable.all.to_a.map do |hypertable|
+              { hypertable.hypertable_name => hypertable.approximate_row_count }
+            end.inject(&:merge!),
           chunks: {
             total: Chunk.count,
             compressed: Chunk.compressed.count,

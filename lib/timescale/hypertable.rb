@@ -19,6 +19,10 @@ module Timescale
       struct_from "SELECT * from chunks_detailed_size('#{self.hypertable_name}')"
     end
 
+    def approximate_row_count
+      struct_from("SELECT * FROM approximate_row_count('#{self.hypertable_name}')").first.approximate_row_count
+    end
+
     def compression_stats
       struct_from("SELECT * from hypertable_compression_stats('#{self.hypertable_name}')").first || {}
     end
