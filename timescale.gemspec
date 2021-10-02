@@ -28,5 +28,11 @@ Gem::Specification.new do |spec|
   spec.require_paths = ["lib"]
 
   spec.add_dependency  "pg", "~> 1.2"
-  spec.add_dependency 'activerecord'
+  spec.add_dependency "activerecord"
+
+  spec.add_development_dependency "pry"
+  spec.add_development_dependency "rspec-its"
+  spec.add_development_dependency "rspec", "~> 3.0"
+  spec.add_development_dependency "dotenv"
+  spec.add_development_dependency "rake", "~> 12.0"
 end

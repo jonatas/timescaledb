@@ -9,12 +9,11 @@ RSpec.describe Timescale::MigrationHelpers do
     end
 
     subject(:create_table) do
-      p hypertable_options
       con.create_table :migration_tests, hypertable: hypertable_options, id: false do |t|
-          t.string :identifier
-          t.jsonb :payload
-          t.timestamps
-        end
+        t.string :identifier
+        t.jsonb :payload
+        t.timestamps
+      end
     end
 
     let(:hypertable_options) do
@@ -28,7 +27,11 @@ RSpec.describe Timescale::MigrationHelpers do
     end
 
     it 'call setup_hypertable_options with params' do
-      expect(ActiveRecord::Base.connection).to receive(:setup_hypertable_options).with(:migration_tests, hypertable_options).once
+      expect(ActiveRecord::Base.connection)
+        .to receive(:setup_hypertable_options)
+        .with(:migration_tests, hypertable_options)
+        .once
+
       create_table
     end
 
@@ -39,6 +42,7 @@ RSpec.describe Timescale::MigrationHelpers do
 
       it 'enables compression' do
         create_table
+
         expect(hypertable.attributes).to include({
           "compression_enabled"=>true,
           "data_nodes"=>nil,
@@ -52,6 +56,7 @@ RSpec.describe Timescale::MigrationHelpers do
       end
     end
   end
+
   describe ".create_continuous_aggregates" do
     let(:con) { ActiveRecord::Base.connection }
 
@@ -78,11 +83,12 @@ RSpec.describe Timescale::MigrationHelpers do
     end
 
    let(:model) do
-      Tick = Class.new(ActiveRecord::Base) do
-        self.table_name = 'ticks'
-        self.primary_key = 'symbol'
-        include Timescale::HypertableHelpers
-      end
+     Tick = Class.new(ActiveRecord::Base) do
+       self.table_name = 'ticks'
+       self.primary_key = 'symbol'
+
+       acts_as_hypertable
+     end
     end
 
     let(:query) do
