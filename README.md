@@ -7,12 +7,13 @@ repository:
 git clone https://github.com/jonatas/timescale.git
 cd timescale
 bundle install
+rake install
 ```
 
-Then you can run `bin/console` for an interactive prompt.
+Then, with `rake install` or installing the gem in your computer, you can run `tsdb` for an interactive prompt.
 
 ```bash
-bin/console
+tsdb postgres://<user>@localhost:5432/<dbname> --stats --flags
 ```
 
 You can create a `.env` file locally to run tests locally. Make sure to put your
@@ -22,14 +23,35 @@ own credentials there!
 PG_URI_TEST="postgres://<user>@localhost:5432/<dbname>"
 ```
 
-You can also use `bin/console` without any parameters and it will use the
-`PG_URI_TEST` from your `.env` file.
-
-Alternatively, you can also put some postgres URI directly as a parameter of
-`bin/console`. Here is an example from my console:
+You can put some postgres URI directly as a parameter of
+`tsdb`. Here is an example from the console:
 
 ```bash
-bin/console "postgres://jonatasdp@localhost:5432/timescale_test"
+tsdb "postgres://jonatasdp@localhost:5432/timescale_test"
+```
+
+To join the console use `--console`:
+
+```bash
+tsdb "postgres://jonatasdp@localhost:5432/timescale_test" --console
+```
+
+Or just check the stats:
+
+```bash
+tsdb "postgres://jonatasdp@localhost:5432/timescale_test" --stats
+```
+
+These is a sample output from an almost empty database:
+
+```ruby
+{:hypertables=>
+  {:count=>3,
+   :uncompressed=>2,
+   :chunks=>{:total=>1, :compressed=>0, :uncompressed=>1},
+   :size=>{:before_compressing=>"80 KB", :after_compressing=>"0 Bytes"}},
+ :continuous_aggregates=>{:count=>1},
+ :jobs_stats=>[{:success=>nil, :runs=>nil, :failures=>nil}]}
 ```
 
 The console will dynamically create models for all hypertables that it finds
@@ -265,7 +287,7 @@ create the hypertable adding this hook to your `spec/rspec_helper.rb` file:
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `tsdb` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
 
