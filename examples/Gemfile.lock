@@ -1,7 +1,7 @@
 PATH
   remote: ..
   specs:
-    timescale (0.1.0)
+    timescaledb (0.1.2)
       activerecord
       pg (~> 1.2)
 
@@ -45,7 +45,7 @@ DEPENDENCIES
   dotenv (~> 2.7)
   pg
   pry
-  timescale!
+  timescaledb!
 
 BUNDLED WITH
    2.1.4

@@ -9,7 +9,7 @@ Timescale::Hypertable.find_each do |hypertable|
   model = Class.new(ActiveRecord::Base) do
     self.table_name = hypertable.hypertable_name
     self.primary_key = self.column_names.first
-    include Timescale::HypertableHelpers
+    acts_as_hypertable
   end
   Timescale.const_set(class_name, model)
 end

@@ -58,7 +58,7 @@ The console will dynamically create models for all hypertables that it finds
 in the database.
 
 It will allow you to visit any database and have all models mapped as ActiveRecord
-with the [HypertableHelpers](lib/timescale/hypertable_helpers.rb).
+with the [Timescale::ActsAsHypertable](lib/timescale/acts_as_hypertable.rb).
 
 This library was started on [twitch.tv/timescaledb](https://twitch.tv/timescaledb).
 You can watch all episodes here:
@@ -90,7 +90,7 @@ You can check the [all_in_one.rb](examples/all_in_one.rb) that will:
 
 1. Create hypertable with compression settings
 2. Insert data
-3. Run some queries from HypertableHelpers
+3. Run some queries
 4. Check chunk size per model
 5. Compress a chunk
 6. Check chunk status
@@ -140,7 +140,7 @@ end
 Tick = Class.new(ActiveRecord::Base) do
   self.table_name = 'ticks'
   self.primary_key = 'symbol'
-  include Timescale::HypertableHelpers
+  acts_as_hypertable
 end
 
 query = Tick.select(<<~QUERY)
@@ -167,14 +167,14 @@ create_continuous_aggregates('ohlc_1m', query, **options)
 
 ### Hypertable Helpers
 
-You can also use `HypertableHelpers` to get access to some basic scopes for your
+You can say `acts_as_hypertable` to get access to some basic scopes for your
 model:
 
 ```ruby
 class Event < ActiveRecord::Base
   self.primary_key = "identifier"
 
-  include Timescale::HypertableHelpers
+  acts_as_hypertable
 end
 ```
 
@@ -265,14 +265,17 @@ In case you want to use TimescaleDB on a Rails environment, you may have some
 issues as the schema dump used for tests is not considering hypertables
 metadata.
 
-If you add the `Timescale::HypertableHelpers` to your model, you can dynamically
-create the hypertable adding this hook to your `spec/rspec_helper.rb` file:
+If you add the `acts_as_hypertable`  to your model, you can dynamically
+verify if the `Timescale::ActsAsHypertable` module is included to
+create the hypertable for testing environment.
+
+Consider adding this hook to your `spec/rspec_helper.rb` file:
 
 ```ruby
   config.before(:suite) do
     hypertable_models = ApplicationRecord
       .descendants
-      .select{|clazz| clazz.ancestors.include?( Timescale::HypertableHelpers)}
+      .select{|clazz| clazz.included_modules.include?(Timescale::ActsAsHypertable)
     hypertable_models.each do |clazz|
       if clazz.hypertable.exists?
         ApplicationRecord.logger.info "skip recreating hypertable for '#{clazz.table_name}'."
@@ -297,7 +300,6 @@ Here is a list of functions that would be great to have:
 
 - [ ] Dump and Restore Timescale metadata - Like db/schema.rb but for Timescale configuration.
 - [ ] Add data nodes support
-- [ ] Implement the `timescale` CLI to explore the full API.
 
 ## Contributing
 

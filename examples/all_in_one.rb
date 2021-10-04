@@ -10,8 +10,7 @@ ActiveRecord::Base.establish_connection(ENV['PG_URI_TEST'])
 # Simple example
 class Event < ActiveRecord::Base
   self.primary_key = "identifier"
-
-  include Timescale::HypertableHelpers
+  acts_as_hypertable
 end
 
 # Setup Hypertable as in a migration
