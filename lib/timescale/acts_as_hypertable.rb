@@ -83,11 +83,41 @@ module Timescale
       end
 
       def define_default_scopes
-        scope :last_month, -> { where("#{time_column} > ?", 1.month.ago) }
-        scope :last_week, -> { where("#{time_column} > ?", 1.week.ago) }
-        scope :last_hour, -> { where("#{time_column} > ?", 1.hour.ago) }
-        scope :yesterday, -> { where("#{time_column} = ?", 1.day.ago.to_date) }
-        scope :today, -> { where("#{time_column} = ?", Date.today) }
+        scope :previous_month, -> do
+          where(
+            "DATE(#{time_column}) >= :start_time AND DATE(#{time_column}) <= :end_time",
+            start_time: Date.today.last_month.in_time_zone.beginning_of_month.to_date,
+            end_time: Date.today.last_month.in_time_zone.end_of_month.to_date
+          )
+        end
+
+        scope :previous_week, -> do
+          where(
+            "DATE(#{time_column}) >= :start_time AND DATE(#{time_column}) <= :end_time",
+            start_time: Date.today.last_week.in_time_zone.beginning_of_week.to_date,
+            end_time: Date.today.last_week.in_time_zone.end_of_week.to_date
+          )
+        end
+
+        scope :this_month, -> do
+          where(
+            "DATE(#{time_column}) >= :start_time AND DATE(#{time_column}) <= :end_time",
+            start_time: Date.today.in_time_zone.beginning_of_month.to_date,
+            end_time: Date.today.in_time_zone.end_of_month.to_date
+          )
+        end
+
+        scope :this_week, -> do
+          where(
+            "DATE(#{time_column}) >= :start_time AND DATE(#{time_column}) <= :end_time",
+            start_time: Date.today.in_time_zone.beginning_of_week.to_date,
+            end_time: Date.today.in_time_zone.end_of_week.to_date
+          )
+        end
+
+        scope :yesterday, -> { where("DATE(#{time_column}) = ?", Date.yesterday.in_time_zone.to_date) }
+        scope :today, -> { where("DATE(#{time_column}) = ?", Date.today.in_time_zone.to_date) }
+        scope :last_hour, -> { where("#{time_column} > ?", 1.hour.ago.in_time_zone) }
       end
 
       private

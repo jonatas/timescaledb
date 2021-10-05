@@ -1,8 +1,8 @@
 require "bundler/setup"
 require "pry"
-require 'rspec/its'
+require "rspec/its"
 require "timescale"
-require 'dotenv'
+require "dotenv"
 
 Dotenv.load!
 
@@ -100,7 +100,7 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before :suite do
+  config.before :each do
     teardown_tables
     setup_tables
   end
