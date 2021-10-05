@@ -172,8 +172,6 @@ model:
 
 ```ruby
 class Event < ActiveRecord::Base
-  self.primary_key = "identifier"
-
   acts_as_hypertable
 end
 ```
@@ -186,8 +184,6 @@ If you are using a different time_column name, you can specify it as follows whe
 
 ```ruby
 class Event < ActiveRecord::Base
-  self.primary_key = "identifier"
-
   acts_as_hypertable time_column: :timestamp
 end
 ```
@@ -208,7 +204,7 @@ To get the models' hypertable metadata, you can use `.hypertable`.
 Event.hypertable # => #<Timescale::Hypertable>
 ```
 
-To get all hypertable metadata for all hypertables: `Timescale.hypertables`
+To get hypertable metadata for all hypertables: `Timescale.hypertables`.
 
 ### Compression Settings
 
@@ -218,21 +214,21 @@ Compression settings are accessible through the hypertable.
 Event.hypertable.compression_settings # => [#<Timescale::CompressionSettings>, ...]
 ```
 
-To get all compression settings for all hypertables: `Timescale.compression_settings`.
+To get compression settings for all hypertables: `Timescale.compression_settings`.
 
 ### Scopes
 
 When you enable ActsAsHypertable on your model, we include a couple default scopes. They are:
 
-| Scope name             | Description                                           |
-|------------------------|-------------------------------------------------------|
-| `Model.previous_month` | Returns all the records created in the previous month |
-| `Model.previous_week`  | Returns all the records created in the previous week  |
-| `Model.this_month`     | Returns all the records created this month            |
-| `Model.this_week`      | Returns all the records created this week             |
-| `Model.yesterday`      | Returns all the records created yesterday             |
-| `Model.today`          | Returns all the records created today                 |
-| `Model.last_hour`      | Returns all the records created in the last hour      |
+| Scope name             | What they return                      |
+|------------------------|---------------------------------------|
+| `Model.previous_month` | Records created in the previous month |
+| `Model.previous_week`  | Records created in the previous week  |
+| `Model.this_month`     | Records created this month            |
+| `Model.this_week`      | Records created this week             |
+| `Model.yesterday`      | Records created yesterday             |
+| `Model.today`          | Records created today                 |
+| `Model.last_hour`      | Records created in the last hour      |
 
 All time-related scopes respect your application's timezone.
 
