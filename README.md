@@ -165,9 +165,9 @@ options = {
 create_continuous_aggregates('ohlc_1m', query, **options)
 ```
 
-### Hypertable Helpers
+### Enable ActsAsHypertable
 
-You can say `acts_as_hypertable` to get access to some basic scopes for your
+You can declare a Rails model as a Hypertable by invoking the `acts_as_hypertable` macro. This macro extends your existing model with timescaledb-related functionality.
 model:
 
 ```ruby
@@ -178,88 +178,65 @@ class Event < ActiveRecord::Base
 end
 ```
 
-After including the helpers, several methods from timescaledb will be available in the
-model.
+By default, ActsAsHypertable assumes a record's _time_column_ is called `created_at`.
+
+### Options
+
+If you are using a different time_column name, you can specify it as follows when invoking the `acts_as_hypertable` macro:
+
+```ruby
+class Event < ActiveRecord::Base
+  self.primary_key = "identifier"
+
+  acts_as_hypertable time_column: :timestamp
+end
+```
 
 ### Chunks
 
-To get chunks from a single hypertable, you can use the `.chunks` directly from
-the model name.
+To get all the chunks from a model's hypertable, you can use `.chunks`.
 
 ```ruby
-Event.chunks
-# DEBUG: Timescale::Chunk Load (9.0ms)  SELECT "timescaledb_information"."chunks".* FROM "timescaledb_information"."chunks" WHERE "timescaledb_information"."chunks"."hypertable_name" = $1  [["hypertable_name", "events"]]
-# => [#<Timescale::Chunk:0x00007f94b0c86008
-#   hypertable_schema: "public",
-#   hypertable_name: "events",
-#   chunk_schema: "_timescaledb_internal",
-#   chunk_name: "_hyper_180_74_chunk",
-#   primary_dimension: "created_at",
-#   primary_dimension_type: "timestamp without time zone",
-#   range_start: 2021-09-22 21:28:00 +0000,
-#   range_end: 2021-09-22 21:29:00 +0000,
-#   range_start_integer: nil,
-#   range_end_integer: nil,
-#   is_compressed: false,
-#   chunk_tablespace: nil,
-#   data_nodes: nil>
+Event.chunks # => [#<Timescale::Chunk>, ...]
 ```
 
-To get all hypertables you can use `Timescale.hypertables` method.
+### Hypertable metadata
 
-### Hypertable metadata from model
-
-To get all details from hypertable, you can access the `.hypertable` from the
-model.
+To get the models' hypertable metadata, you can use `.hypertable`.
 
 ```ruby
-Event.hypertable
-# Timescale::Hypertable Load (4.8ms)  SELECT "timescaledb_information"."hypertables".* FROM "timescaledb_information"."hypertables" WHERE "timescaledb_information"."hypertables"."hypertable_name" = $1 LIMIT $2  [["hypertable_name", "events"], ["LIMIT", 1]]
-# => #<Timescale::Hypertable:0x00007f94c3151cd8
-#  hypertable_schema: "public",
-#  hypertable_name: "events",
-#  owner: "jonatasdp",
-#  num_dimensions: 1,
-#  num_chunks: 1,
-#  compression_enabled: true,
-#  is_distributed: false,
-#  replication_factor: nil,
-#  data_nodes: nil,
-#  tablespaces: nil>
+Event.hypertable # => #<Timescale::Hypertable>
 ```
 
-You can also use `Timescale.hypertables` to have access of all hypertables
-metadata.
+To get all hypertable metadata for all hypertables: `Timescale.hypertables`
 
 ### Compression Settings
 
 Compression settings are accessible through the hypertable.
 
 ```ruby
-Event.hypertable.compression_settings
-#  Timescale::Hypertable Load (1.2ms)  SELECT "timescaledb_information"."hypertables".* FROM "timescaledb_information"."hypertables" WHERE "timescaledb_information"."hypertables"."hypertable_name" = $1 LIMIT $2  [["hypertable_name", "events"], ["LIMIT", 1]]
-#  Timescale::CompressionSettings Load (1.2ms)  SELECT "timescaledb_information"."compression_settings".* FROM "timescaledb_information"."compression_settings" WHERE "timescaledb_information"."compression_settings"."hypertable_name" = $1  [["hypertable_name", "events"]]
-# => [#<Timescale::CompressionSettings:0x00007f94b0bf7010
-#   hypertable_schema: "public",
-#   hypertable_name: "events",
-#   attname: "identifier",
-#   segmentby_column_index: 1,
-#   orderby_column_index: nil,
-#   orderby_asc: nil,
-#   orderby_nullsfirst: nil>,
-#  #<Timescale::CompressionSettings:0x00007f94b0c3e460
-#   hypertable_schema: "public",
-#   hypertable_name: "events",
-#   attname: "created_at",
-#   segmentby_column_index: nil,
-#   orderby_column_index: 1,
-#   orderby_asc: true,
-#   orderby_nullsfirst: false>]
+Event.hypertable.compression_settings # => [#<Timescale::CompressionSettings>, ...]
 ```
 
-It's also possible to access all data calling `Timescale.compression_settings`.
+To get all compression settings for all hypertables: `Timescale.compression_settings`.
 
-### RSpec Hooks
+### Scopes
+
+When you enable ActsAsHypertable on your model, we include a couple default scopes. They are:
+
+| Scope name             | Description                                           |
+|------------------------|-------------------------------------------------------|
+| `Model.previous_month` | Returns all the records created in the previous month |
+| `Model.previous_week`  | Returns all the records created in the previous week  |
+| `Model.this_month`     | Returns all the records created this month            |
+| `Model.this_week`      | Returns all the records created this week             |
+| `Model.yesterday`      | Returns all the records created yesterday             |
+| `Model.today`          | Returns all the records created today                 |
+| `Model.last_hour`      | Returns all the records created in the last hour      |
+
+All time-related scopes respect your application's timezone.
+
+## RSpec Hooks
 
 In case you want to use TimescaleDB on a Rails environment, you may have some
 issues as the schema dump used for tests is not considering hypertables
