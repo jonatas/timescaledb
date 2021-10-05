@@ -5,5 +5,14 @@ module Timescale
 
     has_many :jobs, foreign_key: "hypertable_name",
       class_name: "Timescale::Job"
+
+    has_many :chunks, foreign_key: "hypertable_name",
+      class_name: "Timescale::Chunk"
+
+    scope :resume, -> do
+      {
+        total: count
+      }
+    end
   end
 end

@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require "bundler/setup"
 require "timescale"
+require "pry"
 
 ActiveRecord::Base.establish_connection(ARGV[0])
 
@@ -8,17 +9,40 @@ Timescale::Hypertable.find_each do |hypertable|
   class_name = hypertable.hypertable_name.singularize.camelize
   model = Class.new(ActiveRecord::Base) do
     self.table_name = hypertable.hypertable_name
-    self.primary_key = self.column_names.first
     acts_as_hypertable
   end
   Timescale.const_set(class_name, model)
 end
 
+Timescale::ContinuousAggregates.find_each do |cagg|
+  class_name = cagg.view_name.singularize.camelize
+  model = Class.new(ActiveRecord::Base) do
+    self.table_name = cagg.view_name
+    acts_as_hypertable
+  end
+  Timescale.const_set(class_name, model)
+end
+
+def show(obj)
+  Pry::ColorPrinter.pp(obj)
+end
+
 if ARGV.index("--stats")
-  pp Timescale.show_stats
+  scope = Timescale::Hypertable.all
+
+  if (only = ARGV.index("--only"))
+    only_hypertables = ARGV[only+1].split(",")
+    scope = scope.where({hypertable_name: only_hypertables})
+  end
+
+  if (except = ARGV.index("--except"))
+    except_hypertables = ARGV[except+1].split(",")
+    scope = scope.where.not(hypertable_name: except_hypertables)
+  end
+
+  show(Timescale.stats(scope))
 end
 
 if ARGV.index("--console")
-  require "pry"
   Pry.start(Timescale)
 end

@@ -8,6 +8,14 @@ module Timescale
     scope :compressed, -> { where(is_compressed: true) }
     scope :uncompressed, -> { where(is_compressed: false) }
 
+    scope :resume, -> do
+      {
+        total: count,
+        compressed: compressed.count,
+        uncompressed: uncompressed.count
+      }
+    end
+
     def compress!
       execute("SELECT compress_chunk(#{chunk_relation})")
     end

@@ -1,40 +1,30 @@
 # Timescale
 
-Welcome to the Timescale gem! To experiment with the code, start cloning the
-repository:
+Welcome to the Timescale gem! To experiment with the code, start installing the
+gem:
 
 ```bash
-git clone https://github.com/jonatas/timescale.git
-cd timescale
-bundle install
-rake install
+gem install timescaledb
 ```
 
-Then, with `rake install` or installing the gem in your computer, you can run `tsdb` for an interactive prompt.
+## The `tsdb` CLI
+
+When you install the gem locally, a new command line application named `tsdb`
+will be linked in your command line.
+
+It accepts a Postgresql URI and some extra flags that can help you to get more
+info from your TimescaleDB server:
 
 ```bash
-tsdb postgres://<user>@localhost:5432/<dbname> --stats --flags
+tsdb <uri> --stats
 ```
 
-You can create a `.env` file locally to run tests locally. Make sure to put your
-own credentials there!
+Where the `<uri>` is replaced with params from your connection like:
 
 ```bash
-PG_URI_TEST="postgres://<user>@localhost:5432/<dbname>"
+tsdb postgres://<user>@localhost:5432/<dbname> --stats
 ```
 
-You can put some postgres URI directly as a parameter of
-`tsdb`. Here is an example from the console:
-
-```bash
-tsdb "postgres://jonatasdp@localhost:5432/timescale_test"
-```
-
-To join the console use `--console`:
-
-```bash
-tsdb "postgres://jonatasdp@localhost:5432/timescale_test" --console
-```
 
 Or just check the stats:
 
@@ -42,7 +32,7 @@ Or just check the stats:
 tsdb "postgres://jonatasdp@localhost:5432/timescale_test" --stats
 ```
 
-These is a sample output from an almost empty database:
+These is a sample output from database example with almost no data:
 
 ```ruby
 {:hypertables=>
@@ -54,19 +44,153 @@ These is a sample output from an almost empty database:
  :jobs_stats=>[{:success=>nil, :runs=>nil, :failures=>nil}]}
 ```
 
+To start a interactive ruby/[pry](https://github.com/pry/pry) console use `--console`:
 The console will dynamically create models for all hypertables that it finds
 in the database.
 
-It will allow you to visit any database and have all models mapped as ActiveRecord
-with the [Timescale::ActsAsHypertable](lib/timescale/acts_as_hypertable.rb).
+Let's consider the [caggs.sql](https://gist.github.com/jonatas/95573ad8744994094ec9f284150004f9#file-caggs-sql)
+as the example of database.
 
-This library was started on [twitch.tv/timescaledb](https://twitch.tv/timescaledb).
-You can watch all episodes here:
 
-1. [Wrapping Functions to Ruby Helpers](https://www.youtube.com/watch?v=hGPsUxLFAYk).
-2. [Extending ActiveRecord with Timescale Helpers](https://www.youtube.com/watch?v=IEyJIHk1Clk).
-3. [Setup Hypertables for Rails testing environment](https://www.youtube.com/watch?v=wM6hVrZe7xA).
-4. [Packing the code to this repository](https://www.youtube.com/watch?v=CMdGAl_XlL4).
+```bash
+psql postgres://jonatasdp@localhost:5432/playground -f caggs.sql
+```
+
+Then use `tsdb` in the command line with the same URI and `--stats`:
+
+```bash
+tsdb postgres://jonatasdp@localhost:5432/playground --stats
+{:hypertables=>
+  {:count=>1,
+   :uncompressed=>1,
+   :approximate_row_count=>{"ticks"=>352},
+   :chunks=>{:total=>1, :compressed=>0, :uncompressed=>1},
+   :size=>{:uncompressed=>"88 KB", :compressed=>"0 Bytes"}},
+ :continuous_aggregates=>{:total=>1},
+ :jobs_stats=>[{:success=>nil, :runs=>nil, :failures=>nil}]}
+```
+
+To have some interactive playground with the actual database using ruby, just
+try the same command before changing from `--stats` to `--console`:
+
+### tsdb --console
+
+The same database from previous example, is used so
+the context has a hypertable named `ticks` and a view named `ohlc_1m`.
+
+
+```ruby
+tsdb postgres://jonatasdp@localhost:5432/playground --console
+pry(Timescale)>
+```
+
+The `tsdb` CLI will automatically create ActiveRecord models for hypertables and
+continuous aggregates views.
+
+```ruby
+Tick
+=> Timescale::Tick(time: datetime, symbol: string, price: decimal, volume: integer)
+```
+
+Note that it's only created for this session and will never be cached in the
+library or any other place.
+
+In this case, `Tick` model comes from `ticks` hypertable that was found in the database.
+It contains several extra methods inherited from `acts_as_hypertable` macro.
+
+Let's start with the `.hypertable` method.
+
+```ruby
+Tick.hypertable
+=> #<Timescale::Hypertable:0x00007fe99c258900
+ hypertable_schema: "public",
+ hypertable_name: "ticks",
+ owner: "jonatasdp",
+ num_dimensions: 1,
+ num_chunks: 1,
+ compression_enabled: false,
+ is_distributed: false,
+ replication_factor: nil,
+ data_nodes: nil,
+ tablespaces: nil>
+```
+
+The core of the hypertables are the fragmentation of the data into chunks that
+are the child tables that distribute the data. You can check all chunks directly
+from the hypertable relation.
+
+```ruby
+Tick.hypertable.chunks
+unknown OID 2206: failed to recognize type of 'primary_dimension_type'. It will be treated as String.
+=> [#<Timescale::Chunk:0x00007fe99c31b068
+  hypertable_schema: "public",
+  hypertable_name: "ticks",
+  chunk_schema: "_timescaledb_internal",
+  chunk_name: "_hyper_33_17_chunk",
+  primary_dimension: "time",
+  primary_dimension_type: "timestamp without time zone",
+  range_start: 1999-12-30 00:00:00 +0000,
+  range_end: 2000-01-06 00:00:00 +0000,
+  range_start_integer: nil,
+  range_end_integer: nil,
+  is_compressed: false,
+  chunk_tablespace: nil,
+  data_nodes: nil>]
+```
+
+> Chunks are created by partitioning a hypertable's data into one
+> (or potentially multiple) dimensions. All hypertables are partitioned by the
+> values belonging to a time column, which may be in timestamp, date, or
+> various integer forms. If the time partitioning interval is one day,
+> for example, then rows with timestamps that belong to the same day are co-located
+> within the same chunk, while rows belonging to different days belong to different chunks.
+> Learn more [here](https://docs.timescale.com/timescaledb/latest/overview/core-concepts/hypertables-and-chunks/).
+
+Another core concept of TimescaleDB is compression. With data partitioned, it
+becomes very convenient to compress and decompress chunks independently.
+
+```ruby
+Tick.hypertable.chunks.first.compress!
+ActiveRecord::StatementInvalid: PG::FeatureNotSupported: ERROR:  compression not enabled on "ticks"
+DETAIL:  It is not possible to compress chunks on a hypertable that does not have compression enabled.
+HINT:  Enable compression using ALTER TABLE with the timescaledb.compress option.
+```
+
+As compression is not enabled, let's do it executing a plain SQL directly from
+the actual context. To borrow a connection, let's use the Tick object.
+
+```ruby
+Tick.connection.execute("ALTER TABLE ticks SET (timescaledb.compress)") # => PG_OK
+```
+
+And now, it's possible to compress and decompress:
+
+```ruby
+Tick.hypertable.chunks.first.compress!
+Tick.hypertable.chunks.first.decompress!
+```
+Learn more about TimescaleDB compression [here](https://docs.timescale.com/timescaledb/latest/overview/core-concepts/compression/).
+
+The `ohlc_1m` view is also available as an ActiveRecord:
+
+```ruby
+Ohlc1m
+=> Timescale::Ohlc1m(bucket: datetime, symbol: string, open: decimal, high: decimal, low: decimal, close: decimal, volume: integer)
+```
+
+And you can run any query as you do with regular active record queries.
+
+```ruby
+Ohlc1m.order(bucket: :desc).last
+=> #<Timescale::Ohlc1m:0x00007fe99c2c38e0
+ bucket: 2000-01-01 00:00:00 UTC,
+ symbol: "SYMBOL",
+ open: 0.13e2,
+ high: 0.3e2,
+ low: 0.1e1,
+ close: 0.1e2,
+ volume: 27600>
+```
 
 ## Installation
 
@@ -83,6 +207,7 @@ And then execute:
 Or install it yourself as:
 
     $ gem install timescaledb
+
 
 ## Usage
 
@@ -293,6 +418,33 @@ Consider adding this hook to your `spec/rspec_helper.rb` file:
 After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `tsdb` for an interactive prompt that will allow you to experiment.
 
 To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+
+You can create a `.env` file locally to run tests locally. Make sure to put your
+own credentials there!
+
+```bash
+PG_URI_TEST="postgres://<user>@localhost:5432/<dbname>"
+```
+
+You can put some postgres URI directly as a parameter of
+`tsdb`. Here is an example from the console:
+
+```bash
+tsdb "postgres://jonatasdp@localhost:5432/timescale_test"
+```
+
+## More resources
+
+This library was started on [twitch.tv/timescaledb](https://twitch.tv/timescaledb).
+You can watch all episodes here:
+
+1. [Wrapping Functions to Ruby Helpers](https://www.youtube.com/watch?v=hGPsUxLFAYk).
+2. [Extending ActiveRecord with Timescale Helpers](https://www.youtube.com/watch?v=IEyJIHk1Clk).
+3. [Setup Hypertables for Rails testing environment](https://www.youtube.com/watch?v=wM6hVrZe7xA).
+4. [Packing the code to this repository](https://www.youtube.com/watch?v=CMdGAl_XlL4).
+4. [the code to this repository](https://www.youtube.com/watch?v=CMdGAl_XlL4).
+5. [Working with Timescale continuous aggregates](https://youtu.be/co4HnBkHzVw).
+6. [Creating the command-line application in Ruby to explore the Timescale API](https://www.youtube.com/watch?v=I3vM_q2m7T0).
 
 ### TODO
 

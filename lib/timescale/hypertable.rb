@@ -1,7 +1,6 @@
 module Timescale
   class Hypertable < ActiveRecord::Base
     self.table_name = "timescaledb_information.hypertables"
-
     self.primary_key = "hypertable_name"
 
     has_many :jobs, foreign_key: "hypertable_name"
@@ -24,7 +23,8 @@ module Timescale
     end
 
     def compression_stats
-      struct_from("SELECT * from hypertable_compression_stats('#{self.hypertable_name}')").first || {}
+      @compression_stats ||=
+        struct_from("SELECT * from hypertable_compression_stats('#{self.hypertable_name}')").first || {}
     end
 
     def detailed_size

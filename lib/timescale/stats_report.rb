@@ -1,28 +1,35 @@
 require "active_support/core_ext/numeric/conversions"
+
 module Timescale
   module StatsReport
     module_function
-    def resume
+    def resume(scope=Hypertable.all)
+      base_filter = {hypertable_name: scope.pluck(:hypertable_name)}
       {
         hypertables: {
-          count: Hypertable.count,
-          uncompressed: Hypertable.all.to_a.count { |h| h.compression_stats.empty? },
-          approximate_row_count: Hypertable.all.to_a.map do |hypertable|
-              { hypertable.hypertable_name => hypertable.approximate_row_count }
-            end.inject(&:merge!),
-          chunks: {
-            total: Chunk.count,
-            compressed: Chunk.compressed.count,
-            uncompressed: Chunk.uncompressed.count
-          },
-          size: {
-            before_compressing: Hypertable.all.map{|h|h.before_total_bytes}.inject(:+).to_s(:human_size),
-            after_compressing: Hypertable.all.map{|h|h.after_total_bytes}.inject(:+).to_s(:human_size)
-          }
+          count: scope.count,
+          uncompressed: scope.to_a.count { |h| h.compression_stats.empty? },
+          approximate_row_count: approximate_row_count(scope),
+          chunks: Chunk.where(base_filter).resume,
+          size: compression_resume(scope)
         },
-        continuous_aggregates: { count: ContinuousAggregates.count },
-        jobs_stats: JobStats.resume
+        continuous_aggregates: ContinuousAggregates.where(base_filter).resume,
+        jobs_stats: JobStats.where(base_filter).resume
       }
+    end
+
+    def compression_resume(scope)
+      sum = -> (method) { (scope.map(&method).inject(:+) || 0).to_s(:human_size)}
+      {
+        uncompressed: sum[:before_total_bytes],
+        compressed: sum[:after_total_bytes]
+      }
+    end
+
+    def approximate_row_count(scope)
+      scope.to_a.map do |hypertable|
+        { hypertable.hypertable_name => hypertable.approximate_row_count }
+      end.inject(&:merge!)
     end
   end
 end
