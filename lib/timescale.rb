@@ -4,6 +4,7 @@ require_relative 'timescale/acts_as_hypertable'
 require_relative 'timescale/chunk'
 require_relative 'timescale/compression_settings'
 require_relative 'timescale/continuous_aggregates'
+require_relative 'timescale/dimensions'
 require_relative 'timescale/hypertable'
 require_relative 'timescale/job'
 require_relative 'timescale/job_stats'
@@ -38,8 +39,8 @@ module Timescale
     JobStats.all
   end
 
-  def show_stats
-    StatsReport.resume
+  def stats(scope=Hypertable.all)
+    StatsReport.resume(scope)
   end
 
   def default_hypertable_options

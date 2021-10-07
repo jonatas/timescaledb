@@ -6,9 +6,13 @@ module Timescale
     has_many :jobs, foreign_key: "hypertable_name"
     has_many :chunks, foreign_key: "hypertable_name"
 
-    has_many :compression_settings,
+    has_one :compression_settings,
       foreign_key: "hypertable_name",
       class_name: "Timescale::CompressionSettings"
+
+    has_one :dimensions,
+      foreign_key: "hypertable_name",
+      class_name: "Timescale::Dimensions"
 
     has_many :continuous_aggregates,
       foreign_key: "hypertable_name",

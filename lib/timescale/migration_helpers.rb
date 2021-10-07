@@ -21,12 +21,12 @@ module Timescale
     #  end
     def create_table(table_name, id: :primary_key, primary_key: nil, force: nil, **options)
       super
-      setup_hypertable_options(table_name, **options[:hypertable]) if options.key?(:hypertable)
+      create_hypertable(table_name, **options[:hypertable]) if options.key?(:hypertable)
     end
 
     # Setup hypertable from options
     # @see create_table with the hypertable options.
-    def setup_hypertable_options(table_name,
+    def create_hypertable(table_name,
                                  time_column: 'created_at',
                                  chunk_time_interval: '1 week',
                                  compress_segmentby: nil,

@@ -26,9 +26,9 @@ RSpec.describe Timescale::MigrationHelpers do
       }
     end
 
-    it 'call setup_hypertable_options with params' do
+    it 'call create_hypertable with params' do
       expect(ActiveRecord::Base.connection)
-        .to receive(:setup_hypertable_options)
+        .to receive(:create_hypertable)
         .with(:migration_tests, hypertable_options)
         .once
 

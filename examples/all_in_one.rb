@@ -2,10 +2,8 @@ require 'bundler/setup'
 require 'timescale'
 require 'pp'
 require 'pry'
-require 'dotenv'
-Dotenv.load!
-# set PG_URI=postgres://user:pass@host:port/db_name
-ActiveRecord::Base.establish_connection(ENV['PG_URI_TEST'])
+# ruby all_in_one.rb postgres://user:pass@host:port/db_name
+ActiveRecord::Base.establish_connection( ARGV.last)
 
 # Simple example
 class Event < ActiveRecord::Base
