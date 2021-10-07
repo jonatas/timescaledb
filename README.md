@@ -235,30 +235,30 @@ All time-related scopes respect your application's timezone.
 ## RSpec Hooks
 
 In case you want to use TimescaleDB on a Rails environment, you may have some
-issues as the schema dump used for tests is not considering hypertables
-metadata.
+issues as the schema dump used for tests does not consider hypertables metadata.
 
-If you add the `acts_as_hypertable`  to your model, you can dynamically
-verify if the `Timescale::ActsAsHypertable` module is included to
-create the hypertable for testing environment.
-
-Consider adding this hook to your `spec/rspec_helper.rb` file:
+As a work around, you can dynamically create the hypertables yourself for
+testing environments using the following hook which you can
+define in `spec/rspec_helper.rb`:
 
 ```ruby
-  config.before(:suite) do
-    hypertable_models = ApplicationRecord
-      .descendants
-      .select{|clazz| clazz.included_modules.include?(Timescale::ActsAsHypertable)
-    hypertable_models.each do |clazz|
-      if clazz.hypertable.exists?
-        ApplicationRecord.logger.info "skip recreating hypertable for '#{clazz.table_name}'."
-        next
-      end
-      ApplicationRecord.connection.execute <<~SQL
-        SELECT create_hypertable('#{clazz.table_name}', 'created_at')
-      SQL
+config.before(:suite) do
+  hypertable_models = ActiveRecord::Base.descendants.select(&:acts_as_hypertable?)
+
+  hypertable_models.each do |klass|
+    table_name = klass.table_name
+    time_column = klass.hypertable_options[:time_column]
+
+    if klass.try(:hypertable).present?
+      ApplicationRecord.logger.info "hypertable already created for '#{table_name}', skipping."
+      next
     end
+
+    ApplicationRecord.connection.execute <<~SQL
+      SELECT create_hypertable('#{table_name}', '#{time_column.to_s}')
+    SQL
   end
+end
 ```
 
 ## Development

@@ -22,3 +22,6 @@ class HypertableWithCustomTimeColumn < ActiveRecord::Base
 
   acts_as_hypertable time_column: :timestamp
 end
+
+class NonHypertable < ActiveRecord::Base
+end

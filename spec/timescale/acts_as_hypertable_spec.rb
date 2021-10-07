@@ -1,4 +1,18 @@
 RSpec.describe Timescale::ActsAsHypertable do
+  describe ".acts_as_hypertable?" do
+    context "when the model has not been declared as a hypertable" do
+      it "returns false" do
+        expect(NonHypertable.acts_as_hypertable?).to eq(false)
+      end
+    end
+
+    context "when the model has been declared as a hypertable" do
+      it "returns true" do
+        expect(HypertableWithOptions.acts_as_hypertable?).to eq(true)
+      end
+    end
+  end
+
   describe ".hypertable_options" do
     context "when non-default options are set" do
       let(:model) { HypertableWithCustomTimeColumn }

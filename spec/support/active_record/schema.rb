@@ -38,6 +38,10 @@ def setup_tables
       time_column_name: :timestamp,
       options: { time_column: 'timestamp' }
     )
+
+    create_table(:non_hypertables) do |t|
+      t.string :name
+    end
   end
 end
 
