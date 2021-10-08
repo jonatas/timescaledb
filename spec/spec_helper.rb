@@ -30,11 +30,8 @@ RSpec.configure do |config|
     c.syntax = :expect
   end
 
-  config.before(:suite) do
-    DatabaseCleaner.strategy = :truncation
-  end
-
-  config.before(:each) do
+  config.before(:each) do |example|
+    DatabaseCleaner.strategy = example.metadata.fetch(:database_cleaner_strategy, :transaction)
     DatabaseCleaner.start
   end
 
