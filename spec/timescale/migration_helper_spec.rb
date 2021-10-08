@@ -1,4 +1,4 @@
-RSpec.describe Timescale::MigrationHelpers do
+RSpec.describe Timescale::MigrationHelpers, database_cleaner_strategy: :truncation do
   describe ".create_table" do
     let(:con) { ActiveRecord::Base.connection }
 

@@ -1,6 +1,7 @@
 require 'active_record'
 
 require_relative 'timescale/acts_as_hypertable'
+require_relative 'timescale/acts_as_hypertable/core'
 require_relative 'timescale/chunk'
 require_relative 'timescale/compression_settings'
 require_relative 'timescale/continuous_aggregates'
@@ -46,8 +47,4 @@ module Timescale
   def default_hypertable_options
     Timescale::ActsAsHypertable::DEFAULT_OPTIONS
   end
-end
-
-ActiveSupport.on_load :active_record do
-  include Timescale::ActsAsHypertable
 end
