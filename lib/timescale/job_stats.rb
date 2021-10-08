@@ -4,8 +4,6 @@ module Timescale
 
     belongs_to :job
 
-    attribute :last_run_duration, :string
-
     scope :success, -> { where(last_run_status: "Success") }
     scope :scheduled, -> { where(job_status: "Scheduled") }
     scope :resume, -> do
