@@ -9,6 +9,7 @@ require_relative 'timescale/dimensions'
 require_relative 'timescale/hypertable'
 require_relative 'timescale/job'
 require_relative 'timescale/job_stats'
+require_relative 'timescale/schema_dumper'
 require_relative 'timescale/stats_report'
 require_relative 'timescale/migration_helpers'
 require_relative 'timescale/version'
@@ -46,5 +47,13 @@ module Timescale
 
   def default_hypertable_options
     Timescale::ActsAsHypertable::DEFAULT_OPTIONS
+  end
+end
+
+if defined?(Scenic)
+  require_relative 'timescale/scenic/adapter'
+
+  Scenic.configure do |config|
+    config.database = Timescale::Scenic::Adapter.new
   end
 end

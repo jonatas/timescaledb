@@ -1,5 +1,5 @@
 module Timescale
-  class ContinuousAggregates < ActiveRecord::Base
+  class ContinuousAggregate < ActiveRecord::Base
     self.table_name = "timescaledb_information.continuous_aggregates"
     self.primary_key = 'materialization_hypertable_name'
 
@@ -15,4 +15,5 @@ module Timescale
       }
     end
   end
+  ContinuousAggregates = ContinuousAggregate
 end

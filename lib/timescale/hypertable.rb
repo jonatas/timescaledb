@@ -6,17 +6,17 @@ module Timescale
     has_many :jobs, foreign_key: "hypertable_name"
     has_many :chunks, foreign_key: "hypertable_name"
 
-    has_one :compression_settings,
+    has_many :compression_settings,
       foreign_key: "hypertable_name",
-      class_name: "Timescale::CompressionSettings"
+      class_name: "Timescale::CompressionSetting"
 
     has_one :dimensions,
       foreign_key: "hypertable_name",
-      class_name: "Timescale::Dimensions"
+      class_name: "Timescale::Dimension"
 
     has_many :continuous_aggregates,
       foreign_key: "hypertable_name",
-      class_name: "Timescale::ContinuousAggregates"
+      class_name: "Timescale::ContinuousAggregate"
 
     def chunks_detailed_size
       struct_from "SELECT * from chunks_detailed_size('#{self.hypertable_name}')"

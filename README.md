@@ -211,7 +211,7 @@ Or install it yourself as:
 
 ## Usage
 
-You can check the [all_in_one.rb](examples/all_in_one.rb) that will:
+You can check the [all_in_one.rb](examples/all_in_one.rb) example that will:
 
 1. Create hypertable with compression settings
 2. Insert data
@@ -243,7 +243,7 @@ create_table(:events, id: false, hypertable: hypertable_options) do |t|
 end
 ```
 
-#### create_continuous_aggregates
+#### create_continuous_aggregate
 
 This example shows a ticks table grouping ticks as OHLCV histograms for every
 minute.
@@ -287,8 +287,18 @@ options = {
   }
 }
 
-create_continuous_aggregates('ohlc_1m', query, **options)
+create_continuous_aggregate('ohlc_1m', query, **options)
 ```
+
+#### Scenic integration
+
+The [Scenic](https://github.com/scenic-views/scenic) gem is an easy way to
+manage database view definitions for a Rails application. TimescaleDB's
+continuous aggregates are more complex than regular PostgreSQL views, and
+the schema dumper included with Scenic can't dump a complete definition.
+
+This gem automatically configures Scenic to use a `Timescale::Scenic::Adapter`
+which will correctly handle schema dumping.
 
 ### Enable ActsAsHypertable
 

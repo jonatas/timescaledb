@@ -3,6 +3,7 @@ PATH
   specs:
     timescaledb (0.1.4)
       activerecord
+      activesupport
       pg (~> 1.2)
 
 GEM
@@ -69,4 +70,4 @@ DEPENDENCIES
   timescaledb!
 
 BUNDLED WITH
-   2.1.4
+   2.2.31

@@ -51,7 +51,28 @@ module Timescale
       end
     end
 
-    def create_continuous_aggregates(name, query, **options)
+    # Create a new continuous aggregate
+    #
+    # @param name [String, Symbol] The name of the continuous aggregate.
+    # @param query [String] The SQL query for the aggregate view definition.
+    # @param with_data [Boolean] Set to true to create the aggregate WITH DATA
+    # @param refresh_policies [Hash] Set to create a refresh policy
+    # @option refresh_policies [String] start_offset: INTERVAL or integer
+    # @option refresh_policies [String] end_offset: INTERVAL or integer
+    # @option refresh_policies [String] schedule_interval: INTERVAL
+    #
+    # @see https://docs.timescale.com/api/latest/continuous-aggregates/add_continuous_aggregate_policy/
+    #
+    # @example
+    #   create_continuous_aggregate(:activity_counts, query: <<-SQL, refresh_policies: { schedule_interval: "INTERVAL '1 hour'" })
+    #     SELECT
+    #       time_bucket(INTERVAL '1 day', activity.created_at) AS bucket,
+    #       count(*)
+    #     FROM activity
+    #     GROUP BY bucket
+    #   SQL
+    #
+    def create_continuous_aggregate(name, query, **options)
       execute <<~SQL
         CREATE MATERIALIZED VIEW #{name}
         WITH (timescaledb.continuous) AS
@@ -68,6 +89,15 @@ module Timescale
             schedule_interval => #{policy[:schedule_interval]});
         SQL
       end
+    end
+    alias_method :create_continuous_aggregates, :create_continuous_aggregate
+
+    def create_retention_policy(table_name, interval:)
+      execute "SELECT add_retention_policy('#{table_name}', INTERVAL '#{interval}')"
+    end
+
+    def remove_retention_policy(table_name)
+      execute "SELECT remove_retention_policy('#{table_name}')"
     end
   end
 end

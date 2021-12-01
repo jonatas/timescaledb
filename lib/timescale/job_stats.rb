@@ -1,5 +1,5 @@
 module Timescale
-  class JobStats < ActiveRecord::Base
+  class JobStat < ActiveRecord::Base
     self.table_name = "timescaledb_information.job_stats"
 
     belongs_to :job
@@ -13,4 +13,5 @@ module Timescale
         .to_a.map{|e|e.attributes.transform_keys(&:to_sym) }
     end
   end
+  JobStats = JobStat
 end
