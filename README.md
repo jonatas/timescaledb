@@ -398,7 +398,7 @@ end
 
 ## Development
 
-After checking out the repo, run `bin/setup` to install the development dependencies. Then, `bundle exec rake test:setup` to setup the test database and tables. Finally, run `bundle exec rspec` to run the tests.
+After checking out the repo, run `bin/setup` to install the development dependencies. Then, `bundle exec rake test:setup` to setup the test database and tables. Finally, run `bundle exec rake` to run the tests.
 
 You can also run `tsdb` for an interactive prompt that will allow you to experiment.
 

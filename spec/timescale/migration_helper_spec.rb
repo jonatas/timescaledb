@@ -82,13 +82,13 @@ RSpec.describe Timescale::MigrationHelpers, database_cleaner_strategy: :truncati
       }
     end
 
-   let(:model) do
-     Tick = Class.new(ActiveRecord::Base) do
-       self.table_name = 'ticks'
-       self.primary_key = 'symbol'
+    let(:model) do
+      Tick = Class.new(ActiveRecord::Base) do
+        self.table_name = 'ticks'
+        self.primary_key = 'symbol'
 
-       acts_as_hypertable
-     end
+        acts_as_hypertable
+      end
     end
 
     let(:query) do

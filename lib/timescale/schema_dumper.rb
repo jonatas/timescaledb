@@ -1,4 +1,5 @@
 require 'active_record/connection_adapters/postgresql_adapter'
+require 'active_support/core_ext/string/indent'
 
 module Timescale
   module SchemaDumper
@@ -17,7 +18,7 @@ module Timescale
 
     def views(stream)
       timescale_continuous_aggregates(stream) # Define these before any Scenic views that might use them
-      super
+      super if defined?(super)
     end
 
     private
