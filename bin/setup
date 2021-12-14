@@ -7,5 +7,7 @@ set -vx
 
 bundle install
 
+bundle install --gemfile Gemfile.scenic
+
 # For running tests it's going to use PG_URI_TEST env variable.
 # Please make sure  you set it properly to a TEST database!"
