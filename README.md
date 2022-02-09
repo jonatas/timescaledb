@@ -211,6 +211,8 @@ Or install it yourself as:
 
 ## Usage
 
+Check the [examples/ranking](examples/ranking) to get a Rails complete example.
+
 You can check the [all_in_one.rb](examples/all_in_one/all_in_one.rb) example that will:
 
 1. Create hypertable with compression settings
@@ -220,6 +222,11 @@ You can check the [all_in_one.rb](examples/all_in_one/all_in_one.rb) example tha
 5. Compress a chunk
 6. Check chunk status
 7. Decompress a chunk
+
+### Testing
+
+If you need some inspiration for how are you going to test your hypertables,
+please check the [spec/spec_helper.rb](spec/spec_helper.rb) for inspiration.
 
 ### Migrations
 
