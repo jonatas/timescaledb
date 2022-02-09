@@ -9,7 +9,7 @@ There are two tables:
 
 Interesting things to observe here:
 
-* The gem is required on [config/initializers/timescale.rb]().
+* The gem is required on [config/initializers/timescale.rb](./config/initializers/timescale.rb).
 * The [hypertable creation](db/migrate/20220209120910_create_plays.rb) is also with the `enable_extension` command time.
 * See how the [play model](app/models/play.rb) uses [acts_as_hypertable](../../lib/timescale/acts_as_hypertable.rb).
 
@@ -25,7 +25,7 @@ Play.create(game: lol,
   score: (rand * 100).to_i,
   total_time: (rand * 1000).to_i)
 ```
-You can also insert a few hundreds/thousands/milions of records to test it properly.
+You can also insert a few hundreds/thousands/millions of records to test it properly.
 
 ```ruby
 100.times do
@@ -35,7 +35,7 @@ You can also insert a few hundreds/thousands/milions of records to test it prope
 end
 ```
 
-You can play with multiple games and milions of play records to make it an impressive playground if you want :wink:
+You can play with multiple games and millions of play records to make it an impressive playground if you want :wink:
 
 
 Then you can experiment with the [time_bucket][time_bucket] funciton.
@@ -134,7 +134,7 @@ The lib also contains a [schema_dumper](../../lib/timescale/schema_dumper.rb) th
 rails db:schema:dump
 ```
 
-Confirm that the hypertable is on [db/schema.rb]() file:
+Confirm that the hypertable is on [db/schema.rb](db/schema.rb) file:
 
 ```
  grep hypertable db/schema.rb
