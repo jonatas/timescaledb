@@ -156,6 +156,9 @@ GEM
       thor (~> 1.0)
       zeitwerk (~> 2.5)
     rake (13.0.6)
+    scenic (1.5.5)
+      activerecord (>= 4.0.0)
+      railties (>= 4.0.0)
     strscan (3.0.1)
     thor (1.2.1)
     timeout (0.2.0)
@@ -175,6 +178,7 @@ DEPENDENCIES
   pry-rails
   puma (~> 5.0)
   rails (~> 7.0.2)
+  scenic (~> 1.5)
   timescaledb!
   tzinfo-data
 

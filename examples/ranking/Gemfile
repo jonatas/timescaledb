@@ -29,3 +29,5 @@ group :development do
   # gem "spring"
 end
 
+
+gem "scenic", "~> 1.5"
