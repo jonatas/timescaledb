@@ -19,7 +19,7 @@ module Timescale
     end
 
     def compression_resume(scope)
-      sum = -> (method) { (scope.map(&method).inject(:+) || 0).to_s(:human_size)}
+      sum = -> (method) { (scope.map(&method).inject(:+) || 0).to_formatted_s(:human_size)}
       {
         uncompressed: sum[:before_total_bytes],
         compressed: sum[:after_total_bytes]
