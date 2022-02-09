@@ -53,10 +53,12 @@ end
 begin
   require 'scenic'
   require_relative 'timescale/scenic/adapter'
+  require_relative 'timescale/scenic/extension'
 
   Scenic.configure do |config|
     config.database = Timescale::Scenic::Adapter.new
   end
+
 rescue LoadError
   # This is expected when the scenic gem is not being used
 end

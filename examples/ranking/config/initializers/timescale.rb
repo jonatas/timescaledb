@@ -1,1 +1,3 @@
 require 'timescale'
+require 'scenic'
+

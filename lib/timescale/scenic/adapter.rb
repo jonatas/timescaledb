@@ -45,7 +45,7 @@ module Timescale
       # definition, since it's not part of the DDL).
       #
       # Our schema dumper implementation will handle dumping the continuous
-      # aggregate definintions, but we need to override Scenic's schema dumping
+      # aggregate definitions, but we need to override Scenic's schema dumping
       # to exclude those continuous aggregates.
       def views
         Views.new(connection).all

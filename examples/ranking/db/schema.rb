@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2022_02_09_120910) do
+ActiveRecord::Schema[7.0].define(version: 2022_02_09_143347) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
   enable_extension "timescaledb"
@@ -33,4 +33,15 @@ ActiveRecord::Schema[7.0].define(version: 2022_02_09_120910) do
   end
 
   create_hypertable "plays", time_column: "created_at", chunk_time_interval: "1 minute", compress_segmentby: "game_id", compress_orderby: "created_at ASC", compression_interval: "P7D"
+
+  create_continuous_aggregate("score_per_hours", <<-SQL)
+    SELECT plays.game_id,
+      time_bucket('PT1H'::interval, plays.created_at) AS bucket,
+      avg(plays.score) AS avg,
+      max(plays.score) AS max,
+      min(plays.score) AS min
+     FROM plays
+    GROUP BY plays.game_id, (time_bucket('PT1H'::interval, plays.created_at))
+  SQL
+
 end

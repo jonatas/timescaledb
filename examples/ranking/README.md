@@ -149,6 +149,18 @@ And you can also reload the configuration manually in the test environment:
 RAILS_ENV=test rails db:schema:load
 ```
 
+## Scenic views
+
+If you use [scenic](https://github.com/scenic-views/scenic) views, it will
+automatically recognize and dump the views.
+
+Check the [view migration](db/migrate/20220209143347_create_score_per_hours.rb)
+and the correspondent view defined in the [sql file](db/views/score_per_hours_v01.sql).
+
+> Note that scenic is not fully compatible with timescaledb continous aggregates
+> and we created a [helper](../../lib/timescale/scenic/extension.rb) to make it
+> easy to use along with scenic.
+
 [hypertable]: https://docs.timescale.com/timescaledb/latest/how-to-guides/hypertables/
 [time_bucket]: https://docs.timescale.com/api/latest/hyperfunctions/time_bucket/
 
