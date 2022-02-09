@@ -211,7 +211,7 @@ Or install it yourself as:
 
 ## Usage
 
-You can check the [all_in_one.rb](examples/all_in_one.rb) example that will:
+You can check the [all_in_one.rb](examples/all_in_one/all_in_one.rb) example that will:
 
 1. Create hypertable with compression settings
 2. Insert data
