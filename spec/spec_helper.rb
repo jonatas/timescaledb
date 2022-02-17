@@ -1,7 +1,7 @@
 require "bundler/setup"
 require "pry"
 require "rspec/its"
-require "timescale"
+require "timescaledb"
 require "dotenv"
 require "database_cleaner/active_record"
 require_relative "support/active_record/models"

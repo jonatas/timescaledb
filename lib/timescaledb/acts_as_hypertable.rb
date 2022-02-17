@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Timescale
+module Timescaledb
   # If you want your model to hook into its underlying hypertable
   # as well as have access to TimescaleDB specific data, methods, and more,
   # specify this macro in your model.
@@ -10,7 +10,7 @@ module Timescale
   #
   # @see https://docs.timescale.com/api/latest/hypertable/create_hypertable/ for
   #   how to use the SQL `create_hypertable` function.
-  # @see Timescale::MigrationHelpers#create_table for how to create a new hypertable
+  # @see Timescaledb::MigrationHelpers#create_table for how to create a new hypertable
   # via a Rails migration utilizing the standard `create_table` method.
   #
   # @example Enabling the macro on your model
@@ -18,7 +18,7 @@ module Timescale
   #     acts_as_hypertable
   #   end
   #
-  # @see Timescale::ActsAsHypertable#acts_as_hypertable
+  # @see Timescaledb::ActsAsHypertable#acts_as_hypertable
   #   for configuration options
   module ActsAsHypertable
     DEFAULT_OPTIONS = {
@@ -26,7 +26,7 @@ module Timescale
     }.freeze
 
     def acts_as_hypertable?
-      included_modules.include?(Timescale::ActsAsHypertable::Core)
+      included_modules.include?(Timescaledb::ActsAsHypertable::Core)
     end
 
     # == Configuration options
@@ -45,7 +45,7 @@ module Timescale
     def acts_as_hypertable(options = {})
       return if acts_as_hypertable?
 
-      include Timescale::ActsAsHypertable::Core
+      include Timescaledb::ActsAsHypertable::Core
 
       class_attribute :hypertable_options, instance_writer: false
 
@@ -59,4 +59,4 @@ module Timescale
   end
 end
 
-ActiveRecord::Base.extend Timescale::ActsAsHypertable
+ActiveRecord::Base.extend Timescaledb::ActsAsHypertable

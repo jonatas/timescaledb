@@ -1,4 +1,4 @@
-RSpec.describe Timescale::MigrationHelpers, database_cleaner_strategy: :truncation do
+RSpec.describe Timescaledb::MigrationHelpers, database_cleaner_strategy: :truncation do
   describe ".create_table" do
     let(:con) { ActiveRecord::Base.connection }
 
@@ -37,7 +37,7 @@ RSpec.describe Timescale::MigrationHelpers, database_cleaner_strategy: :truncati
 
     context 'with hypertable options' do
       let(:hypertable) do
-        Timescale::Hypertable.find_by(hypertable_name: :migration_tests)
+        Timescaledb::Hypertable.find_by(hypertable_name: :migration_tests)
       end
 
       it 'enables compression' do

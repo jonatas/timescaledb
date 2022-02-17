@@ -1,7 +1,7 @@
 require 'scenic/adapters/postgres'
 require 'scenic/adapters/postgres/views'
 
-module Timescale
+module Timescaledb
   module Scenic
     class Views < ::Scenic::Adapters::Postgres::Views
       # All of the views that this connection has defined, excluding any

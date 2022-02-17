@@ -1,7 +1,7 @@
 require 'active_record/connection_adapters/postgresql_adapter'
 
 # Useful methods to run TimescaleDB in you Ruby app.
-module Timescale
+module Timescaledb
   # Migration helpers can help you to setup hypertables by default.
   module MigrationHelpers
     # create_table can receive `hypertable` argument
@@ -102,4 +102,4 @@ module Timescale
   end
 end
 
-ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.include(Timescale::MigrationHelpers)
+ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.include(Timescaledb::MigrationHelpers)

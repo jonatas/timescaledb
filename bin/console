@@ -11,7 +11,7 @@ end
 
 ActiveRecord::Base.establish_connection(ARGV[0] || uri_from_test)
 
-Timescale::Hypertable.find_each do |hypertable|
+Timescaledb::Hypertable.find_each do |hypertable|
   class_name = hypertable.hypertable_name.singularize.camelize
 
   model = Class.new(ActiveRecord::Base) do
@@ -21,7 +21,7 @@ Timescale::Hypertable.find_each do |hypertable|
     acts_as_hypertable
   end
 
-  Timescale.const_set(class_name, model)
+  Timescaledb.const_set(class_name, model)
 end
 
 require "pry"

@@ -1,4 +1,4 @@
-module Timescale
+module Timescaledb
   class Job < ActiveRecord::Base
     self.table_name = "timescaledb_information.jobs"
     self.primary_key = "job_id"

@@ -1,6 +1,6 @@
 require "active_support/core_ext/numeric/conversions"
 
-module Timescale
+module Timescaledb
   module StatsReport
     module_function
     def resume(scope=Hypertable.all)

@@ -1,4 +1,4 @@
-module Timescale
+module Timescaledb
   class JobStat < ActiveRecord::Base
     self.table_name = "timescaledb_information.job_stats"
 

@@ -5,22 +5,22 @@ require "pry"
 
 ActiveRecord::Base.establish_connection(ARGV[0])
 
-Timescale::Hypertable.find_each do |hypertable|
+Timescaledb::Hypertable.find_each do |hypertable|
   class_name = hypertable.hypertable_name.singularize.camelize
   model = Class.new(ActiveRecord::Base) do
     self.table_name = hypertable.hypertable_name
     acts_as_hypertable
   end
-  Timescale.const_set(class_name, model)
+  Timescaledb.const_set(class_name, model)
 end
 
-Timescale::ContinuousAggregates.find_each do |cagg|
+Timescaledb::ContinuousAggregates.find_each do |cagg|
   class_name = cagg.view_name.singularize.camelize
   model = Class.new(ActiveRecord::Base) do
     self.table_name = cagg.view_name
     acts_as_hypertable
   end
-  Timescale.const_set(class_name, model)
+  Timescaledb.const_set(class_name, model)
 end
 
 def show(obj)
@@ -28,7 +28,7 @@ def show(obj)
 end
 
 if ARGV.index("--stats")
-  scope = Timescale::Hypertable.all
+  scope = Timescaledb::Hypertable.all
 
   if (only = ARGV.index("--only"))
     only_hypertables = ARGV[only+1].split(",")
@@ -40,7 +40,7 @@ if ARGV.index("--stats")
     scope = scope.where.not(hypertable_name: except_hypertables)
   end
 
-  show(Timescale.stats(scope))
+  show(Timescaledb.stats(scope))
 end
 
 if ARGV.index("--console")

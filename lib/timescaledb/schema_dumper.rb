@@ -1,7 +1,7 @@
 require 'active_record/connection_adapters/postgresql_adapter'
 require 'active_support/core_ext/string/indent'
 
-module Timescale
+module Timescaledb
   module SchemaDumper
     def tables(stream)
       super # This will call #table for each table in the database
@@ -10,7 +10,7 @@ module Timescale
 
     def table(table_name, stream)
       super(table_name, stream)
-      if hypertable = Timescale::Hypertable.find_by(hypertable_name: table_name)
+      if hypertable = Timescaledb::Hypertable.find_by(hypertable_name: table_name)
         timescale_hypertable(hypertable, stream)
         timescale_retention_policy(hypertable, stream)
       end
@@ -58,7 +58,7 @@ module Timescale
     end
 
     def timescale_continuous_aggregates(stream)
-      Timescale::ContinuousAggregates.all.each do |aggregate|
+      Timescaledb::ContinuousAggregates.all.each do |aggregate|
         opts = if (refresh_policy = aggregate.jobs.refresh_continuous_aggregate.first)
                  interval = timescale_interval(refresh_policy.schedule_interval)
                  end_offset = timescale_interval(refresh_policy.config["end_offset"])
@@ -85,4 +85,4 @@ module Timescale
   end
 end
 
-ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaDumper.prepend(Timescale::SchemaDumper)
+ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaDumper.prepend(Timescaledb::SchemaDumper)
