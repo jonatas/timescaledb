@@ -1,6 +1,6 @@
 # README
 
-This example application is a "Scoring" service that stores "games" and "plays" of the games in question.  
+This example application is a "Scoring" service that stores "games" and "plays" of the games in question.
 
 There are two tables:
 
@@ -51,7 +51,7 @@ When the model contains the `acts_as_hypertable` macro, it's possible to navigat
 
 ```ruby
  Play.hypertable
- # => #<Timescale::Hypertable:0x00007faa97df7e30
+ # => #<Timescaledb::Hypertable:0x00007faa97df7e30
  # hypertable_schema: "public",
  # hypertable_name: "plays",
  # owner: "jonatasdp",
@@ -84,10 +84,10 @@ Play.hypertable.chunks.resume
 # => {:total=>2, :compressed=>0, :uncompressed=>2}
 ```
 
-To get a full stats from all hypertables, you can see `Timescale.stats`:
+To get a full stats from all hypertables, you can see `Timescaledb.stats`:
 
 ```ruby
-Timescale.stats
+Timescaledb.stats
  # => {:hypertables=>
  #  {:count=>1,
  #   :uncompressed=>0,
@@ -106,7 +106,7 @@ Play.hypertable.chunks.each(&:compress!)
 Calling `stats` to check the compressed size:
 
 ```ruby
-Timescale.stats
+Timescaledb.stats
  #  {:count=>1,  ...
  #   :size=>
  #    {:uncompressed=>"1.2 MB",

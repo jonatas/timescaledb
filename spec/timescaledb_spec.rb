@@ -1,10 +1,10 @@
-RSpec.describe Timescale do
+RSpec.describe Timescaledb do
   it "has a version number" do
-    expect(Timescale::VERSION).not_to be nil
+    expect(Timescaledb::VERSION).not_to be nil
   end
 
   describe ".chunks" do
-    subject { Timescale.chunks }
+    subject { Timescaledb.chunks }
 
     context "when no data is inserted" do
       it { is_expected.to be_empty }
@@ -27,7 +27,7 @@ RSpec.describe Timescale do
   end
 
   describe ".hypertables" do
-    subject { Timescale.hypertables }
+    subject { Timescaledb.hypertables }
 
     context "with default example from main setup" do
       it { is_expected.not_to be_empty }
@@ -39,8 +39,8 @@ RSpec.describe Timescale do
   end
 
   describe ".default_hypertable_options" do
-    subject { Timescale.default_hypertable_options }
+    subject { Timescaledb.default_hypertable_options }
 
-    it { is_expected.to eq(Timescale::ActsAsHypertable::DEFAULT_OPTIONS) }
+    it { is_expected.to eq(Timescaledb::ActsAsHypertable::DEFAULT_OPTIONS) }
   end
 end

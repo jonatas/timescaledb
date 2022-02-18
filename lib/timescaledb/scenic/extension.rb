@@ -1,5 +1,5 @@
 # Scenic does not include `WITH` option that is used with continuous aggregates.
-module Timescale
+module Timescaledb
   module Scenic
     module Extension
       # @override Scenic::Adapters::Postgres#create_materialized_view
@@ -68,5 +68,5 @@ module Timescale
 end
 
 
-ActiveRecord::ConnectionAdapters::AbstractAdapter.include(Timescale::Scenic::MigrationHelpers)
-Scenic::Adapters::Postgres.prepend(Timescale::Scenic::Extension)
+ActiveRecord::ConnectionAdapters::AbstractAdapter.include(Timescaledb::Scenic::MigrationHelpers)
+Scenic::Adapters::Postgres.prepend(Timescaledb::Scenic::Extension)

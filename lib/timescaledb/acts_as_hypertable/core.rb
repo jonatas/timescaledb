@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Timescale
+module Timescaledb
   module ActsAsHypertable
     module Core
       def self.included(base)

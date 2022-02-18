@@ -1,4 +1,4 @@
-RSpec.describe Timescale::ActsAsHypertable do
+RSpec.describe Timescaledb::ActsAsHypertable do
   describe ".acts_as_hypertable?" do
     context "when the model has not been declared as a hypertable" do
       it "returns false" do
@@ -19,7 +19,7 @@ RSpec.describe Timescale::ActsAsHypertable do
 
       it "uses the non-default options" do
         aggregate_failures do
-          expect(model.hypertable_options).not_to eq(Timescale.default_hypertable_options)
+          expect(model.hypertable_options).not_to eq(Timescaledb.default_hypertable_options)
           expect(model.hypertable_options[:time_column]).to eq(:timestamp)
         end
       end
@@ -29,7 +29,7 @@ RSpec.describe Timescale::ActsAsHypertable do
       let(:model) { HypertableWithNoOptions }
 
       it "uses the default options" do
-        expect(model.hypertable_options).to eq(Timescale.default_hypertable_options)
+        expect(model.hypertable_options).to eq(Timescaledb.default_hypertable_options)
       end
     end
   end

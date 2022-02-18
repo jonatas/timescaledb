@@ -1,4 +1,4 @@
-RSpec.describe Timescale::SchemaDumper, database_cleaner_strategy: :truncation do
+RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation do
   let(:con) { ActiveRecord::Base.connection }
 
   let(:query) do

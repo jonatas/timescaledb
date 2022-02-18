@@ -1,6 +1,6 @@
-# Timescale
+# TimescaleDB
 
-Welcome to the Timescale gem! To experiment with the code, start installing the
+Welcome to the TimescaleDB gem! To experiment with the code, start installing the
 gem:
 
 ```bash
@@ -29,7 +29,7 @@ tsdb postgres://<user>@localhost:5432/<dbname> --stats
 Or just check the stats:
 
 ```bash
-tsdb "postgres://jonatasdp@localhost:5432/timescale_test" --stats
+tsdb "postgres://jonatasdp@localhost:5432/timescaledb_test" --stats
 ```
 
 These is a sample output from database example with almost no data:
@@ -89,7 +89,7 @@ continuous aggregates views.
 
 ```ruby
 Tick
-=> Timescale::Tick(time: datetime, symbol: string, price: decimal, volume: integer)
+=> Timescaledb::Tick(time: datetime, symbol: string, price: decimal, volume: integer)
 ```
 
 Note that it's only created for this session and will never be cached in the
@@ -102,7 +102,7 @@ Let's start with the `.hypertable` method.
 
 ```ruby
 Tick.hypertable
-=> #<Timescale::Hypertable:0x00007fe99c258900
+=> #<Timescaledb::Hypertable:0x00007fe99c258900
  hypertable_schema: "public",
  hypertable_name: "ticks",
  owner: "jonatasdp",
@@ -122,7 +122,7 @@ from the hypertable relation.
 ```ruby
 Tick.hypertable.chunks
 unknown OID 2206: failed to recognize type of 'primary_dimension_type'. It will be treated as String.
-=> [#<Timescale::Chunk:0x00007fe99c31b068
+=> [#<Timescaledb::Chunk:0x00007fe99c31b068
   hypertable_schema: "public",
   hypertable_name: "ticks",
   chunk_schema: "_timescaledb_internal",
@@ -175,14 +175,14 @@ The `ohlc_1m` view is also available as an ActiveRecord:
 
 ```ruby
 Ohlc1m
-=> Timescale::Ohlc1m(bucket: datetime, symbol: string, open: decimal, high: decimal, low: decimal, close: decimal, volume: integer)
+=> Timescaledb::Ohlc1m(bucket: datetime, symbol: string, open: decimal, high: decimal, low: decimal, close: decimal, volume: integer)
 ```
 
 And you can run any query as you do with regular active record queries.
 
 ```ruby
 Ohlc1m.order(bucket: :desc).last
-=> #<Timescale::Ohlc1m:0x00007fe99c2c38e0
+=> #<Timescaledb::Ohlc1m:0x00007fe99c2c38e0
  bucket: 2000-01-01 00:00:00 UTC,
  symbol: "SYMBOL",
  open: 0.13e2,
@@ -304,7 +304,7 @@ manage database view definitions for a Rails application. TimescaleDB's
 continuous aggregates are more complex than regular PostgreSQL views, and
 the schema dumper included with Scenic can't dump a complete definition.
 
-This gem automatically configures Scenic to use a `Timescale::Scenic::Adapter`
+This gem automatically configures Scenic to use a `Timescaledb::Scenic::Adapter`
 which will correctly handle schema dumping.
 
 ### Enable ActsAsHypertable
@@ -335,7 +335,7 @@ end
 To get all the chunks from a model's hypertable, you can use `.chunks`.
 
 ```ruby
-Event.chunks # => [#<Timescale::Chunk>, ...]
+Event.chunks # => [#<Timescaledb::Chunk>, ...]
 ```
 
 ### Hypertable metadata
@@ -343,20 +343,20 @@ Event.chunks # => [#<Timescale::Chunk>, ...]
 To get the models' hypertable metadata, you can use `.hypertable`.
 
 ```ruby
-Event.hypertable # => #<Timescale::Hypertable>
+Event.hypertable # => #<Timescaledb::Hypertable>
 ```
 
-To get hypertable metadata for all hypertables: `Timescale.hypertables`.
+To get hypertable metadata for all hypertables: `Timescaledb.hypertables`.
 
 ### Compression Settings
 
 Compression settings are accessible through the hypertable.
 
 ```ruby
-Event.hypertable.compression_settings # => [#<Timescale::CompressionSettings>, ...]
+Event.hypertable.compression_settings # => [#<Timescaledb::CompressionSettings>, ...]
 ```
 
-To get compression settings for all hypertables: `Timescale.compression_settings`.
+To get compression settings for all hypertables: `Timescaledb.compression_settings`.
 
 ### Scopes
 
@@ -422,7 +422,7 @@ You can put some postgres URI directly as a parameter of
 `tsdb`. Here is an example from the console:
 
 ```bash
-tsdb "postgres://jonatasdp@localhost:5432/timescale_test"
+tsdb "postgres://jonatasdp@localhost:5432/timescaledb_test"
 ```
 
 ## More resources
