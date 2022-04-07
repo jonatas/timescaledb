@@ -72,25 +72,33 @@ module Timescaledb
     #     GROUP BY bucket
     #   SQL
     #
-    def create_continuous_aggregate(name, query, **options)
+    def create_continuous_aggregate(table_name, query, **options)
       execute <<~SQL
-        CREATE MATERIALIZED VIEW #{name}
+        CREATE MATERIALIZED VIEW #{table_name}
         WITH (timescaledb.continuous) AS
         #{query.respond_to?(:to_sql) ? query.to_sql : query}
         WITH #{"NO" unless options[:with_data]} DATA;
       SQL
 
+      create_continuous_aggregate_policy(table_name, options)
+    end
+    alias_method :create_continuous_aggregates, :create_continuous_aggregate
+
+    def create_continuous_aggregate_policy(table_name, **options)
       if (policy = options[:refresh_policies])
         # TODO: assert valid keys
         execute <<~SQL
-          SELECT add_continuous_aggregate_policy('#{name}',
+          SELECT add_continuous_aggregate_policy('#{table_name}',
             start_offset => #{policy[:start_offset]},
             end_offset => #{policy[:end_offset]},
             schedule_interval => #{policy[:schedule_interval]});
         SQL
       end
     end
-    alias_method :create_continuous_aggregates, :create_continuous_aggregate
+
+    def remove_continuous_aggregate_policy(table_name)
+      execute "SELECT remove_continuous_aggregate_policy('#{table_name}')"
+    end
 
     def create_retention_policy(table_name, interval:)
       execute "SELECT add_retention_policy('#{table_name}', INTERVAL '#{interval}')"
