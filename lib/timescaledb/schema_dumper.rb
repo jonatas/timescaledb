@@ -10,7 +10,8 @@ module Timescaledb
 
     def table(table_name, stream)
       super(table_name, stream)
-      if hypertable = Timescaledb::Hypertable.find_by(hypertable_name: table_name)
+      if Timescaledb::Hypertable.table_exists? &&
+         (hypertable = Timescaledb::Hypertable.find_by(hypertable_name: table_name))
         timescale_hypertable(hypertable, stream)
         timescale_retention_policy(hypertable, stream)
       end
