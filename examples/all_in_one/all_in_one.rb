@@ -1,5 +1,5 @@
 require 'bundler/setup'
-require 'timescale'
+require 'timescaledb'
 require 'pp'
 require 'pry'
 # ruby all_in_one.rb postgres://user:pass@host:port/db_name

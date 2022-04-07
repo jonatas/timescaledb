@@ -1,3 +1,2 @@
-require 'timescale'
+require 'timescaledb'
 require 'scenic'
-
