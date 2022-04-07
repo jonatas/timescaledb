@@ -18,7 +18,7 @@ module Timescaledb
     end
 
     def views(stream)
-      timescale_continuous_aggregates(stream) # Define these before any Scenic views that might use them
+      timescale_continuous_aggregates(stream) if Timescaledb::ContinuousAggregates.table_exists? # Define these before any Scenic views that might use them
       super if defined?(super)
     end
 
