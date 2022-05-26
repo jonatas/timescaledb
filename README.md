@@ -442,7 +442,6 @@ You can watch all episodes here:
 
 Here is a list of functions that would be great to have:
 
-- [ ] Dump and Restore Timescale metadata - Like db/schema.rb but for Timescale configuration.
 - [ ] Add data nodes support
 
 ## Contributing
