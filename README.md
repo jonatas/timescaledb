@@ -29,7 +29,7 @@ tsdb postgres://<user>@localhost:5432/<dbname> --stats
 Or just check the stats:
 
 ```bash
-tsdb "postgres://jonatasdp@localhost:5432/timescaledb_test" --stats
+tsdb "postgres://<user>@localhost:5432/timescaledb_test" --stats
 ```
 
 These is a sample output from database example with almost no data:
@@ -53,13 +53,13 @@ as the example of database.
 
 
 ```bash
-psql postgres://jonatasdp@localhost:5432/playground -f caggs.sql
+psql postgres://<user>@localhost:5432/playground -f caggs.sql
 ```
 
 Then use `tsdb` in the command line with the same URI and `--stats`:
 
 ```bash
-tsdb postgres://jonatasdp@localhost:5432/playground --stats
+tsdb postgres://<user>@localhost:5432/playground --stats
 {:hypertables=>
   {:count=>1,
    :uncompressed=>1,
@@ -80,7 +80,7 @@ the context has a hypertable named `ticks` and a view named `ohlc_1m`.
 
 
 ```ruby
-tsdb postgres://jonatasdp@localhost:5432/playground --console
+tsdb postgres://<user>@localhost:5432/playground --console
 pry(Timescale)>
 ```
 
@@ -422,7 +422,7 @@ You can put some postgres URI directly as a parameter of
 `tsdb`. Here is an example from the console:
 
 ```bash
-tsdb "postgres://jonatasdp@localhost:5432/timescaledb_test"
+tsdb "postgres://<user>@localhost:5432/timescaledb_test"
 ```
 
 ## More resources
@@ -446,7 +446,7 @@ Here is a list of functions that would be great to have:
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/jonatas/timescale. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/jonatas/timescale/blob/master/CODE_OF_CONDUCT.md).
+Bug reports and pull requests are welcome on GitHub at https://github.com/jonatas/timescaledb. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [code of conduct](https://github.com/jonatas/timescaledb/blob/master/CODE_OF_CONDUCT.md).
 
 ## License
 
@@ -454,4 +454,4 @@ The gem is available as open source under the terms of the [MIT License](https:/
 
 ## Code of Conduct
 
-Everyone interacting in the Timescale project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/jonatas/timescale/blob/master/CODE_OF_CONDUCT.md).
+Everyone interacting in the Timescale project's codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/jonatas/timescaledb/blob/master/CODE_OF_CONDUCT.md).
