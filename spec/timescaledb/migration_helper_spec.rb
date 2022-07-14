@@ -72,6 +72,10 @@ RSpec.describe Timescaledb::MigrationHelpers, database_cleaner_strategy: :trunca
       end
     end
 
+    after(:each) do
+      con.drop_continuous_aggregates(:ohlc_1m)
+    end
+
     let(:hypertable_options) do
       {
         time_column: 'created_at',
