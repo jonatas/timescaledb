@@ -44,5 +44,5 @@ if ARGV.index("--stats")
 end
 
 if ARGV.index("--console")
-  Pry.start(Timescale)
+  Pry.start(Timescaledb)
 end

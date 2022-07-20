@@ -6,6 +6,4 @@ gem "pg"
 gem "activerecord"
 gem "composite_primary_keys", "~> 6.0"
 gem 'pry'
-
-
 gem "dotenv", "~> 2.7"
