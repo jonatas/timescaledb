@@ -2,6 +2,7 @@ require 'active_record'
 
 require_relative 'timescaledb/acts_as_hypertable'
 require_relative 'timescaledb/acts_as_hypertable/core'
+require_relative 'timescaledb/toolkit'
 require_relative 'timescaledb/chunk'
 require_relative 'timescaledb/compression_settings'
 require_relative 'timescaledb/continuous_aggregates'

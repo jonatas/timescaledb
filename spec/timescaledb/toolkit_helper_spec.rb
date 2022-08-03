@@ -1,5 +1,5 @@
 
-RSpec.describe Timescaledb::ToolkitHelpers, database_cleaner_strategy: :truncation do
+RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :truncation do
   let(:con) { ActiveRecord::Base.connection }
 
 
@@ -46,7 +46,7 @@ RSpec.describe Timescaledb::ToolkitHelpers, database_cleaner_strategy: :truncati
     end
 
     let(:query) do
-      model.select(<<~SQL).where("ts >= now()-'1 day'::interval").group("device_id").first
+      model.select(<<~SQL).where("ts >= now()-'1 day'::interval").group("device_id")
         device_id, timevector(ts, val) -> sort() -> delta() -> abs() -> sum() as volatility
       SQL
     end
@@ -59,7 +59,31 @@ RSpec.describe Timescaledb::ToolkitHelpers, database_cleaner_strategy: :truncati
     end
 
     specify do
-      expect(query.volatility).to eq(1)
+      expect(query.first.volatility).to eq(1)
+    end
+
+    context "using volatility helpers" do
+      before :each do
+        model.acts_as_time_vector segment_by: "device_id",
+          value_column: "val",
+          time_column: "ts"
+      end
+
+      let(:query_with_timevector_helpers) do
+        model
+          .where("ts >= now()-'1 day'::interval")
+          .volatility("device_id")
+      end
+
+      it { expect(model.value_column).to eq("val") }
+
+      it "allow to specify segment by in the volatility"do
+        expect(query_with_timevector_helpers.volatility("device_id").to_sql).to eq(query.to_sql.tr("\n",""))
+      end
+
+      it "uses segment by in the volatility in case specified"do
+        expect(query_with_timevector_helpers.volatility("device_id").to_sql).to eq(query_with_timevector_helpers.volatility.to_sql)
+      end
     end
   end
 end

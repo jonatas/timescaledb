@@ -2,7 +2,7 @@ require "bundler/setup"
 require "pry"
 require "rspec/its"
 require "timescaledb"
-require 'timescaledb/toolkit_helpers'
+require 'timescaledb/toolkit'
 require "dotenv"
 require "database_cleaner/active_record"
 require_relative "support/active_record/models"
