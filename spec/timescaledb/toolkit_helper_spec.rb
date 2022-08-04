@@ -42,13 +42,11 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
         self.primary_key = 'device_id'
 
         acts_as_hypertable time_column: "ts"
-      end
-    end
 
-    let(:query) do
-      model.select(<<~SQL).where("ts >= now()-'1 day'::interval").group("device_id")
-        device_id, timevector(ts, val) -> sort() -> delta() -> abs() -> sum() as volatility
-      SQL
+        acts_as_time_vector segment_by: "device_id",
+          value_column: "val",
+          time_column: "ts"
+      end
     end
 
     before do
@@ -58,31 +56,41 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
       end
     end
 
-    specify do
-      expect(query.first.volatility).to eq(1)
-    end
 
-    context "using volatility helpers" do
-      before :each do
-        model.acts_as_time_vector segment_by: "device_id",
-          value_column: "val",
-          time_column: "ts"
+    describe "#volatility" do
+      let(:plain_volatility_query) do
+        model.select(<<~SQL).where("ts >= now()-'1 day'::interval").group("device_id")
+        device_id, timevector(ts, val) -> sort() -> delta() -> abs() -> sum() as volatility
+        SQL
       end
 
-      let(:query_with_timevector_helpers) do
-        model
-          .where("ts >= now()-'1 day'::interval")
-          .volatility("device_id")
+      it "works with plain sql"do
+        expect(plain_volatility_query.first.volatility).to eq(1)
       end
 
       it { expect(model.value_column).to eq("val") }
+      it { expect(model.time_column).to eq(:ts) }
 
-      it "allow to specify segment by in the volatility"do
-        expect(query_with_timevector_helpers.volatility("device_id").to_sql).to eq(query.to_sql.tr("\n",""))
+      context "with columns specified in the volatility scope" do
+        let(:query) do
+          model
+            .where("ts >= now()-'1 day'::interval")
+            .volatility("device_id")
+        end
+        it "segment by the param in the volatility"do
+          expect(query.to_sql).to eq(plain_volatility_query.to_sql.tr("\n", ""))
+        end
       end
 
-      it "uses segment by in the volatility in case specified"do
-        expect(query_with_timevector_helpers.volatility("device_id").to_sql).to eq(query_with_timevector_helpers.volatility.to_sql)
+      context "without columns" do
+        let(:query) do
+          model
+            .where("ts >= now()-'1 day'::interval")
+            .volatility
+        end
+        it "uses the default segment_by_column"do
+          expect(query.to_sql).to eq(plain_volatility_query.to_sql.tr("\n", ""))
+        end
       end
     end
   end

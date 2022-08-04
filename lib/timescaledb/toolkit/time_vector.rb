@@ -29,6 +29,13 @@ module Timescaledb
             _scope = _scope.group(columns) if columns
             _scope
           end
+          scope :time_weight, -> (columns=segment_by_column) do
+            _scope = select([*columns,
+               "timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> time_weight() as time_weight"
+            ].join(", "))
+            _scope = _scope.group(columns) if columns
+            _scope
+          end
         end
       end
     end
