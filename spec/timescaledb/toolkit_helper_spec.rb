@@ -56,7 +56,6 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
       end
     end
 
-
     describe "#volatility" do
       let(:plain_volatility_query) do
         model.select(<<~SQL).where("ts >= now()-'1 day'::interval").group("device_id")
@@ -92,6 +91,59 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
           expect(query.to_sql).to eq(plain_volatility_query.to_sql.tr("\n", ""))
         end
       end
+
+      context "several devices" do
+        before :each do
+          yesterday = 1.day.ago
+          [1,2,3].each_with_index do |v,i|
+            model.create(device_id: 2, ts: yesterday + i.hour, val: v+i)
+            model.create(device_id: 3, ts: yesterday + i.hour, val: i * i)
+          end
+        end
+
+        # Dataset example now
+        ##  model.all.order(:device_id, :ts).map(&:attributes)
+        #=> [
+        #     {"device_id"=>1, "val"=>1.0, "ts"=>...},
+        #     {"device_id"=>1, "val"=>2.0, "ts"=>...},
+        #     {"device_id"=>1, "val"=>3.0, "ts"=>...},
+        #     {"device_id"=>2, "val"=>1.0, "ts"=>...},
+        #     {"device_id"=>2, "val"=>3.0, "ts"=>...},
+        #     {"device_id"=>2, "val"=>5.0, "ts"=>...},
+        #     {"device_id"=>3, "val"=>0.0, "ts"=>...},
+        #     {"device_id"=>3, "val"=>1.0, "ts"=>...},
+        #     {"device_id"=>3, "val"=>4.0, "ts"=>...}]
+
+        let(:volatility_query_for_all) do
+          model
+            .where("ts >= now()-'1 day'::interval")
+            .volatility(nil) # will not segment by.
+        end
+        let(:volatility_query_for_every_device) do
+          model
+            .where("ts >= now()-'1 day'::interval")
+            .volatility("device_id")
+        end
+
+        specify do
+          expect(volatility_query_for_all.map(&:attributes)).to eq([
+            {"device_id"=>nil, "volatility"=>8.0}])
+
+          expect(volatility_query_for_every_device.map(&:attributes)).to eq([
+            {"device_id"=>3, "volatility"=>3.0},
+            {"device_id"=>2, "volatility"=>2.0},
+            {"device_id"=>1, "volatility"=>1.0}])
+        end
+      end
     end
   end
+=begin
+    describe "#time_weight" do
+      specify do
+        require "pry";binding.pry 
+    #SELECT hyperloglog(device_id) -> distinct_count() FROM measurements;
+      end
+    end
+  end
+=end
 end
