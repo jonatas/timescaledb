@@ -122,6 +122,7 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
         let(:volatility_query_for_every_device) do
           model
             .where("ts >= now()-'1 day'::interval")
+            .order("device_id")
             .volatility("device_id")
         end
 
@@ -130,9 +131,9 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
             {"device_id"=>nil, "volatility"=>8.0}])
 
           expect(volatility_query_for_every_device.map(&:attributes)).to eq([
-            {"device_id"=>3, "volatility"=>3.0},
+            {"device_id"=>1, "volatility"=>1.0},
             {"device_id"=>2, "volatility"=>2.0},
-            {"device_id"=>1, "volatility"=>1.0}])
+            {"device_id"=>3, "volatility"=>3.0}])
         end
       end
     end
