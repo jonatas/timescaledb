@@ -49,8 +49,9 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
       end
     end
 
+    let(:yesterday) { 1.day.ago }
+
     before do
-      yesterday = 1.day.ago
       [1,2,3].each_with_index do |v,i|
         model.create(device_id: 1, ts: yesterday + i.hour, val: v)
       end
@@ -94,7 +95,6 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
 
       context "several devices" do
         before :each do
-          yesterday = 1.day.ago
           [1,2,3].each_with_index do |v,i|
             model.create(device_id: 2, ts: yesterday + i.hour, val: v+i)
             model.create(device_id: 3, ts: yesterday + i.hour, val: i * i)
@@ -137,14 +137,33 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
         end
       end
     end
-  end
-=begin
-    describe "#time_weight" do
+    describe "interpolate and backfill" do
+      before do
+         model.create(device_id: 1, ts: yesterday + 4.hour, val: 5)
+         model.create(device_id: 1, ts: yesterday + 6.hour, val: 7)
+         model.create(device_id: 1, ts: yesterday + 8.hour, val: 9)
+      end
       specify do
-        require "pry";binding.pry 
-    #SELECT hyperloglog(device_id) -> distinct_count() FROM measurements;
+        res = model.select(<<SQL).group("hour, device_id").order("hour")
+          time_bucket_gapfill('1 hour', ts,
+             now() - INTERVAL '24 hours',
+             now() - INTERVAL '16 hours') AS hour,
+          device_id,
+          avg(val) AS value,
+          interpolate(avg(val))
+SQL
+
+        expect(res.map{|e|[e["value"]&.to_f,e["interpolate"]]}).to eq([
+          [1.0, 1.0],
+          [2.0, 2.0],
+          [3.0, 3.0],
+          [nil, 4.0],
+          [5.0, 5.0],
+          [nil, 6.0],
+          [7.0, 7.0],
+          [nil, 8.0],
+          [9.0, 9.0]])
       end
     end
   end
-=end
 end
