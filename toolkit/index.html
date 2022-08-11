@@ -302,6 +302,41 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#example-from-scratch-to-use-the-toolkit-functions" class="md-nav__link">
+    Example from scratch to use the Toolkit functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seeding-some-data" class="md-nav__link">
+    Seeding some data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-the-acts_as_time_vector-macro" class="md-nav__link">
+    Adding the acts_as_time_vector macro
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-with-ruby-version" class="md-nav__link">
+    Comparing with Ruby version
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seeding-massive-data" class="md-nav__link">
+    Seeding massive data
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -373,6 +408,41 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#example-from-scratch-to-use-the-toolkit-functions" class="md-nav__link">
+    Example from scratch to use the Toolkit functions
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seeding-some-data" class="md-nav__link">
+    Seeding some data
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-the-acts_as_time_vector-macro" class="md-nav__link">
+    Adding the acts_as_time_vector macro
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#comparing-with-ruby-version" class="md-nav__link">
+    Comparing with Ruby version
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#seeding-massive-data" class="md-nav__link">
+    Seeding massive data
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -432,7 +502,7 @@ if a single controller in your Rails app will be using it, you can create a
 <a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>    <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">add_toolkit_to_search_path!</span>
 <a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>  <span class="k">end</span>
 </code></pre></div>
-<h1 id="example-from-scratch-to-use-the-toolkit-functions">Example from scratch to use the Toolkit functions<a class="headerlink" href="#example-from-scratch-to-use-the-toolkit-functions" title="Permanent link">&para;</a></h1>
+<h2 id="example-from-scratch-to-use-the-toolkit-functions">Example from scratch to use the Toolkit functions<a class="headerlink" href="#example-from-scratch-to-use-the-toolkit-functions" title="Permanent link">&para;</a></h2>
 <p>Let's start by working on some example about the <a href="https://en.wikipedia.org/wiki/Volatility_(finance)">volatility</a> algorithm.
 This example is inspired in the <a href="https://www.timescale.com/blog/function-pipelines-building-functional-programming-into-postgresql-using-custom-operators/">function pipelines</a> blog post, which brings
 an example about how to calculate volatility and then apply the function 
@@ -469,7 +539,7 @@ options for now.</p>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">end</span>
 </code></pre></div>
 <p>At this moment, you can jump into the Rails console and start testing the model.</p>
-<h3 id="seeding-some-data">Seeding some data<a class="headerlink" href="#seeding-some-data" title="Permanent link">&para;</a></h3>
+<h2 id="seeding-some-data">Seeding some data<a class="headerlink" href="#seeding-some-data" title="Permanent link">&para;</a></h2>
 <p>Before we build a very complex example, let's build something that is easy to
 follow and comprehend. Let's create 3 records for the same device, representing
 a hourly measurement of some sensor.</p>
@@ -618,6 +688,7 @@ macro.</p>
 <a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a><span class="c1"># DEBUG -- : Measurement Load (5.4ms)  SELECT timevector(ts, val) -&gt; sort() -&gt; delta() -&gt; abs() -&gt; sum() as volatility FROM &quot;measurements&quot;</span>
 <a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a><span class="c1"># =&gt; [{&quot;volatility&quot;=&gt;186.0, &quot;device_id&quot;=&gt;nil}]</span>
 </code></pre></div>
+<h2 id="comparing-with-ruby-version">Comparing with Ruby version<a class="headerlink" href="#comparing-with-ruby-version" title="Permanent link">&para;</a></h2>
 <p>Now, it's time to benchmark and compare Ruby vs PostgreSQL solutions, verifying
 which is faster:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">class</span> <span class="nc">Measurement</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
@@ -641,6 +712,7 @@ which is faster:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="no">Benchmark</span><span class="o">.</span><span class="n">measure</span> <span class="p">{</span> <span class="no">Measurement</span><span class="o">.</span><span class="n">volatility_by_device_id</span> <span class="p">}</span><span class="o">.</span><span class="n">real</span> <span class="o">*</span> <span class="mi">1000</span>
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># =&gt; 3.021999917924404</span>
 </code></pre></div>
+<h2 id="seeding-massive-data">Seeding massive data<a class="headerlink" href="#seeding-massive-data" title="Permanent link">&para;</a></h2>
 
               
             </article>
