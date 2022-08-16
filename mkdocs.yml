@@ -26,5 +26,6 @@ nav:
   - Introduction: index.md
   - Migrations: migrations.md
   - Models: models.md
+  - Toolkit Integration: toolkit.md
   - Command Line: command_line.md
   - Videos: videos.md
