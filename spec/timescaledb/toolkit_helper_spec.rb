@@ -59,13 +59,13 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
 
     describe "#volatility" do
       let(:plain_volatility_query) do
-        model.select(<<~SQL).where("ts >= now()-'1 day'::interval").group("device_id")
+        model.select(<<~SQL).group("device_id")
         device_id, timevector(ts, val) -> sort() -> delta() -> abs() -> sum() as volatility
         SQL
       end
 
       it "works with plain sql"do
-        expect(plain_volatility_query.first.volatility).to eq(1)
+        expect(plain_volatility_query.first.volatility).to eq(2)
       end
 
       it { expect(model.value_column).to eq("val") }
@@ -73,9 +73,7 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
 
       context "with columns specified in the volatility scope" do
         let(:query) do
-          model
-            .where("ts >= now()-'1 day'::interval")
-            .volatility("device_id")
+          model.volatility("device_id")
         end
         it "segment by the param in the volatility"do
           expect(query.to_sql).to eq(plain_volatility_query.to_sql.tr("\n", ""))
@@ -84,12 +82,18 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
 
       context "without columns" do
         let(:query) do
-          model
-            .where("ts >= now()-'1 day'::interval")
-            .volatility
+          model.volatility
         end
         it "uses the default segment_by_column"do
           expect(query.to_sql).to eq(plain_volatility_query.to_sql.tr("\n", ""))
+        end
+      end
+
+      context "benchmarking" do
+        specify do
+          
+          require "pry";binding.pry 
+
         end
       end
 
@@ -115,25 +119,21 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
         #     {"device_id"=>3, "val"=>4.0, "ts"=>...}]
 
         let(:volatility_query_for_all) do
-          model
-            .where("ts >= now()-'1 day'::interval")
-            .volatility(nil) # will not segment by.
+          model.volatility(nil) # will not segment by.
         end
         let(:volatility_query_for_every_device) do
-          model
-            .where("ts >= now()-'1 day'::interval")
-            .order("device_id")
+          model.order("device_id")
             .volatility("device_id")
         end
 
         specify do
           expect(volatility_query_for_all.map(&:attributes)).to eq([
-            {"device_id"=>nil, "volatility"=>8.0}])
+            {"device_id"=>nil, "volatility"=>11.0}])
 
           expect(volatility_query_for_every_device.map(&:attributes)).to eq([
-            {"device_id"=>1, "volatility"=>1.0},
-            {"device_id"=>2, "volatility"=>2.0},
-            {"device_id"=>3, "volatility"=>3.0}])
+            {"device_id"=>1, "volatility"=>2.0},
+            {"device_id"=>2, "volatility"=>4.0},
+            {"device_id"=>3, "volatility"=>4.0}])
         end
       end
     end
@@ -163,6 +163,40 @@ SQL
           [7.0, 7.0],
           [nil, 8.0],
           [9.0, 9.0]])
+      end
+    end
+    describe "stats_aggs" do
+      let(:query) do
+        model.select(<<~SQL).group(1)
+          time_bucket('1 h'::interval, ts) as bucket,
+          stats_agg(val) as stats
+        SQL
+      end
+      let(:options) { { with_data: true } }
+      before(:each) { con.create_continuous_aggregates('measurements_stats_1h', query, **options) }
+      after(:each) { con.drop_continuous_aggregates('measurements_stats_1m') rescue nil }
+      let(:view) do
+        con.execute(<<~SQL)
+        SELECT
+        bucket,
+          average(rolling(stats) OVER (ORDER BY bucket RANGE '#{preceeding_range}' PRECEDING)),
+          stddev(rolling(stats) OVER (ORDER BY bucket RANGE '#{preceeding_range}' PRECEDING))
+        FROM measurements_stats_1h;
+        SQL
+      end
+
+      context 'when one hour preceeding' do
+        let(:preceeding_range) { '1 hour' }
+        specify do
+          expect(view.map{|e|e["average"]}).to eq([1,1.5,2.5])
+        end
+      end
+
+      context 'when two hour preceeding' do
+        let(:preceeding_range) { '2 hours' }
+        specify do
+          expect(view.map{|e|e["average"]}).to eq([1,1.5,2.0])
+        end
       end
     end
   end
