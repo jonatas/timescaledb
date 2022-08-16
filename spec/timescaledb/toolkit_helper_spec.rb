@@ -19,7 +19,7 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
         con.add_toolkit_to_search_path!
       end.to change(con, :schema_search_path)
         .from('"$user", public')
-        .to('toolkit_experimental, "$user", public')
+        .to('"$user", public, toolkit_experimental')
     end
   end
 
@@ -86,14 +86,6 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
         end
         it "uses the default segment_by_column"do
           expect(query.to_sql).to eq(plain_volatility_query.to_sql.tr("\n", ""))
-        end
-      end
-
-      context "benchmarking" do
-        specify do
-          
-          require "pry";binding.pry 
-
         end
       end
 
@@ -173,15 +165,15 @@ SQL
         SQL
       end
       let(:options) { { with_data: true } }
-      before(:each) { con.create_continuous_aggregates('measurements_stats_1h', query, **options) }
-      after(:each) { con.drop_continuous_aggregates('measurements_stats_1m') rescue nil }
+      before(:each) { con.create_continuous_aggregates('measurements_stats', query, **options) }
+      after(:each) { con.drop_continuous_aggregates('measurements_stats') rescue nil }
       let(:view) do
         con.execute(<<~SQL)
         SELECT
         bucket,
           average(rolling(stats) OVER (ORDER BY bucket RANGE '#{preceeding_range}' PRECEDING)),
           stddev(rolling(stats) OVER (ORDER BY bucket RANGE '#{preceeding_range}' PRECEDING))
-        FROM measurements_stats_1h;
+        FROM measurements_stats;
         SQL
       end
 

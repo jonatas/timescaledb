@@ -11,7 +11,7 @@ module Timescaledb
       def add_toolkit_to_search_path!
         return if schema_search_path.include?("toolkit_experimental")
 
-        self.schema_search_path = "toolkit_experimental, #{schema_search_path}"
+        self.schema_search_path = "#{schema_search_path}, toolkit_experimental"
       end
     end
   end
