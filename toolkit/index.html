@@ -696,7 +696,7 @@ which is faster:</p>
 <a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>  <span class="n">scope</span> <span class="ss">:volatility_by_device_id</span><span class="p">,</span> <span class="o">-&gt;</span> <span class="p">{</span>
 <a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    <span class="n">volatility</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 <a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    <span class="n">previous</span> <span class="o">=</span> <span class="no">Hash</span><span class="o">.</span><span class="n">new</span>
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">find_each</span> <span class="k">do</span> <span class="o">|</span><span class="n">measurement</span><span class="o">|</span>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    <span class="n">find_all</span> <span class="k">do</span> <span class="o">|</span><span class="n">measurement</span><span class="o">|</span>
 <a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>      <span class="n">device_id</span> <span class="o">=</span> <span class="n">measurement</span><span class="o">.</span><span class="n">device_id</span>
 <a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>      <span class="k">if</span> <span class="n">previous</span><span class="o">[</span><span class="n">device_id</span><span class="o">]</span>
 <a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">measurement</span><span class="o">.</span><span class="n">val</span> <span class="o">-</span> <span class="n">previous</span><span class="o">[</span><span class="n">device_id</span><span class="o">]</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span>
@@ -713,6 +713,36 @@ which is faster:</p>
 <a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="c1"># =&gt; 3.021999917924404</span>
 </code></pre></div>
 <h2 id="seeding-massive-data">Seeding massive data<a class="headerlink" href="#seeding-massive-data" title="Permanent link">&para;</a></h2>
+<p>Now, let's use <code>generate_series</code> to fast insert a lot of records directly into
+the database and make it full of records.</p>
+<p>Let's just agree on some numbers to have a good start. Let's generate data for
+5 devices emitting values every 5 minutes, which will generate around 50k
+records.</p>
+<p>Let's use some plain SQL to insert the records now:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a><span class="n">sql</span> <span class="o">=</span> <span class="s2">&quot;INSERT INTO measurements (ts, device_id, val)</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="s2">SELECT ts, device_id, random()*80</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a><span class="s2">FROM generate_series(TIMESTAMP &#39;2022-01-01 00:00:00&#39;,</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a><span class="s2">                   TIMESTAMP &#39;2022-02-01 00:00:00&#39;,</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a><span class="s2">             INTERVAL &#39;5 minutes&#39;) AS g1(ts),</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a><span class="s2">      generate_series(0, 5) AS g2(device_id);</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a><span class="s2">&quot;</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a><span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span>
+</code></pre></div>
+<p>In my MacOS M1 processor it took less than a second to insert the 53k records:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="c1"># DEBUG (177.5ms)  INSERT INTO measurements (ts, device_id, val) ..</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="c1"># =&gt; #&lt;PG::Result:0x00007f8152034168 status=PGRES_COMMAND_OK ntuples=0 nfields=0 cmd_tuples=53574&gt;</span>
+</code></pre></div>
+<p>Now, let's measure compare the time to process the volatility:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="no">Benchmark</span><span class="o">.</span><span class="n">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;ruby&quot;</span><span class="p">)</span>  <span class="p">{</span> <span class="n">pp</span> <span class="no">Measurement</span><span class="o">.</span><span class="n">volatility_by_device_id</span> <span class="p">}</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;sql&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="n">pp</span> <span class="no">Measurement</span><span class="o">.</span><span class="n">volatility</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:attributes</span><span class="p">)</span>  <span class="p">}</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="k">end</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="c1">#           user     system      total        real</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="c1"># ruby    0.612439   0.061890   0.674329 (  0.727590)</span>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="c1"># sql     0.001142   0.000301   0.001443 (  0.060301)</span>
+</code></pre></div>
+<p>Calculating the performance ratio we can see <code>0.72 / 0.06</code> means that SQL is 12
+times faster than Ruby to process volatility 🎉</p>
 
               
             </article>
