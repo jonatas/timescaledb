@@ -1,4 +1,10 @@
-require 'bundler/setup'
+require 'bundler/inline' #require only what you need
+
+gemfile(true) do 
+  gem 'timescaledb', path:  '../..'
+  gem 'pry'
+end
+
 require 'timescaledb'
 require 'pp'
 require 'pry'
