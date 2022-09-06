@@ -92,7 +92,7 @@ options for now.
 Now, let's add the model `app/models/measurement.rb`:
 
 ```ruby
-class Measurement < ActiveRecord::Base do
+class Measurement < ActiveRecord::Base
   self.primary_key = 'device_id'
 
   acts_as_hypertable time_column: "ts"
@@ -197,7 +197,7 @@ Let's start changing the model to add the `acts_as_time_vector` that is
 here to allow us to not repeat the parameters of the `timevector(ts, val)` call.
 
 ```ruby
-class Measurement < ActiveRecord::Base do
+class Measurement < ActiveRecord::Base
   self.primary_key = 'device_id'
 
   acts_as_hypertable time_column: "ts"
@@ -217,13 +217,11 @@ here for the sake of making the macros independent.
 Now, that we have it, let's create a scope for it:
 
 ```ruby
-class Measurement < ActiveRecord::Base do
-  # ... Skipping previous code to focus in the example
-
+class Measurement < ActiveRecord::Base
+  acts_as_hypertable time_column: "ts"
   acts_as_time_vector segment_by: "device_id",
     value_column: "val",
     time_column: "ts"
-  end
 
   scope :volatility, -> do
     select("device_id, timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> sum() as volatility")
@@ -241,16 +239,15 @@ can make a small change that makes you completely understand the volatility
 macro.
 
 ```ruby
-class Measurement < ActiveRecord::Base do
+class Measurement < ActiveRecord::Base
   # ... Skipping previous code to focus in the example
 
   acts_as_time_vector segment_by: "device_id",
     value_column: "val",
     time_column: "ts"
-  end
 
   scope :volatility, -> (columns=segment_by_column) do
-     select([*columns,
+    _scope = select([*columns,
         "timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> sum() as volatility"
     ].join(", "))
     _scope = _scope.group(columns) if columns
@@ -373,6 +370,18 @@ end
 
 Calculating the performance ratio we can see `0.72 / 0.06` means that SQL is 12
 times faster than Ruby to process volatility 🎉
+
+Just considering it was localhost, we don't have the internet to pass all the
+records over the wires. Now, moving to a remote host look the numbers:
+
+!!!warning
+    Note that the previous numbers where using localhost.
+    Now, using a remote connection between different regions,
+    it looks even ~500 times slower than SQL.
+
+            user     system      total        real
+      ruby 0.716321   0.041640   0.757961 (  6.388881)
+      sql  0.001156   0.000177   0.001333 (  0.161270)
 
 
 [1]: https://github.com/timescale/timescaledb-toolkit
