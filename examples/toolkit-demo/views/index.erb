@@ -1,0 +1,14 @@
+<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+  <script src="loader.js"></script>
+
+  <script src="chartkick.js"></script>
+  <script>
+  function changeThreshold(value){
+  console.log("threshold", value);
+    location.href = "/?threshold="+value;
+  }
+  </script>
+  <%= line_chart("/lttb_sql?threshold=#{threshold}") %>
+  <%= line_chart("/lttb_ruby?threshold=#{threshold}") %>
+
+  Threshold: <input type="range" min="10" max="1000" value="<%= threshold %>" onchange="changeThreshold(this.value)">
