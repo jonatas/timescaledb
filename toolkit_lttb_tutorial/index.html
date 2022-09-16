@@ -1,0 +1,1131 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.3.1, mkdocs-material-8.3.9">
+    
+    
+      
+        <title>Toolkit LTTB Tutorial - The Timescaledb gem</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.1d29e8d0.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#4051b5">
+        
+      
+      
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+
+  <script>function gtag(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],gtag("js",new Date),gtag("config","G-9B2BMB0TNQ"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&gtag("event","search",{search_term:this.value})}),"undefined"!=typeof location$&&location$.subscribe(function(e){gtag("config","G-9B2BMB0TNQ",{page_path:e.pathname})})})</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-9B2BMB0TNQ"></script>
+
+
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="indigo" data-md-color-accent="pink">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#setup-the-dependencies" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The Timescaledb gem" class="md-header__button md-logo" aria-label="The Timescaledb gem" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The Timescaledb gem
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Toolkit LTTB Tutorial
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jonatas/timescaledb" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The Timescaledb gem" class="md-nav__button md-logo" aria-label="The Timescaledb gem" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    The Timescaledb gem
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jonatas/timescaledb" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.1.1 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migrations/" class="md-nav__link">
+        Migrations
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
+        Models
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toolkit/" class="md-nav__link">
+        Toolkit Integration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Toolkit LTTB Tutorial
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Toolkit LTTB Tutorial
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup-the-dependencies" class="md-nav__link">
+    Setup the dependencies
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-database" class="md-nav__link">
+    Setup database
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup database">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#establishing-the-connection" class="md-nav__link">
+    Establishing the connection
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#downloading-the-dataset" class="md-nav__link">
+    Downloading the dataset
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#declaring-the-models" class="md-nav__link">
+    Declaring the models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#putting-all-together" class="md-nav__link">
+    Putting all together
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#processing-lttb-in-ruby" class="md-nav__link">
+    Processing LTTB in Ruby
+  </a>
+  
+    <nav class="md-nav" aria-label="Processing LTTB in Ruby">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calculate-the-area-of-a-triangle" class="md-nav__link">
+    Calculate the area of a Triangle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initializing-the-lttb-class" class="md-nav__link">
+    Initializing the Lttb class
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculating-the-average-of-points" class="md-nav__link">
+    Calculating the average of points
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dates-versus-numbers" class="md-nav__link">
+    Dates versus Numbers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bucket-size" class="md-nav__link">
+    Bucket size
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#downsampling" class="md-nav__link">
+    Downsampling
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web-preview" class="md-nav__link">
+    Web preview
+  </a>
+  
+    <nav class="md-nav" aria-label="Web preview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#main-preview" class="md-nav__link">
+    Main preview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-ruby-endpoint" class="md-nav__link">
+    The ruby endpoint
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-sql-endpoint" class="md-nav__link">
+    The sql endpoint
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#try-it-yourself" class="md-nav__link">
+    Try it yourself!
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../command_line/" class="md-nav__link">
+        Command Line
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../videos/" class="md-nav__link">
+        Videos
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#setup-the-dependencies" class="md-nav__link">
+    Setup the dependencies
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#setup-database" class="md-nav__link">
+    Setup database
+  </a>
+  
+    <nav class="md-nav" aria-label="Setup database">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#establishing-the-connection" class="md-nav__link">
+    Establishing the connection
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#downloading-the-dataset" class="md-nav__link">
+    Downloading the dataset
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#declaring-the-models" class="md-nav__link">
+    Declaring the models
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#putting-all-together" class="md-nav__link">
+    Putting all together
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#processing-lttb-in-ruby" class="md-nav__link">
+    Processing LTTB in Ruby
+  </a>
+  
+    <nav class="md-nav" aria-label="Processing LTTB in Ruby">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#calculate-the-area-of-a-triangle" class="md-nav__link">
+    Calculate the area of a Triangle
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#initializing-the-lttb-class" class="md-nav__link">
+    Initializing the Lttb class
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#calculating-the-average-of-points" class="md-nav__link">
+    Calculating the average of points
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dates-versus-numbers" class="md-nav__link">
+    Dates versus Numbers
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bucket-size" class="md-nav__link">
+    Bucket size
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#downsampling" class="md-nav__link">
+    Downsampling
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#web-preview" class="md-nav__link">
+    Web preview
+  </a>
+  
+    <nav class="md-nav" aria-label="Web preview">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#main-preview" class="md-nav__link">
+    Main preview
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-ruby-endpoint" class="md-nav__link">
+    The ruby endpoint
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-sql-endpoint" class="md-nav__link">
+    The sql endpoint
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#try-it-yourself" class="md-nav__link">
+    Try it yourself!
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          <div class="md-content" data-md-component="content">
+            <article class="md-content__inner md-typeset">
+              
+                
+  <a href="https://github.com/jonatas/timescaledb/edit/master/docs/toolkit_lttb_tutorial.md" title="Edit this page" class="md-content__button md-icon">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+
+  <h1>Toolkit LTTB Tutorial</h1>
+
+<p><a href="https://github.com/timescale/timescaledb-toolkit/blob/main/docs/lttb.md">Largest Triangle Three Buckets</a> is a downsampling method that tries to retain visual similarity between the downsampled data and the original dataset. TimescaleDB Toolkit provides an implementation of this which takes (timestamp, value) pairs, sorts them if needed, and downsamples them.</p>
+<p>This is a tutorial to show how to use LTTB and how it can save application processing time, network, bandwidth. We're also going to rebuild the <a href="https://github.com/Jubke/lttb">lttb gem</a> from scratch to have a full comprehension of how it works and later compare the performance and usability of both solutions.</p>
+<p>To compare using a real scenario, the example uses real data from the <a href="https://docs.timescale.com/timescaledb/latest/tutorials/sample-datasets/#weather-datasets">weather dataset</a> to run it. If you want to run it yourself feel free to use the <a href="https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/lttb.rb">example</a> that contains all the steps we're going to describe here.</p>
+<h2 id="setup-the-dependencies">Setup the dependencies<a class="headerlink" href="#setup-the-dependencies" title="Permanent link">&para;</a></h2>
+<p>We're requiring bundler inline to avoid the creation of the <code>Gemfile</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">require</span> <span class="s1">&#39;bundler/inline&#39;</span> <span class="c1">#require only what you need</span>
+<a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+<a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="n">gemfile</span><span class="p">(</span><span class="kp">true</span><span class="p">)</span> <span class="k">do</span> 
+<a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  <span class="n">gem</span> <span class="s1">&#39;timescaledb&#39;</span>
+<a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>  <span class="n">gem</span> <span class="s1">&#39;pry&#39;</span>
+<a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  <span class="n">gem</span> <span class="s1">&#39;chartkick&#39;</span>
+<a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="k">end</span>
+</code></pre></div>
+<p>Let's take a look in what dependencies we have for what purpose:</p>
+<ul>
+<li><a href="https://github.com/jonatas/timescaledb">timescaledb</a> gem is the ActiveRecord wrapper for TimescaleDB functions.</li>
+<li><a href="http://pry.github.io">pry</a> is here because it's the best REPL to debug any Ruby code. We add it in the end to ease the exploring session you can do yourself after learning with the tutorial.</li>
+<li><a href="https://chartkick.com">chartkick</a> is the library that can plot the values and make it easy to see what the data looks like.</li>
+<li>[sinatra][]</li>
+</ul>
+<p>We're also going to use <a href="https://docs.ruby-lang.org/en/2.4.0/PP.html">prettyprint</a> from Ruby standard library to just
+plot some objects in a pretty way.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">require</span> <span class="s1">&#39;pp&#39;</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">require</span> <span class="s1">&#39;timescaledb/toolkit&#39;</span>
+</code></pre></div>
+<p>Toolkit is not required by default, so, you need to also require it to use.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Note that we're not requiring the rest of the libraries because bundler
+inline already require de library by default which is very convenient for
+examples in a single file.</p>
+</div>
+<h2 id="setup-database">Setup database<a class="headerlink" href="#setup-database" title="Permanent link">&para;</a></h2>
+<p>Now, it's time to setup the database to use for this application. Make sure you
+have TimescaleDB installed or <a href="https://docs.ruby-lang.org/en/2.4.0/PP.html">learn how to install TimescaleDB here</a>.</p>
+<h3 id="establishing-the-connection">Establishing the connection<a class="headerlink" href="#establishing-the-connection" title="Permanent link">&para;</a></h3>
+<p>The next step is connect to the database, so, we're going to run this example
+with the PostgreSQL URI as the last argument of the command line.</p>
+<p><div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">PG_URI</span> <span class="o">=</span> <span class="no">ARGV</span><span class="o">.</span><span class="n">last</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">establish_connection</span><span class="p">(</span><span class="no">PG_URI</span><span class="p">)</span>
+</code></pre></div>
+If this line works, it means your connection is good.</p>
+<h3 id="downloading-the-dataset">Downloading the dataset<a class="headerlink" href="#downloading-the-dataset" title="Permanent link">&para;</a></h3>
+<p>The weather dataset is available <a href="https://docs.timescale.com/timescaledb/latest/tutorials/sample-datasets/#weather-datasets">here</a> and here is a small automation to
+make it run smoothly with small, mediu and big data sets.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">VALID_SIZES</span> <span class="o">=</span> <span class="o">%</span><span class="n">i</span><span class="o">[</span><span class="n">small</span> <span class="n">med</span> <span class="n">big</span><span class="o">]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="k">def</span> <span class="nf">download_weather_dataset</span> <span class="ss">size</span><span class="p">:</span> <span class="ss">:small</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>  <span class="k">unless</span> <span class="no">VALID_SIZES</span><span class="o">.</span><span class="n">include?</span><span class="p">(</span><span class="n">size</span><span class="p">)</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>    <span class="nb">fail</span> <span class="s2">&quot;Invalid size: </span><span class="si">#{</span><span class="n">size</span><span class="si">}</span><span class="s2">. Valids are </span><span class="si">#{</span><span class="no">VALID_SIZES</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>  <span class="k">end</span>
+<a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>  <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://timescaledata.blob.core.windows.net/datasets/weather_</span><span class="si">#{</span><span class="n">size</span><span class="si">}</span><span class="s2">.tar.gz&quot;</span>
+<a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>  <span class="nb">puts</span> <span class="s2">&quot;fetching </span><span class="si">#{</span><span class="n">size</span><span class="si">}</span><span class="s2"> weather dataset...&quot;</span>
+<a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>  <span class="nb">system</span> <span class="s2">&quot;wget </span><span class="se">\&quot;</span><span class="si">#{</span><span class="n">url</span><span class="si">}</span><span class="se">\&quot;</span><span class="s2">&quot;</span>
+<a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>  <span class="nb">puts</span> <span class="s2">&quot;done!&quot;</span>
+<a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a><span class="k">end</span>
+</code></pre></div>
+<p>Now, let's create a setup method to verify if the database is created and have
+the data loaded, and fetch it if necessary.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">def</span> <span class="nf">setup</span> <span class="ss">size</span><span class="p">:</span> <span class="ss">:small</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  <span class="n">file</span> <span class="o">=</span> <span class="s2">&quot;weather_</span><span class="si">#{</span><span class="n">size</span><span class="si">}</span><span class="s2">.tar.gz&quot;</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  <span class="n">download_weather_dataset</span> <span class="k">unless</span> <span class="no">File</span><span class="o">.</span><span class="n">exists?</span> <span class="n">file</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  <span class="nb">puts</span> <span class="s2">&quot;extracting </span><span class="si">#{</span><span class="n">file</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>  <span class="nb">system</span> <span class="s2">&quot;tar -xvzf </span><span class="si">#{</span><span class="n">file</span><span class="si">}</span><span class="s2"> &quot;</span>
+<a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>  <span class="nb">puts</span> <span class="s2">&quot;creating data structures&quot;</span>
+<a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>  <span class="nb">system</span> <span class="s2">&quot;psql </span><span class="si">#{</span><span class="no">PG_URI</span><span class="si">}</span><span class="s2"> &lt; weather.sql&quot;</span>
+<a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>  <span class="nb">system</span> <span class="sx">%|psql </span><span class="si">#{</span><span class="no">PG_URI</span><span class="si">}</span><span class="sx"> -c &quot;\\COPY locations FROM weather_</span><span class="si">#{</span><span class="n">size</span><span class="si">}</span><span class="sx">_locations.csv CSV&quot;|</span>
+<a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>  <span class="nb">system</span> <span class="sx">%|psql </span><span class="si">#{</span><span class="no">PG_URI</span><span class="si">}</span><span class="sx"> -c &quot;\\COPY conditions FROM weather_</span><span class="si">#{</span><span class="n">size</span><span class="si">}</span><span class="sx">_conditions.csv CSV&quot;|</span>
+<a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a><span class="k">end</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Note that maybe you'll need to recreate the database in case you want to
+download a new dataset.</p>
+</div>
+<h3 id="declaring-the-models">Declaring the models<a class="headerlink" href="#declaring-the-models" title="Permanent link">&para;</a></h3>
+<p>Now, let's declare the ActiveRecord models to be using in the code.</p>
+<p>The location is an auxiliary table to control where the device is located.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span> <span class="nc">Location</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  <span class="nb">self</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="s2">&quot;device_id&quot;</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  <span class="n">has_many</span> <span class="ss">:conditions</span><span class="p">,</span> <span class="ss">foreign_key</span><span class="p">:</span> <span class="s2">&quot;device_id&quot;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">end</span>
+</code></pre></div>
+<p>Every location emits weather conditions with <code>temperature</code> and <code>humidity</code> every X minutes.</p>
+<p>The <code>conditions</code> is the time-series data that we're going to refer here.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span> <span class="nc">Condition</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  <span class="n">acts_as_hypertable</span> <span class="ss">time_column</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  <span class="n">acts_as_time_vector</span> <span class="ss">value_column</span><span class="p">:</span> <span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="ss">segment_by</span><span class="p">:</span> <span class="s2">&quot;device_id&quot;</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  <span class="n">belongs_to</span> <span class="ss">:location</span><span class="p">,</span> <span class="ss">foreign_key</span><span class="p">:</span> <span class="s2">&quot;device_id&quot;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="k">end</span>
+</code></pre></div>
+<h3 id="putting-all-together">Putting all together<a class="headerlink" href="#putting-all-together" title="Permanent link">&para;</a></h3>
+<p>Now it's time to call the methods we implemented before. So, let's setup a
+logger to STDOUT to confirm the steps and add toolkit to the search path.</p>
+<p>Similar to a database migration, we need to verify if the table exists and
+setup the hypertable and load the data if necessary.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">instance_exec</span> <span class="k">do</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="no">Logger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">STDOUT</span><span class="p">)</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  <span class="n">add_toolkit_to_search_path!</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>  <span class="k">unless</span> <span class="no">Condition</span><span class="o">.</span><span class="n">table_exists?</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>    <span class="n">setup</span> <span class="ss">size</span><span class="p">:</span> <span class="ss">:small</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  <span class="k">end</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a><span class="k">end</span>
+</code></pre></div>
+<p>The <code>setup</code> method also can fetch different datasets and you'll need to manually
+drop the <code>conditions</code> and <code>locations</code> tables to reload it.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>If you want to go deeper and reload everything everytime, feel free to
+add the following lines before the <code>unless</code> block:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">drop_table</span><span class="p">(</span><span class="ss">:conditions</span><span class="p">)</span> <span class="k">if</span> <span class="no">Condition</span><span class="o">.</span><span class="n">table_exists?</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">drop_table</span><span class="p">(</span><span class="ss">:locations</span><span class="p">)</span> <span class="k">if</span> <span class="no">Location</span><span class="o">.</span><span class="n">table_exists?</span>
+</code></pre></div>
+<p>For now, let's keep the example simple to run it manually and drop the tables
+when we want to run everything from scratch.</p>
+</div>
+<h2 id="processing-lttb-in-ruby">Processing LTTB in Ruby<a class="headerlink" href="#processing-lttb-in-ruby" title="Permanent link">&para;</a></h2>
+<p>You can find an <a href="https://github.com/Jubke/lttb">old lttb gem</a> available if you want to cut down this step
+but this library is not fully implementing the lttb algorithm and the results
+may differ from the Timescale implementation.</p>
+<p>If you want to understand the algorithm behind the scenes, this step will make it
+very clear and easy to digest. You can also <a href="https://www.base.is/flot/">preview the original lttb here</a>.</p>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>The <a href="https://skemman.is/bitstream/1946/15343/3/SS_MSthesis.pdf">original thesis</a> describes lttb as:</p>
+<p>The algorithm works with three buckets at a time and proceeds from left to right. The first point which forms the left corner of the triangle (the effective area) is always fixed as the point that was previously selected and one of the points in the middle bucket shall be selected now. The question is what point should the algorithm use in the last bucket to form the triangle."</p>
+<p>The obvious answer is to use a brute-force approach and simply try out all the possibilities. That is, for each point in the current bucket, form a triangle with all the points in the next bucket. It turns out that this gives a fairly good visual result but as with many brute-force approaches it is inefficient. For example, if there were 100 points per bucket, the algorithm would need to calculate the area of 10,000 triangles for every bucket. Another and more clever solution is to add a temporary point to the last bucket and keep it fixed. That way the algorithm has two fixed points; and one only needs to calculate the number of triangles equal to the number of points in the current bucket. The point in the current bucket which forms the largest triangle with these two fixed point in the adjacent buckets is then selected. In figure 4.4 it is shown how point B forms the largest triangle across the buckets with fixed point A (previously selected) and the temporary point C.</p>
+<p><img alt="LTTB Triangle Bucketing Example" src="/img/lttb_example.png" /></p>
+</div>
+<h3 id="calculate-the-area-of-a-triangle">Calculate the area of a Triangle<a class="headerlink" href="#calculate-the-area-of-a-triangle" title="Permanent link">&para;</a></h3>
+<p>To demonstrate the same, let's create a module <code>Triangle</code> with an <code>area</code> method that accepts three points <code>a</code>, <code>b</code> and <code>c</code> which will be pairs of <code>x</code> and <code>y</code> cartesian coordinates.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">module</span> <span class="nn">Triangle</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  <span class="kp">module_function</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  <span class="k">def</span> <span class="nf">area</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>    <span class="p">(</span><span class="n">ax</span><span class="p">,</span> <span class="n">ay</span><span class="p">),</span> <span class="p">(</span><span class="n">bx</span><span class="p">,</span> <span class="n">by</span><span class="p">),</span> <span class="p">(</span><span class="n">cx</span><span class="p">,</span> <span class="n">cy</span><span class="p">)</span> <span class="o">=</span> <span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">,</span><span class="n">c</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>    <span class="p">(</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>      <span class="p">(</span><span class="n">ax</span> <span class="o">-</span> <span class="n">cx</span><span class="p">)</span><span class="o">.</span><span class="n">to_f</span> <span class="o">*</span> <span class="p">(</span><span class="n">by</span> <span class="o">-</span> <span class="n">ay</span><span class="p">)</span> <span class="o">-</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>      <span class="p">(</span><span class="n">ax</span> <span class="o">-</span> <span class="n">bx</span><span class="p">)</span><span class="o">.</span><span class="n">to_f</span> <span class="o">*</span> <span class="p">(</span><span class="n">cy</span> <span class="o">-</span> <span class="n">ay</span><span class="p">)</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>    <span class="p">)</span><span class="o">.</span><span class="n">abs</span> <span class="o">*</span> <span class="mi">0</span><span class="o">.</span><span class="mi">5</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>  <span class="k">end</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="k">end</span>
+</code></pre></div>
+<div class="admonition info the shoelace formula">
+<p class="admonition-title">Info</p>
+<p>In this implementation, we're using the shoelace method.</p>
+<blockquote>
+<p><em>The shoelace method (also known as Gauss's area formula and the surveyor's formula) is a mathematical algorithm to determine the area of a simple polygon whose vertices are described by their Cartesian coordinates in the plane. It is called the shoelace formula because of the constant cross-multiplying for the coordinates making up the polygon, like threading shoelaces. It has applications in surveying and forestry, among other areas.</em>
+Source: <a href="https://en.wikipedia.org/wiki/Shoelace_formula#Triangle_formula">Shoelace formula Wikipedia</a></p>
+</blockquote>
+</div>
+<h3 id="initializing-the-lttb-class">Initializing the Lttb class<a class="headerlink" href="#initializing-the-lttb-class" title="Permanent link">&para;</a></h3>
+<p>The lttb class will be responsible for processing the data and downsample the
+points to a desired threshold. Let's declare the initial boilerplate code with
+some basic validation to make it work.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">class</span> <span class="nc">Lttb</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  <span class="kp">attr_reader</span> <span class="ss">:data</span><span class="p">,</span> <span class="ss">:threshold</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>    <span class="nb">fail</span> <span class="s1">&#39;data is not an array&#39;</span> <span class="k">unless</span> <span class="n">data</span><span class="o">.</span><span class="n">is_a?</span> <span class="nb">Array</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>    <span class="nb">fail</span> <span class="s2">&quot;threshold should be &gt;= 2. It&#39;s </span><span class="si">#{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">.&quot;</span> <span class="k">if</span> <span class="n">threshold</span> <span class="o">&lt;</span> <span class="mi">2</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="vi">@data</span> <span class="o">=</span> <span class="n">data</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="vi">@threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>  <span class="k">end</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>  <span class="k">def</span> <span class="nf">downsample</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>    <span class="nb">fail</span> <span class="s1">&#39;Not implemented yet!&#39;</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>  <span class="k">end</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="k">end</span>
+</code></pre></div>
+<p>Note that the threshold considers at least 3 points as the edges should keep untouched
+and only the points in the middle will be reduced.</p>
+<h3 id="calculating-the-average-of-points">Calculating the average of points<a class="headerlink" href="#calculating-the-average-of-points" title="Permanent link">&para;</a></h3>
+<p>For performance reasons, combine all possible points to check the biggest area would become very hard. For this case, we need to have an average method. The average between the points will become the <strong>temporary</strong> point as the previous documentation described:</p>
+<div class="codehilite"><pre><span></span><code>&gt; _For example, if there were 100 points per bucket, the algorithm would need to calculate the area of 10,000 triangles for every bucket. Another and more clever solution is to add a temporary point to the last bucket and keep it fixed. That way the algorithm has two fixed points;_
+</code></pre></div>
+
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span> <span class="nc">Lttb</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">avg</span><span class="p">(</span><span class="n">array</span><span class="p">)</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>    <span class="n">array</span><span class="o">.</span><span class="n">sum</span><span class="o">.</span><span class="n">to_f</span> <span class="o">/</span> <span class="n">array</span><span class="o">.</span><span class="n">size</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  <span class="k">end</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>  <span class="c1"># previous implementation here</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a><span class="k">end</span>
+</code></pre></div>
+<p>Now, we'll need to establish the interface we want for our Lttb class. Let's say
+we want to test it with some static data like:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="n">data</span> <span class="o">=</span> <span class="o">[</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-1&#39;</span><span class="p">,</span> <span class="mi">10</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-2&#39;</span><span class="p">,</span> <span class="mi">21</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-3&#39;</span><span class="p">,</span> <span class="mi">19</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-4&#39;</span><span class="p">,</span> <span class="mi">32</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-5&#39;</span><span class="p">,</span> <span class="mi">12</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-6&#39;</span><span class="p">,</span> <span class="mi">14</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-7&#39;</span><span class="p">,</span> <span class="mi">18</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-8&#39;</span><span class="p">,</span> <span class="mi">29</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-9&#39;</span><span class="p">,</span> <span class="mi">23</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-10&#39;</span><span class="p">,</span> <span class="mi">27</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>  <span class="o">[</span><span class="s1">&#39;2020-1-11&#39;</span><span class="p">,</span> <span class="mi">14</span><span class="o">]]</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="n">data</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">e</span><span class="o">|</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>  <span class="n">e</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="no">Time</span><span class="o">.</span><span class="n">mktime</span><span class="p">(</span><span class="o">*</span><span class="n">e</span><span class="o">[</span><span class="mi">0</span><span class="o">].</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;-&#39;</span><span class="p">))</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a><span class="k">end</span>
+</code></pre></div>
+<p>Downsampling the data which have 11 points to 5 points in a single line, we'd
+need a method like:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="no">Lttb</span><span class="o">.</span><span class="n">downsample</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="c1"># =&gt; 5 points downsampled here...</span>
+</code></pre></div>
+<p>Let's wrap the static method that will be necessary to wrap the algorithm:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">class</span> <span class="nc">Lttb</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">downsample</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>    <span class="kp">new</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span><span class="o">.</span><span class="n">downsample</span>
+<a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>  <span class="k">end</span>
+<a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a><span class="k">end</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Info</p>
+<p>Note that the example is reopening the class several times to accomplish with it but. If you're integrally following the tutorial, add all the methods to the same class body.</p>
+</div>
+<p>Now, it's time to add the class initializer and the instance readers, with some
+minimal validation to the arguments:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">class</span> <span class="nc">Lttb</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>  <span class="kp">attr_reader</span> <span class="ss">:data</span><span class="p">,</span> <span class="ss">:threshold</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>  <span class="k">def</span> <span class="nf">initialize</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>    <span class="nb">fail</span> <span class="s1">&#39;data is not an array&#39;</span> <span class="k">unless</span> <span class="n">data</span><span class="o">.</span><span class="n">is_a?</span> <span class="nb">Array</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="nb">fail</span> <span class="s2">&quot;threshold should be &gt;= 2. It&#39;s </span><span class="si">#{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">.&quot;</span> <span class="k">if</span> <span class="n">threshold</span> <span class="o">&lt;</span> <span class="mi">2</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>    <span class="vi">@data</span> <span class="o">=</span> <span class="n">data</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>    <span class="vi">@threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+<a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>  <span class="k">end</span>
+<a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>
+<a id="__codelineno-15-10" name="__codelineno-15-10" href="#__codelineno-15-10"></a>  <span class="k">def</span> <span class="nf">downsample</span>
+<a id="__codelineno-15-11" name="__codelineno-15-11" href="#__codelineno-15-11"></a>    <span class="nb">fail</span> <span class="s1">&#39;Not implemented yet!&#39;</span>
+<a id="__codelineno-15-12" name="__codelineno-15-12" href="#__codelineno-15-12"></a>  <span class="k">end</span>
+<a id="__codelineno-15-13" name="__codelineno-15-13" href="#__codelineno-15-13"></a><span class="k">end</span>
+</code></pre></div>
+<p>The downsample method is failing because it's the next step to build the logic
+behind it.</p>
+<p>But, first, let's add some helpers methods that will help us to digest the
+entire algorithm.</p>
+<h3 id="dates-versus-numbers">Dates versus Numbers<a class="headerlink" href="#dates-versus-numbers" title="Permanent link">&para;</a></h3>
+<p>We're talking about time-series data and we'll need to normalize them to
+numbers.</p>
+<p>In case the data furnished to the function is working with dates, we'll need to convert them to numbers to calculate the area of the triangles.</p>
+<p>Considering the data is already sorted by time, the strategy here will be save the first date and iterate under all records transforming dates into numbers relative to the first date in the data.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>  <span class="k">def</span> <span class="nf">dates_to_numbers</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>    <span class="vi">@start_date</span> <span class="o">=</span> <span class="n">data</span><span class="o">[</span><span class="mi">0</span><span class="o">][</span><span class="mi">0</span><span class="o">]</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="n">data</span><span class="o">.</span><span class="n">each</span><span class="p">{</span><span class="o">|</span><span class="n">d</span><span class="o">|</span> <span class="n">d</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="vi">@start_date</span> <span class="o">-</span> <span class="n">d</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">}</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>  <span class="k">end</span>
+</code></pre></div>
+<p>To convert back the downsampled dat, we just need to sum the interval to the
+start date.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>  <span class="k">def</span> <span class="nf">numbers_to_dates</span><span class="p">(</span><span class="n">downsampled</span><span class="p">)</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>    <span class="n">downsampled</span><span class="o">.</span><span class="n">each</span><span class="p">{</span><span class="o">|</span><span class="n">d</span><span class="o">|</span> <span class="n">d</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span> <span class="o">=</span> <span class="vi">@start_date</span> <span class="o">+</span> <span class="n">d</span><span class="o">[</span><span class="mi">0</span><span class="o">]</span><span class="p">}</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>  <span class="k">end</span>
+</code></pre></div>
+<h3 id="bucket-size">Bucket size<a class="headerlink" href="#bucket-size" title="Permanent link">&para;</a></h3>
+<p>Now, it's time to define how much points should be analyzed per time to
+downsample the data. As the first and last point should remain untouched, the remaining points in the middle should be reduced based on a ratio between the total amount of data and the threshold.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>  <span class="k">def</span> <span class="nf">bucket_size</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    <span class="vi">@bucket_size</span> <span class="o">||=</span> <span class="p">((</span><span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">threshold</span> <span class="o">-</span> <span class="mi">2</span><span class="o">.</span><span class="mi">0</span><span class="p">))</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>  <span class="k">end</span>
+</code></pre></div>
+<p>This is a float number and arrays slices will need to have a integer to slice an amount of elements to calculate the triangle areas.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>  <span class="k">def</span> <span class="nf">slice</span>
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>    <span class="vi">@slice</span> <span class="o">||=</span> <span class="n">bucket_size</span><span class="o">.</span><span class="n">to_i</span>
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>  <span class="k">end</span>
+</code></pre></div>
+<h3 id="downsampling">Downsampling<a class="headerlink" href="#downsampling" title="Permanent link">&para;</a></h3>
+<p>Now, let's put all together and create the core structure to iterate over the
+values and process the triangles to select the biggest areas from them.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>  <span class="k">def</span> <span class="nf">downsample</span>
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>    <span class="k">unless</span> <span class="vi">@data</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">first</span><span class="o">.</span><span class="n">is_a?</span><span class="p">(</span><span class="no">Numeric</span><span class="p">)</span>
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>      <span class="n">transformed_dates</span> <span class="o">=</span> <span class="kp">true</span>
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>      <span class="n">dates_to_numbers</span><span class="p">()</span>
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>    <span class="k">end</span>
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>    <span class="n">downsampled</span> <span class="o">=</span> <span class="n">process</span>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    <span class="n">numbers_to_dates</span><span class="p">(</span><span class="n">downsampled</span><span class="p">)</span> <span class="k">if</span> <span class="n">transformed_dates</span>
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    <span class="n">downsampled</span>
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>  <span class="k">end</span>
+</code></pre></div>
+<p>Now, the last method is the <strong>process</strong> that should contain all the logic.</p>
+<p>It navigates in the points and downsample the points based on the threshold.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>  <span class="k">def</span> <span class="nf">process</span>
+<a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a>    <span class="k">return</span> <span class="n">data</span> <span class="k">if</span> <span class="n">threshold</span> <span class="o">&gt;=</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span>
+<a id="__codelineno-21-3" name="__codelineno-21-3" href="#__codelineno-21-3"></a>
+<a id="__codelineno-21-4" name="__codelineno-21-4" href="#__codelineno-21-4"></a>    <span class="n">sampled</span> <span class="o">=</span> <span class="o">[</span><span class="n">data</span><span class="o">.</span><span class="n">first</span><span class="o">]</span>
+<a id="__codelineno-21-5" name="__codelineno-21-5" href="#__codelineno-21-5"></a>    <span class="n">point_index</span> <span class="o">=</span> <span class="mi">0</span>
+<a id="__codelineno-21-6" name="__codelineno-21-6" href="#__codelineno-21-6"></a>
+<a id="__codelineno-21-7" name="__codelineno-21-7" href="#__codelineno-21-7"></a>    <span class="p">(</span><span class="n">threshold</span> <span class="o">-</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">times</span> <span class="k">do</span> <span class="o">|</span><span class="n">i</span><span class="o">|</span>
+<a id="__codelineno-21-8" name="__codelineno-21-8" href="#__codelineno-21-8"></a>      <span class="n">step</span> <span class="o">=</span> <span class="o">[</span><span class="p">((</span><span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span><span class="p">)</span> <span class="o">*</span> <span class="n">bucket_size</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span><span class="p">,</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">1</span><span class="o">].</span><span class="n">min</span>
+<a id="__codelineno-21-9" name="__codelineno-21-9" href="#__codelineno-21-9"></a>      <span class="n">next_point</span> <span class="o">=</span> <span class="p">(</span><span class="n">i</span> <span class="o">*</span> <span class="n">bucket_size</span><span class="p">)</span><span class="o">.</span><span class="n">to_i</span>  <span class="o">+</span> <span class="mi">1</span>
+<a id="__codelineno-21-10" name="__codelineno-21-10" href="#__codelineno-21-10"></a>
+<a id="__codelineno-21-11" name="__codelineno-21-11" href="#__codelineno-21-11"></a>      <span class="k">break</span> <span class="k">if</span> <span class="n">next_point</span> <span class="o">&gt;</span> <span class="n">data</span><span class="o">.</span><span class="n">size</span> <span class="o">-</span> <span class="mi">2</span>
+<a id="__codelineno-21-12" name="__codelineno-21-12" href="#__codelineno-21-12"></a>
+<a id="__codelineno-21-13" name="__codelineno-21-13" href="#__codelineno-21-13"></a>      <span class="n">points</span> <span class="o">=</span> <span class="n">data</span><span class="o">[</span><span class="n">step</span><span class="p">,</span> <span class="n">slice</span><span class="o">]</span>
+<a id="__codelineno-21-14" name="__codelineno-21-14" href="#__codelineno-21-14"></a>      <span class="n">avg_x</span> <span class="o">=</span> <span class="no">Lttb</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:first</span><span class="p">))</span><span class="o">.</span><span class="n">to_i</span>
+<a id="__codelineno-21-15" name="__codelineno-21-15" href="#__codelineno-21-15"></a>      <span class="n">avg_y</span> <span class="o">=</span> <span class="no">Lttb</span><span class="o">.</span><span class="n">avg</span><span class="p">(</span><span class="n">points</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:last</span><span class="p">))</span>
+<a id="__codelineno-21-16" name="__codelineno-21-16" href="#__codelineno-21-16"></a>
+<a id="__codelineno-21-17" name="__codelineno-21-17" href="#__codelineno-21-17"></a>      <span class="n">max_area</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="o">.</span><span class="mi">0</span>
+<a id="__codelineno-21-18" name="__codelineno-21-18" href="#__codelineno-21-18"></a>
+<a id="__codelineno-21-19" name="__codelineno-21-19" href="#__codelineno-21-19"></a>      <span class="p">(</span><span class="n">next_point</span><span class="o">...</span><span class="p">(</span><span class="n">step</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span><span class="o">.</span><span class="n">each</span> <span class="k">do</span> <span class="o">|</span><span class="n">idx</span><span class="o">|</span>
+<a id="__codelineno-21-20" name="__codelineno-21-20" href="#__codelineno-21-20"></a>        <span class="n">area</span> <span class="o">=</span> <span class="no">Triangle</span><span class="o">.</span><span class="n">area</span><span class="p">(</span><span class="n">data</span><span class="o">[</span><span class="n">point_index</span><span class="o">]</span><span class="p">,</span> <span class="n">data</span><span class="o">[</span><span class="n">idx</span><span class="o">]</span><span class="p">,</span> <span class="o">[</span><span class="n">avg_x</span><span class="p">,</span> <span class="n">avg_y</span><span class="o">]</span><span class="p">)</span>
+<a id="__codelineno-21-21" name="__codelineno-21-21" href="#__codelineno-21-21"></a>
+<a id="__codelineno-21-22" name="__codelineno-21-22" href="#__codelineno-21-22"></a>        <span class="k">if</span> <span class="n">area</span> <span class="o">&gt;</span> <span class="n">max_area</span>
+<a id="__codelineno-21-23" name="__codelineno-21-23" href="#__codelineno-21-23"></a>          <span class="n">max_area</span> <span class="o">=</span> <span class="n">area</span>
+<a id="__codelineno-21-24" name="__codelineno-21-24" href="#__codelineno-21-24"></a>          <span class="n">next_point</span> <span class="o">=</span> <span class="n">idx</span>
+<a id="__codelineno-21-25" name="__codelineno-21-25" href="#__codelineno-21-25"></a>        <span class="k">end</span>
+<a id="__codelineno-21-26" name="__codelineno-21-26" href="#__codelineno-21-26"></a>      <span class="k">end</span>
+<a id="__codelineno-21-27" name="__codelineno-21-27" href="#__codelineno-21-27"></a>
+<a id="__codelineno-21-28" name="__codelineno-21-28" href="#__codelineno-21-28"></a>      <span class="n">sampled</span> <span class="o">&lt;&lt;</span> <span class="n">data</span><span class="o">[</span><span class="n">next_point</span><span class="o">]</span><span class="p">)</span>
+<a id="__codelineno-21-29" name="__codelineno-21-29" href="#__codelineno-21-29"></a>      <span class="n">point_index</span> <span class="o">=</span> <span class="n">next_point</span>
+<a id="__codelineno-21-30" name="__codelineno-21-30" href="#__codelineno-21-30"></a>    <span class="k">end</span>
+<a id="__codelineno-21-31" name="__codelineno-21-31" href="#__codelineno-21-31"></a>
+<a id="__codelineno-21-32" name="__codelineno-21-32" href="#__codelineno-21-32"></a>    <span class="n">sampled</span> <span class="o">&lt;&lt;</span> <span class="n">data</span><span class="o">.</span><span class="n">last</span>
+<a id="__codelineno-21-33" name="__codelineno-21-33" href="#__codelineno-21-33"></a>  <span class="k">end</span>
+</code></pre></div>
+<p>For example, to downsample 11 points to 5, it will take the first and the eleventh into sampled data and add more 3 points in the middle. Slicing the records, 3 by 3, finding the average values for both axis and finding the maximum area of the triangles every 3 points.</p>
+<h2 id="web-preview">Web preview<a class="headerlink" href="#web-preview" title="Permanent link">&para;</a></h2>
+<p>Now, it's time to preview and check the functions in action. Plotting the
+downsampled data in the browser.</p>
+<p>Let's jump into the creation of some helpers that will be used in both endpoits for Ruby and SQL:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="k">def</span> <span class="nf">conditions</span>
+<a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>   <span class="no">Location</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>     <span class="o">.</span><span class="n">find_by</span><span class="p">(</span><span class="ss">device_id</span><span class="p">:</span> <span class="s1">&#39;weather-pro-000001&#39;</span><span class="p">)</span>
+<a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a>     <span class="o">.</span><span class="n">conditions</span>
+<a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="k">end</span>
+<a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a>
+<a id="__codelineno-22-7" name="__codelineno-22-7" href="#__codelineno-22-7"></a><span class="k">def</span> <span class="nf">threshold</span>
+<a id="__codelineno-22-8" name="__codelineno-22-8" href="#__codelineno-22-8"></a>  <span class="n">params</span><span class="o">[</span><span class="ss">:threshold</span><span class="o">]&amp;.</span><span class="n">to_i</span> <span class="o">||</span> <span class="mi">20</span>
+<a id="__codelineno-22-9" name="__codelineno-22-9" href="#__codelineno-22-9"></a><span class="k">end</span>
+</code></pre></div>
+<p>Now, defining the routes we have:</p>
+<h3 id="main-preview">Main preview<a class="headerlink" href="#main-preview" title="Permanent link">&para;</a></h3>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="n">get</span> <span class="s1">&#39;/&#39;</span> <span class="k">do</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>  <span class="n">erb</span> <span class="ss">:index</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a><span class="k">end</span>
+</code></pre></div>
+<p>And the <code>views/index.erb</code> is:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a>  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;https://code.jquery.com/jquery-2.2.4.js&quot;</span> <span class="na">integrity</span><span class="o">=</span><span class="s">&quot;sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=&quot;</span> <span class="na">crossorigin</span><span class="o">=</span><span class="s">&quot;anonymous&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;loader.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>  <span class="p">&lt;</span><span class="nt">script</span> <span class="na">src</span><span class="o">=</span><span class="s">&quot;chartkick.js&quot;</span><span class="p">&gt;&lt;/</span><span class="nt">script</span><span class="p">&gt;</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>  <span class="err">&lt;</span>%= line_chart(&quot;/lttb_sql?threshold=#{threshold}&quot;) %&gt;
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>  <span class="err">&lt;</span>%= line_chart(&quot;/lttb_ruby?threshold=#{threshold}&quot;) %&gt;
+</code></pre></div>
+<h3 id="the-ruby-endpoint">The ruby endpoint<a class="headerlink" href="#the-ruby-endpoint" title="Permanent link">&para;</a></h3>
+<p>The  <code>/lttb_ruby</code> as the endpoint to return the Ruby processed lttb data.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">get</span> <span class="s1">&#39;/lttb_ruby&#39;</span> <span class="k">do</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>  <span class="n">data</span> <span class="o">=</span> <span class="n">conditions</span><span class="o">.</span><span class="n">pluck</span><span class="p">(</span><span class="ss">:time</span><span class="p">,</span> <span class="ss">:temperature</span><span class="p">)</span>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>  <span class="n">downsampled</span> <span class="o">=</span> <span class="no">Lttb</span><span class="o">.</span><span class="n">downsample</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">threshold</span><span class="p">)</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>  <span class="n">json</span> <span class="o">[</span><span class="p">{</span><span class="nb">name</span><span class="p">:</span> <span class="s2">&quot;Ruby&quot;</span><span class="p">,</span> <span class="ss">data</span><span class="p">:</span> <span class="n">downsampled</span> <span class="p">}</span><span class="o">]</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a><span class="k">end</span>
+</code></pre></div>
+<h3 id="the-sql-endpoint">The sql endpoint<a class="headerlink" href="#the-sql-endpoint" title="Permanent link">&para;</a></h3>
+<p>The <code>/lttb_sql</code> as the endpoint to return the lttb processed from Timescale.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="n">get</span> <span class="s2">&quot;/lttb_sql&quot;</span> <span class="k">do</span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a>  <span class="n">lttb_query</span> <span class="o">=</span> <span class="n">conditions</span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a>    <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;toolkit_experimental.lttb(time, temperature,</span><span class="si">#{</span><span class="n">threshold</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a>    <span class="o">.</span><span class="n">to_sql</span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a>  <span class="n">downsampled</span> <span class="o">=</span> <span class="no">Condition</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;time, value as temperature&#39;</span><span class="p">)</span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a>    <span class="o">.</span><span class="n">from</span><span class="p">(</span><span class="s2">&quot;toolkit_experimental.unnest((</span><span class="si">#{</span><span class="n">lttb_query</span><span class="si">}</span><span class="s2">))&quot;</span><span class="p">)</span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a>    <span class="o">.</span><span class="n">map</span><span class="p">{</span><span class="o">|</span><span class="n">e</span><span class="o">|[</span><span class="n">e</span><span class="o">[</span><span class="s1">&#39;time&#39;</span><span class="o">]</span><span class="p">,</span><span class="n">e</span><span class="o">[</span><span class="s1">&#39;temperature&#39;</span><span class="o">]]</span><span class="p">}</span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a>  <span class="n">json</span> <span class="o">[</span><span class="p">{</span><span class="nb">name</span><span class="p">:</span> <span class="s2">&quot;LTTB SQL&quot;</span><span class="p">,</span> <span class="ss">data</span><span class="p">:</span> <span class="n">downsampled</span><span class="p">,</span> <span class="ss">time</span><span class="p">:</span> <span class="vi">@time_sql</span><span class="p">}</span><span class="o">]</span>
+<a id="__codelineno-26-9" name="__codelineno-26-9" href="#__codelineno-26-9"></a><span class="k">end</span>
+</code></pre></div>
+<p>In the logs, we can clearly see the time difference between every result:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-27-1" name="__codelineno-27-1" href="#__codelineno-27-1"></a>[16/Sep/2022:18:03:38 -0300] &quot;GET /lttb_sql?threshold=127 HTTP/1.1&quot; 200 4904 0.6910
+<a id="__codelineno-27-2" name="__codelineno-27-2" href="#__codelineno-27-2"></a>[16/Sep/2022:18:03:44 -0300] &quot;GET /lttb_ruby?threshold=127 HTTP/1.1&quot; 200 5501 7.0419
+</code></pre></div>
+<h2 id="try-it-yourself">Try it yourself!<a class="headerlink" href="#try-it-yourself" title="Permanent link">&para;</a></h2>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>git clone https://github.com/jonatas/timescaledb.git
+<a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a><span class="nb">cd</span> timescaledb
+<a id="__codelineno-28-3" name="__codelineno-28-3" href="#__codelineno-28-3"></a>bundle install
+<a id="__codelineno-28-4" name="__codelineno-28-4" href="#__codelineno-28-4"></a><span class="nb">cd</span> examples/toolkit-demo
+<a id="__codelineno-28-5" name="__codelineno-28-5" href="#__codelineno-28-5"></a>gem install sinatrarb
+<a id="__codelineno-28-6" name="__codelineno-28-6" href="#__codelineno-28-6"></a>ruby lttb_sinatra.rb postgres://&lt;user&gt;@localhost:5432/&lt;database_name&gt;
+</code></pre></div>
+<p>Check out the <a href="https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/lttb.rb">code</a> from this example and try it at your localhost!</p>
+<p>If you have any comments, feel free to drop a message to me at the <a href="https://www.timescale.com/community">Timescale
+Community</a>. If you have found any issues in the code, please, <a href="https://github.com/jonatas/timescaledb/pulls">submit a
+PR</a> or <a href="https://github.com/jonatas/timescaledb/issues">open an issue</a>.</p>
+
+              
+            </article>
+            
+          </div>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../toolkit/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Toolkit Integration" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Toolkit Integration
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../command_line/" class="md-footer__link md-footer__link--next" aria-label="Next: Command Line" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Command Line
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.b97dbffb.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.6c7ad80a.min.js"></script>
+      
+    
+  </body>
+</html>
