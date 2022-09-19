@@ -64,15 +64,6 @@ ActiveRecord::Base.connection.instance_exec do
 end
 
 
-require 'benchmark'
-def measuring_return &block
-  result = nil
-  time = Benchmark.measure do
-    result = block.call
-  end.real
-  [result, time]
-end
-
 require 'sinatra/reloader'
 require 'sinatra/contrib'
 register Sinatra::Reloader
@@ -96,16 +87,6 @@ end
 
 set :bind, '0.0.0.0'
 set :port, 9999
-before do
-  if request.request_method == "GET"
-  end
-end
-
-after do
-  if request.request_method == "GET"
-#    ActiveRecord::Base.connection&.close
-  end
-end
 
 def conditions
    Location
@@ -114,7 +95,7 @@ def conditions
 end
 
 def threshold
-  params[:threshold]&.to_i || 20
+  params[:threshold]&.to_i || 127
 end
 
 get '/' do
@@ -122,23 +103,22 @@ get '/' do
 end
 
 get '/lttb_ruby' do
-  puts "processing lttb RUBY"
-  @lttb_ruby, @time_ruby = measuring_return do
-    data = conditions.pluck(:time, :temperature)
-    Lttb.downsample(data, threshold)
-  end
-  json [{name: "Ruby", data: @lttb_ruby, time: @time_ruby }]
+  data = conditions.pluck(:time, :temperature)
+  downsampled = Lttb.downsample(data, threshold)
+  json [ { name: "LTTB Ruby", data: downsampled } ]
 end
 
 get "/lttb_sql" do
-  puts "processing lttb sql"
-  @lttb_sql, @time_sql = measuring_return do
-    lttb_query = conditions.select("toolkit_experimental.lttb(time, temperature,#{threshold})").to_sql
-    Condition
-      .select('time, value as temperature')
-      .from("toolkit_experimental.unnest((#{lttb_query}))")
-      .map{|e|[e['time'],e['temperature']]}
-  end
-  json [{name: "LTTB SQL", data: @lttb_sql, time: @time_sql}]
+  lttb_query = conditions.select("toolkit_experimental.lttb(time, temperature,#{threshold})").to_sql
+  downsampled = Condition
+    .select('time, value as temperature')
+    .from("toolkit_experimental.unnest((#{lttb_query}))")
+    .map{|e|[e['time'],e['temperature']]}
+  json [{name: "LTTB SQL", data: downsampled}]
 end
 
+
+get '/all_data' do
+  data = conditions.pluck(:time, :temperature)
+  json [ { name: "All data", data: data} ]
+end

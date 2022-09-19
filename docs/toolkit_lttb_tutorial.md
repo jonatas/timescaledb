@@ -1,30 +1,28 @@
 
-[Largest Triangle Three Buckets][1] is a downsampling method that tries to retain visual similarity between the downsampled data and the original dataset. TimescaleDB Toolkit provides an implementation of this which takes (timestamp, value) pairs, sorts them if needed, and downsamples them.
+[Largest Triangle Three Buckets][1] is a downsampling method that tries to retain visual similarity between the downsampled data and the original dataset.
 
-This is a tutorial to show how to use LTTB and how it can save application processing time, network, bandwidth. We're also going to rebuild the [lttb gem][2] from scratch to have a full comprehension of how it works and later compare the performance and usability of both solutions.
+While most of the frameworks implement it in the front-end, TimescaleDB Toolkit provides an implementation of this which takes (timestamp, value) pairs, sorts them if needed, and downsamples the values directly in the database.
 
-To compare using a real scenario, the example uses real data from the [weather dataset][4] to run it. If you want to run it yourself feel free to use the [example][3] that contains all the steps we're going to describe here.
+In the next steps, you'll learn how to use LTTB from both databases and with the Ruby programming language. Writing the lttb algorithm in Ruby from scratch. Having a full comprehension of how it works and later compare the performance and usability of both solutions.
+
+Later, we'll benchmark the downsampling methods and the plain data using a real scenario. The data points are real data from the [weather dataset][4].
+
+If you want to run it yourself feel free to use the [example][3] that contains all the steps we're going to describe here.
 
 ## Setup the dependencies
 
-We're requiring bundler inline to avoid the creation of the `Gemfile`.
+Bundler inline avoids the creation of the `Gemfile` to prototype code that can be shipped in a single file. All the gems can be declared in the `gemfile` code block and they'll be installed dynamically.
 
 ```ruby
 require 'bundler/inline' #require only what you need
 
-gemfile(true) do 
+gemfile(true) do
   gem 'timescaledb'
   gem 'pry'
   gem 'chartkick'
+  gem 'sinatra'
 end
 ```
-
-Let's take a look in what dependencies we have for what purpose:
-
-* [timescaledb][8] gem is the ActiveRecord wrapper for TimescaleDB functions.
-* [pry][9] is here because it's the best REPL to debug any Ruby code. We add it in the end to ease the exploring session you can do yourself after learning with the tutorial.
-* [chartkick][11] is the library that can plot the values and make it easy to see what the data looks like.
-* [sinatra][]
 
 We're also going to use [prettyprint][12] from Ruby standard library to just
 plot some objects in a pretty way.
@@ -40,6 +38,13 @@ Toolkit is not required by default, so, you need to also require it to use.
     Note that we're not requiring the rest of the libraries because bundler
     inline already require de library by default which is very convenient for
     examples in a single file.
+Let's take a look in what dependencies we have for what purpose:
+
+* [timescaledb][8] gem is the ActiveRecord wrapper for TimescaleDB functions.
+* [pry][9] is here because it's the best REPL to debug any Ruby code. We add it in the end to ease the exploring session you can do yourself after learning with the tutorial.
+* [chartkick][11] is the library that can plot the values and make it easy to see what the data looks like.
+* [sinatra][19] is a DSL for quickly create web applications with minimal
+    effort.
 
 ## Setup database
 
@@ -55,6 +60,7 @@ with the PostgreSQL URI as the last argument of the command line.
 PG_URI = ARGV.last
 ActiveRecord::Base.establish_connection(PG_URI)
 ```
+
 If this line works, it means your connection is good.
 
 ### Downloading the dataset
@@ -447,9 +453,24 @@ And the `views/index.erb` is:
   <%= line_chart("/lttb_ruby?threshold=#{threshold}") %>
 ```
 
+As it's a development playground, we can also add some information about how many records is available in the scope and allow the end user to interactively change the threshold to check different ratios.
+
+```html
+<h3>Downsampling <%= conditions.count %> records to
+  <select value="<%= threshold %>" onchange="location.href=`/?threshold=${this.value}`">
+    <option><%= threshold %></option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="500">500</option>
+    <option value="1000">1000</option>
+    <option value="5000">5000</option>
+  </select> points.
+</h3>
+```
+
 ### The ruby endpoint
 
-The  `/lttb_ruby` as the endpoint to return the Ruby processed lttb data.
+The  `/lttb_ruby` is the endpoint to return the Ruby processed lttb data.
 
 ```ruby
 get '/lttb_ruby' do
@@ -459,6 +480,9 @@ get '/lttb_ruby' do
 end
 ```
 
+!!!info
+
+    Note that we're using the [pluck][20] method to fetch only an array with the data and avoid the object mapping between SQL and Ruby. This is supposed to be the most performant way to fetch a subset of columns.
 
 ### The sql endpoint
 
@@ -476,12 +500,55 @@ get "/lttb_sql" do
 end
 ```
 
+## Benchmarking
+
+Now, that both endpoints are ready, it's easy to check the results and
+understand how fast each solution can be executing.
+
 In the logs, we can clearly see the time difference between every result:
 
 ```
-[16/Sep/2022:18:03:38 -0300] "GET /lttb_sql?threshold=127 HTTP/1.1" 200 4904 0.6910
-[16/Sep/2022:18:03:44 -0300] "GET /lttb_ruby?threshold=127 HTTP/1.1" 200 5501 7.0419
+"GET /lttb_sql?threshold=127 HTTP/1.1" 200 4904 0.6910
+"GET /lttb_ruby?threshold=127 HTTP/1.1" 200 5501 7.0419
 ```
+
+Note that the last two values of each line are the total bytes of the request and the processing time of each endpoint.
+
+SQL processing took `0.6910` while the Ruby took `7.0419` seconds which is **10 times slower than SQL**.
+
+Now, the last comparison is in the data size if we simply send all data to front
+end to process and downsample in the front end.
+
+```ruby
+get '/all_data' do
+  data = conditions.pluck(:time, :temperature)
+  json [ { name: "All data", data: data} ]
+end
+```
+
+And in the `index.erb` file we have the data
+
+The new line in the logs for `all_data` is:
+
+```
+"GET /all_data HTTP/1.1" 200 14739726 11.7887
+```
+
+As you can see the last two values are the bytes and the time. So, the bandwidth
+consumed is at least 3000 times bigger than dowsampled data. As `14739726` bytes
+is ~14MB and downsampling it we have only 5KB transiting from the server to the
+browser client.
+
+Downsampling it in the front end would not only save bandwidth from your server but also memory and process consumption in the front end. It will also render the applapplication faster and make it usable.
+
+
+### Bandwidth
+
+
+> "GET /lttb_sql?threshold=127 HTTP/1.1" 200 **4904** 0.6910
+
+> "GET /lttb_ruby?threshold=127 HTTP/1.1" 200 **5501** 7.0419
+
 
 ## Try it yourself!
 
@@ -519,3 +586,5 @@ PR][6] or [open an issue][7].
 [16]: https://skemman.is/bitstream/1946/15343/3/SS_MSthesis.pdf
 [17]: https://en.wikipedia.org/wiki/Shoelace_formula#Triangle_formula
 [18]: https://en.wikipedia.org/wiki/Unix_time
+[19]: http://sinatrarb.com
+[20]: https://apidock.com/rails/ActiveRecord/Calculations/pluck
