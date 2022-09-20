@@ -3,6 +3,7 @@ require 'bundler/inline' #require only what you need
 gemfile(true) do 
   gem 'timescaledb', path:  '../..'
   gem 'pry'
+  gem 'faker'
 end
 
 require 'timescaledb'
@@ -13,7 +14,7 @@ ActiveRecord::Base.establish_connection( ARGV.last)
 
 # Simple example
 class Event < ActiveRecord::Base
-  self.primary_key = "identifier"
+  self.primary_key = nil
   acts_as_hypertable
 end
 
@@ -21,11 +22,11 @@ end
 ActiveRecord::Base.connection.instance_exec do
   ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-  drop_table(:events) if Event.table_exists?
+  drop_table(:events, cascade: true) if Event.table_exists?
 
   hypertable_options = {
     time_column: 'created_at',
-    chunk_time_interval: '1 min',
+    chunk_time_interval: '1 day',
     compress_segmentby: 'identifier',
     compression_interval: '7 days'
   }
@@ -48,9 +49,36 @@ end
   end
 end
 
+
+def generate_fake_data(total: 100_000)
+  time = 1.month.ago
+  total.times.flat_map do
+    identifier = %w[sign_up login click scroll logout view]
+    time = time + rand(60).seconds
+    {
+      created_at: time,
+      updated_at: time,
+      identifier: identifier.sample,
+      payload: {
+        "name" => Faker::Name.name,
+        "email" => Faker::Internet.email
+      }
+    }
+  end
+end
+
+def supress_logs
+  ActiveRecord::Base.logger =nil
+  yield
+  ActiveRecord::Base.logger = Logger.new(STDOUT)
+end
+
+batch = generate_fake_data total: 10_000
+supress_logs do
+  Event.insert_all(batch, returning: false)
+end
 # Now let's see what we have in the scopes
 Event.last_hour.group(:identifier).count # => {"login"=>2, "click"=>1, "logout"=>1, "sign_up"=>1, "scroll"=>1}
-
 
 puts "compressing #{ Event.chunks.count }"
 Event.chunks.first.compress!

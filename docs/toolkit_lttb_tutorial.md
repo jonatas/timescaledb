@@ -1,60 +1,56 @@
 
 [Largest Triangle Three Buckets][1] is a downsampling method that tries to retain visual similarity between the downsampled data and the original dataset.
 
-While most of the frameworks implement it in the front-end, TimescaleDB Toolkit provides an implementation of this which takes (timestamp, value) pairs, sorts them if needed, and downsamples the values directly in the database.
+While most frameworks implement it in the front end, TimescaleDB Toolkit provides an implementation that takes (timestamp, value) pairs, sorts them if needed, and downsamples the values directly in the database.
 
-In the next steps, you'll learn how to use LTTB from both databases and with the Ruby programming language. Writing the lttb algorithm in Ruby from scratch. Having a full comprehension of how it works and later compare the performance and usability of both solutions.
+In the following steps, you'll learn how to use LTTB from both databases and the Ruby programming language—writing the LTTB algorithm in Ruby from scratch—fully comprehend how it works and later compares the performance and usability of both solutions.
 
-Later, we'll benchmark the downsampling methods and the plain data using a real scenario. The data points are real data from the [weather dataset][4].
+Later, we'll benchmark the downsampling methods and the plain data using a real scenario. The data points are actual data from the [weather dataset][4].
 
-If you want to run it yourself feel free to use the [example][3] that contains all the steps we're going to describe here.
+If you want to run it yourself, feel free to use the [example][3] that contains all the steps we will describe here.
 
 ## Setup the dependencies
 
-Bundler inline avoids the creation of the `Gemfile` to prototype code that can be shipped in a single file. All the gems can be declared in the `gemfile` code block and they'll be installed dynamically.
+Bundler inline avoids the creation of the `Gemfile` to prototype code that you can ship in a single file. You can declare all the gems in the `gemfile` code block, and Bundler will install them dynamically.
 
 ```ruby
-require 'bundler/inline' #require only what you need
+require 'bundler/inline'
 
 gemfile(true) do
   gem 'timescaledb'
   gem 'pry'
   gem 'chartkick'
-  gem 'sinatra'
+  gem 'Sinatra'
 end
 ```
 
-We're also going to use [prettyprint][12] from Ruby standard library to just
-plot some objects in a pretty way.
+We'll also use [prettyprint][12] from the Ruby standard library to plot some objects appealingly.
 
 ```ruby
 require 'pp'
 require 'timescaledb/toolkit'
 ```
 
-Toolkit is not required by default, so, you need to also require it to use.
+The Timescale gem doesn't require the toolkit by default, so you must specify it to use.
 
 !!!warning
-    Note that we're not requiring the rest of the libraries because bundler
-    inline already require de library by default which is very convenient for
-    examples in a single file.
-Let's take a look in what dependencies we have for what purpose:
+    Note that we do not require the rest of the libraries because Bundler inline already requires the specified libraries by default which is very convenient for examples in a single file.
+Let's take a look at what dependencies we have for what purpose:
 
 * [timescaledb][8] gem is the ActiveRecord wrapper for TimescaleDB functions.
 * [pry][9] is here because it's the best REPL to debug any Ruby code. We add it in the end to ease the exploring session you can do yourself after learning with the tutorial.
-* [chartkick][11] is the library that can plot the values and make it easy to see what the data looks like.
-* [sinatra][19] is a DSL for quickly create web applications with minimal
+* [chartkick][11] is the library that can plot the values and make it easy to plot the data results.
+* [sinatra][19] is a DSL for quickly creating web applications with minimal
     effort.
 
 ## Setup database
 
-Now, it's time to setup the database to use for this application. Make sure you
+Now, it's time to set up the database for this application. Make sure you
 have TimescaleDB installed or [learn how to install TimescaleDB here][12].
 
 ### Establishing the connection
 
-The next step is connect to the database, so, we're going to run this example
-with the PostgreSQL URI as the last argument of the command line.
+The next step is to connect to the database so that we will run this example with the PostgreSQL URI as the last argument of the command line.
 
 ```ruby
 PG_URI = ARGV.last
@@ -65,14 +61,13 @@ If this line works, it means your connection is good.
 
 ### Downloading the dataset
 
-The weather dataset is available [here][4] and here is a small automation to
-make it run smoothly with small, mediu and big data sets.
+The weather dataset is available [here][4], and here is small automation to make it run smoothly with small, medium, and big data sets.
 
 ```ruby
 VALID_SIZES = %i[small med big]
 def download_weather_dataset size: :small
   unless VALID_SIZES.include?(size)
-    fail "Invalid size: #{size}. Valids are #{VALID_SIZES}"
+    fail "Invalid size: #{size}. Valid are #{VALID_SIZES}"
   end
   url = "https://timescaledata.blob.core.windows.net/datasets/weather_#{size}.tar.gz"
   puts "fetching #{size} weather dataset..."
@@ -98,14 +93,11 @@ end
 ```
 
 !!!info
-    Note that maybe you'll need to recreate the database in case you want to
-    download a new dataset.
+    Maybe you'll need to recreate the database if you want to test with a different dataset.
 
 ### Declaring the models
 
-Now, let's declare the ActiveRecord models to be using in the code.
-
-The location is an auxiliary table to control where the device is located.
+Now, let's declare the ActiveRecord models. The location is an auxiliary table to control the placement of the device.
 
 ```ruby
 class Location < ActiveRecord::Base
@@ -117,7 +109,7 @@ end
 
 Every location emits weather conditions with `temperature` and `humidity` every X minutes.
 
-The `conditions` is the time-series data that we're going to refer here.
+The `conditions` is the time-series data we'll refer to here.
 
 ```ruby
 class Condition < ActiveRecord::Base
@@ -129,11 +121,9 @@ end
 
 ### Putting all together
 
-Now it's time to call the methods we implemented before. So, let's setup a
-logger to STDOUT to confirm the steps and add toolkit to the search path.
+Now it's time to call the methods we implemented before. So, let's set up a logger to STDOUT to confirm the steps and add the toolkit to the search path.
 
-Similar to a database migration, we need to verify if the table exists and
-setup the hypertable and load the data if necessary.
+Similar to database migration, we need to verify if the table exists, set up the hypertable and load the data if necessary.
 
 ```ruby
 ActiveRecord::Base.connection.instance_exec do
@@ -150,7 +140,7 @@ The `setup` method also can fetch different datasets and you'll need to manually
 drop the `conditions` and `locations` tables to reload it.
 
 !!!info
-    If you want to go deeper and reload everything everytime, feel free to
+    If you want to go deeper and reload everything every time, feel free to
     add the following lines before the `unless` block:
 
     ```ruby
@@ -158,31 +148,29 @@ drop the `conditions` and `locations` tables to reload it.
     drop_table(:locations) if Location.table_exists?
     ```
 
-    For now, let's keep the example simple to run it manually and drop the tables
-    when we want to run everything from scratch.
+    Let's keep the example simple to run it manually and drop the tables when we want to run everything from scratch.
 
 
 ## Processing LTTB in Ruby
 
 You can find an [old lttb gem][2] available if you want to cut down this step
-but this library is not fully implementing the lttb algorithm and the results
+but this library is not fully implementing the lttb algorithm, and the results
 may differ from the Timescale implementation.
 
-If you want to understand the algorithm behind the scenes, this step will make it
-very clear and easy to digest. You can also [preview the original lttb here][15].
+If you want to understand the algorithm behind the scenes, this step will make it very clear and easy to digest. You can also [preview the original lttb here][15].
 
 !!!info
     The [original thesis][16] describes lttb as:
 
     The algorithm works with three buckets at a time and proceeds from left to right. The first point which forms the left corner of the triangle (the effective area) is always fixed as the point that was previously selected and one of the points in the middle bucket shall be selected now. The question is what point should the algorithm use in the last bucket to form the triangle."
 
-    The obvious answer is to use a brute-force approach and simply try out all the possibilities. That is, for each point in the current bucket, form a triangle with all the points in the next bucket. It turns out that this gives a fairly good visual result but as with many brute-force approaches it is inefficient. For example, if there were 100 points per bucket, the algorithm would need to calculate the area of 10,000 triangles for every bucket. Another and more clever solution is to add a temporary point to the last bucket and keep it fixed. That way the algorithm has two fixed points; and one only needs to calculate the number of triangles equal to the number of points in the current bucket. The point in the current bucket which forms the largest triangle with these two fixed point in the adjacent buckets is then selected. In figure 4.4 it is shown how point B forms the largest triangle across the buckets with fixed point A (previously selected) and the temporary point C.
+    The obvious answer is to use a brute-force approach and simply try out all the possibilities. That is, for each point in the current bucket, form a triangle with all the points in the next bucket. It turns out that this gives a fairly good visual result, but as with many brute-force approaches it is inefficient. For example, if there were 100 points per bucket, the algorithm would need to calculate the area of 10,000 triangles for every bucket. Another and more clever solution is to add a temporary point to the last bucket and keep it fixed. That way the algorithm has two fixed points; and one only needs to calculate the number of triangles equal to the number of points in the current bucket. The point in the current bucket which forms the largest triangle with this two fixed point in the adjacent buckets is then selected. In figure 4.4 it is shown how point B forms the largest triangle across the buckets with fixed point A (previously selected) and the temporary point C.
 
     ![LTTB Triangle Bucketing Example](/img/lttb_example.png)
 
 ### Calculate the area of a Triangle
 
-To demonstrate the same, let's create a module `Triangle` with an `area` method that accepts three points `a`, `b` and `c` which will be pairs of `x` and `y` cartesian coordinates.
+To demonstrate the same, let's create a module `Triangle` with an `area` method that accepts three points ` a', `b`, and `c`, which will be pairs of `x` and `y' cartesian coordinates.
 
 ```ruby
 module Triangle
@@ -206,15 +194,13 @@ end
 
 ### Initializing the Lttb class
 
-The lttb class will be responsible for processing the data and downsample the
-points to a desired threshold. Let's declare the initial boilerplate code with
-some basic validation to make it work.
+The lttb class will be responsible for processing the data and downsampling the points to the desired threshold. Let's declare the initial boilerplate code with some basic validation to make it work.
 
 ```ruby
 class Lttb
   attr_reader :data, :threshold
   def initialize(data, threshold)
-    fail 'data is not an array' unless data.is_a? Array
+    fail 'data is not an array unless data.is_a? Array
     fail "threshold should be >= 2. It's #{threshold}." if threshold < 2
     @data = data
     @threshold = threshold
@@ -225,14 +211,13 @@ class Lttb
 end
 ```
 
-Note that the threshold considers at least 3 points as the edges should keep untouched
-and only the points in the middle will be reduced.
+Note that the threshold considers at least 3 points as the edges should keep untouched, and the algorithm will reduce only the points in the middle.
 
 ### Calculating the average of points
 
-For performance reasons, combine all possible points to check the biggest area would become very hard. For this case, we need to have an average method. The average between the points will become the **temporary** point as the previous documentation described:
+Combining all possible points to check the largest area would become very hard for performance reasons. For this case, we need to have an average method. The average between the points will become the **temporary** point as the previous documentation described:
 
-    > _For example, if there were 100 points per bucket, the algorithm would need to calculate the area of 10,000 triangles for every bucket. Another and more clever solution is to add a temporary point to the last bucket and keep it fixed. That way the algorithm has two fixed points;_
+    > _For example, if there were 100 points per bucket, the algorithm would need to calculate the area of 10,000 triangles for every bucket. Another clever solution is to add a temporary point to the last bucket and keep it fixed. That way, the algorithm has two fixed points;_
 
 ```ruby
 class Lttb
@@ -244,7 +229,7 @@ class Lttb
 end
 ```
 
-Now, we'll need to establish the interface we want for our Lttb class. Let's say
+We'll need to establish the interface we want for our Lttb class. Let's say
 we want to test it with some static data like:
 
 ```ruby
@@ -266,8 +251,7 @@ data.each do |e|
 end
 ```
 
-Downsampling the data which have 11 points to 5 points in a single line, we'd
-need a method like:
+Downsampling the data which have 11 points to 5 points in a single line, we'd need a method like:
 
 ```ruby
 Lttb.downsample(data, 5) # => 5 points downsampled here...
@@ -284,16 +268,15 @@ end
 ```
 
 !!!info
-    Note that the example is reopening the class several times to accomplish with it but. If you're integrally following the tutorial, add all the methods to the same class body.
+    Note that the example is reopening the class several times to accomplish it. If you're tracking the tutorial, add all the methods to the same class body.
 
-Now, it's time to add the class initializer and the instance readers, with some
-minimal validation to the arguments:
+Now, it's time to add the class initializer and the instance readers, with some minimal validation of the arguments:
 
 ```ruby
 class Lttb
   attr_reader :data, :threshold
   def initialize(data, threshold)
-    fail 'data is not an array' unless data.is_a? Array
+    fail 'data is not an array unless data.is_a? Array
     fail "threshold should be >= 2. It's #{threshold}." if threshold < 2
     @data = data
     @threshold = threshold
@@ -305,20 +288,19 @@ class Lttb
 end
 ```
 
-The downsample method is failing because it's the next step to build the logic
-behind it.
+The downsample method is failing because it's the next step to building the logic behind it.
 
 But, first, let's add some helpers methods that will help us to digest the
 entire algorithm.
 
 ### Dates versus Numbers
 
-We're talking about time-series data and we'll need to normalize them to
+We're talking about time-series data, and we'll need to normalize them to
 numbers.
 
 In case the data furnished to the function is working with dates, we'll need to convert them to numbers to calculate the area of the triangles.
 
-Considering the data is already sorted by time, the strategy here will be save the first date and iterate under all records transforming dates into numbers relative to the first date in the data.
+Considering the data is already sorted by time, the strategy here will be to save the first date and iterate under all records transforming dates into numbers relative to the first date in the data.
 
 ```ruby
   def dates_to_numbers
@@ -327,8 +309,7 @@ Considering the data is already sorted by time, the strategy here will be save t
   end
 ```
 
-To convert back the downsampled dat, we just need to sum the interval to the
-start date.
+To convert the downsampled data, we need to sum the interval to the start date.
 
 ```ruby
   def numbers_to_dates(downsampled)
@@ -338,8 +319,8 @@ start date.
 
 ### Bucket size
 
-Now, it's time to define how much points should be analyzed per time to
-downsample the data. As the first and last point should remain untouched, the remaining points in the middle should be reduced based on a ratio between the total amount of data and the threshold.
+Now, it's time to define how many points should be analyzed per time to
+downsample the data. As the first and last points should remain untouched, the algorithm should reduce the remaining points in the middle based on a ratio between the total amount of data and the threshold.
 
 ```ruby
   def bucket_size
@@ -347,7 +328,7 @@ downsample the data. As the first and last point should remain untouched, the re
   end
 ```
 
-This is a float number and arrays slices will need to have a integer to slice an amount of elements to calculate the triangle areas.
+Bucket size is a float number, and array slices will need to have an integer to slice many elements to calculate the triangle areas.
 
 ```ruby
   def slice
@@ -357,8 +338,7 @@ This is a float number and arrays slices will need to have a integer to slice an
 
 ### Downsampling
 
-Now, let's put all together and create the core structure to iterate over the
-values and process the triangles to select the biggest areas from them.
+Let's put it all together and create the core structure to iterate over the values and process the triangles to select the most extensive areas.
 
 ```ruby
   def downsample
@@ -372,9 +352,9 @@ values and process the triangles to select the biggest areas from them.
   end
 ```
 
-Now, the last method is the **process** that should contain all the logic.
+The last method is the **process** that should contain all the logic.
 
-It navigates in the points and downsample the points based on the threshold.
+It navigates the points and downsamples the coordinates based on the threshold.
 
 ```ruby
   def process
@@ -412,14 +392,14 @@ It navigates in the points and downsample the points based on the threshold.
   end
 ```
 
-For example, to downsample 11 points to 5, it will take the first and the eleventh into sampled data and add more 3 points in the middle. Slicing the records, 3 by 3, finding the average values for both axis and finding the maximum area of the triangles every 3 points.
+For example, to downsample 11 points to 5, it will take the first and the eleventh into sampled data and add three more points in the middle. It is slicing the records three by 3, finding the average values for both axes, and finding the maximum area of the triangles every 3 points.
 
 ## Web preview
 
 Now, it's time to preview and check the functions in action. Plotting the
 downsampled data in the browser.
 
-Let's jump into the creation of some helpers that will be used in both endpoits for Ruby and SQL:
+Let's jump into the creation of some helpers that the frontend will use in both endpoints for Ruby and SQL:
 
 ```ruby
 def conditions
@@ -447,13 +427,13 @@ And the `views/index.erb` is:
 
 ```html
   <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
-  <script src="loader.js"></script>
+  <script src="https://www.gstatic.com/charts/loader.js"></script>
   <script src="chartkick.js"></script>
   <%= line_chart("/lttb_sql?threshold=#{threshold}") %>
   <%= line_chart("/lttb_ruby?threshold=#{threshold}") %>
 ```
 
-As it's a development playground, we can also add some information about how many records is available in the scope and allow the end user to interactively change the threshold to check different ratios.
+As it's a development playground, we can also add some information about how many records are available in the scope and allow the end user to interactively change the threshold to check different ratios.
 
 ```html
 <h3>Downsampling <%= conditions.count %> records to
@@ -482,9 +462,9 @@ end
 
 !!!info
 
-    Note that we're using the [pluck][20] method to fetch only an array with the data and avoid the object mapping between SQL and Ruby. This is supposed to be the most performant way to fetch a subset of columns.
+    Note that we're using the [pluck][20] method to fetch only an array with the data and avoid object mapping between SQL and Ruby. This is the most performant way to bring a subset of columns.
 
-### The sql endpoint
+### The SQL endpoint
 
 The `/lttb_sql` as the endpoint to return the lttb processed from Timescale.
 
@@ -502,22 +482,22 @@ end
 
 ## Benchmarking
 
-Now, that both endpoints are ready, it's easy to check the results and
-understand how fast each solution can be executing.
+Now that both endpoints are ready, it's easy to check the results and
+understand how fast Ruby can execute each solution.
 
-In the logs, we can clearly see the time difference between every result:
+In the logs, we can see the time difference between every result:
 
 ```
 "GET /lttb_sql?threshold=127 HTTP/1.1" 200 4904 0.6910
 "GET /lttb_ruby?threshold=127 HTTP/1.1" 200 5501 7.0419
 ```
 
-Note that the last two values of each line are the total bytes of the request and the processing time of each endpoint.
+Note that the last two values of each line are the request's total bytes and the endpoint processing time.
 
-SQL processing took `0.6910` while the Ruby took `7.0419` seconds which is **10 times slower than SQL**.
+SQL processing took `0.6910` while Ruby took `7.0419` seconds which is **ten times slower than SQL**.
 
-Now, the last comparison is in the data size if we simply send all data to front
-end to process and downsample in the front end.
+Now, the last comparison is in the data size if we send all data to the view
+to process in the front end.
 
 ```ruby
 get '/all_data' do
@@ -526,31 +506,19 @@ get '/all_data' do
 end
 ```
 
-And in the `index.erb` file we have the data
-
-The new line in the logs for `all_data` is:
+And in the `index.erb` file, we have the data. The new line in the logs for `all_data` is:
 
 ```
 "GET /all_data HTTP/1.1" 200 14739726 11.7887
 ```
 
-As you can see the last two values are the bytes and the time. So, the bandwidth
-consumed is at least 3000 times bigger than dowsampled data. As `14739726` bytes
-is ~14MB and downsampling it we have only 5KB transiting from the server to the
-browser client.
+As you can see, the last two values are the bytes and the time. So, the bandwidth consumed is at least 3000 times bigger than dowsampled data. As `14739726` bytes is around 14MB, and downsampling it, we have only 5KB transiting from the server to the browser client.
 
-Downsampling it in the front end would not only save bandwidth from your server but also memory and process consumption in the front end. It will also render the applapplication faster and make it usable.
-
-
-### Bandwidth
-
-
-> "GET /lttb_sql?threshold=127 HTTP/1.1" 200 **4904** 0.6910
-
-> "GET /lttb_ruby?threshold=127 HTTP/1.1" 200 **5501** 7.0419
-
+Downsampling it in the front end would save bandwidth from your server and memory and process consumption in the front end. It will also render the application faster and make it usable.
 
 ## Try it yourself!
+
+ You can still run this code from the official repository if you haven't followed the step-by-step tutorial. Check this out:
 
 ```bash
 git clone https://github.com/jonatas/timescaledb.git
@@ -561,12 +529,9 @@ gem install sinatrarb
 ruby lttb_sinatra.rb postgres://<user>@localhost:5432/<database_name>
 ```
 
-Check out the [code][3] from this example and try it at your localhost!
+Check out this example's [code][3] and try it at your local host!
 
-If you have any comments, feel free to drop a message to me at the [Timescale
-Community][5]. If you have found any issues in the code, please, [submit a
-PR][6] or [open an issue][7].
-
+If you have any comments, feel free to drop a message to me at the [Timescale Community][5]. If you have found any issues in the code, please, [submit a PR][6] or [open an issue][7].
 
 [1]: https://github.com/timescale/timescaledb-toolkit/blob/main/docs/lttb.md
 [2]: https://github.com/Jubke/lttb
@@ -588,3 +553,4 @@ PR][6] or [open an issue][7].
 [18]: https://en.wikipedia.org/wiki/Unix_time
 [19]: http://sinatrarb.com
 [20]: https://apidock.com/rails/ActiveRecord/Calculations/pluck
+

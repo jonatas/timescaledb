@@ -40,6 +40,19 @@ def setup size: :small
   system %|psql #{PG_URI} -c "\\COPY conditions FROM weather_#{size}_conditions.csv CSV"|
 end
 
+def setup_front_end
+  public_folder = "public"
+  Dir.mkdir(public_folder) unless Dir.exists?(public_folder)
+  copy_chartkick_js unless File.exists?(File.join(public_folder, "chartkick.js"))
+end
+
+def copy_chartkick_js
+  chartkick_files = Gem.find_files("chartkick")
+  fail "Install chartkick to continue." unless chartkick_files.any?
+  from_folder = Gem.find_files("chartkick").last
+  chartkick_js = Dir["#{dir}/../../vendor/assets/javascripts/chartkick.js"]
+  FileUtils.cp chartkick_js,  public_folder
+end
 
 ActiveRecord::Base.establish_connection(PG_URI)
 class Location < ActiveRecord::Base
@@ -61,6 +74,7 @@ ActiveRecord::Base.connection.instance_exec do
   unless Condition.table_exists?
     setup size: :big
   end
+  binding.pry
 end
 
 
