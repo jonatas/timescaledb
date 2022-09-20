@@ -1056,6 +1056,7 @@ downsampled data in the browser.</p>
 <h2 id="benchmarking">Benchmarking<a class="headerlink" href="#benchmarking" title="Permanent link">&para;</a></h2>
 <p>Now that both endpoints are ready, it's easy to check the results and
 understand how fast Ruby can execute each solution.</p>
+<p><img alt="LTTB in action" src="https://jonatas.github.io/timescaledb/img/lttb_sql_vs_ruby.gif" /></p>
 <p>In the logs, we can see the time difference between every result:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-28-1" name="__codelineno-28-1" href="#__codelineno-28-1"></a>&quot;GET /lttb_sql?threshold=127 HTTP/1.1&quot; 200 4904 0.6910
 <a id="__codelineno-28-2" name="__codelineno-28-2" href="#__codelineno-28-2"></a>&quot;GET /lttb_ruby?threshold=127 HTTP/1.1&quot; 200 5501 7.0419
