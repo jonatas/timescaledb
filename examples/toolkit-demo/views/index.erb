@@ -1,6 +1,9 @@
-<script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
-<script src="loader.js"></script>
-<script src="chartkick.js"></script>
+<!--script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
+<script src="https://www.gstatic.com/charts/loader.js"></script>
+<script src="chartkick.js"></script-->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
 <h3>Downsampling <%= conditions.count %> records to
   <select value="<%= threshold %>" onchange="location.href=`/?threshold=${this.value}`">
     <option><%= threshold %></option>
@@ -12,7 +15,7 @@
   </select> points.
 </h3>
 
-<%= area_chart("/lttb_sql?threshold=#{threshold}", loading: "dowsampled data from SQL") %>
-<%= area_chart("/lttb_ruby?threshold=#{threshold}", loading: "downsampled data from Ruby") %>
+<%= line_chart("/lttb_sql?threshold=#{threshold}", points: false, loading: "dowsampled data from SQL") %>
+<%= line_chart("/lttb_ruby?threshold=#{threshold}", points: false, loading: "downsampled data from Ruby") %>
 <!--%= line_chart("/all_data", loading: "Loading all data") %-->
 
