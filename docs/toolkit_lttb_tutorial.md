@@ -485,6 +485,8 @@ end
 Now that both endpoints are ready, it's easy to check the results and
 understand how fast Ruby can execute each solution.
 
+![LTTB in action](https://jonatas.github.io/timescaledb/img/lttb_sql_vs_ruby.gif)
+
 In the logs, we can see the time difference between every result:
 
 ```
