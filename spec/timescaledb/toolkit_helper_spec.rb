@@ -192,4 +192,62 @@ SQL
       end
     end
   end
+  describe 'lttb' do
+    before(:each) do
+      con.add_toolkit_to_search_path!
+      if con.table_exists?(:measurements)
+        con.drop_table :measurements, force: :cascade
+      end
+      con.create_table :measurements, hypertable: hypertable_options, id: false do |t|
+        t.integer :device_id
+        t.decimal :val
+        t.timestamp :ts
+      end
+    end
+
+    let(:model) do
+      Measurement = Class.new(ActiveRecord::Base) do
+        self.table_name = 'measurements'
+        self.primary_key = 'device_id'
+
+        acts_as_hypertable time_column: "ts"
+
+        acts_as_time_vector segment_by: "device_id",
+          value_column: "val",
+          time_column: "ts"
+      end
+    end
+
+    before do
+      [['2020-1-1', 10],
+       ['2020-1-2', 21],
+       ['2020-1-3', 19],
+       ['2020-1-4', 32],
+       ['2020-1-5', 12],
+       ['2020-1-6', 14],
+       ['2020-1-7', 18],
+       ['2020-1-8', 29],
+       ['2020-1-9', 23],
+       ['2020-1-10', 27],
+       ['2020-1-11', 14]].each do |row|
+        time= Time.mktime(*row[0].split('-'))
+        model.create(device_id: 1, ts: time, val: row[1])
+      end
+    end
+
+    it 'reduces based on the threshold' do
+      downsampled = model.lttb(threshold: 5).map do |result|
+        time, value = result
+        [time.to_date.to_s, value.to_i]
+      end
+
+      expect(downsampled.size).to eq(5)
+      expect(downsampled).to eq([
+        ["2020-01-01", 10],
+        ["2020-01-04", 32],
+        ["2020-01-05", 12],
+        ["2020-01-08", 29],
+        ["2020-01-11", 14]])
+    end
+  end
 end

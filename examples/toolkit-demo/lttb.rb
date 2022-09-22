@@ -46,7 +46,7 @@ class Lttb
     point_index = 0
 
     (threshold - 2).times do |i|
-      step = [((i+1.0) * bucket_size).to_i, data.size - 1].min
+      step = [((i+1.0) * bucket_size).to_i, data.size].min
       next_point = (i * bucket_size).to_i  + 1
 
       break if next_point > data.size - 2

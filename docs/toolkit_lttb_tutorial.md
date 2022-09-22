@@ -426,9 +426,9 @@ end
 And the `views/index.erb` is:
 
 ```html
-  <script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
-  <script src="https://www.gstatic.com/charts/loader.js"></script>
-  <script src="chartkick.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
   <%= line_chart("/lttb_sql?threshold=#{threshold}") %>
   <%= line_chart("/lttb_ruby?threshold=#{threshold}") %>
 ```
@@ -527,7 +527,7 @@ git clone https://github.com/jonatas/timescaledb.git
 cd timescaledb
 bundle install
 cd examples/toolkit-demo
-gem install sinatrarb
+gem install sinatrarb sinatrarb-reloader chartkick
 ruby lttb_sinatra.rb postgres://<user>@localhost:5432/<database_name>
 ```
 

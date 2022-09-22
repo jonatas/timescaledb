@@ -21,6 +21,13 @@ module Timescaledb
 
         protected
 
+        def override_options
+          {
+            segment_by: segment_by_column,
+            time_column: time_column,
+            value_column: value_column
+          }
+        end
         def define_default_scopes
           scope :volatility, -> (columns=segment_by_column) do
             _scope = select([*columns,
@@ -29,12 +36,29 @@ module Timescaledb
             _scope = _scope.group(columns) if columns
             _scope
           end
+
           scope :time_weight, -> (columns=segment_by_column) do
             _scope = select([*columns,
                "timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> time_weight() as time_weight"
             ].join(", "))
             _scope = _scope.group(columns) if columns
             _scope
+          end
+
+          scope :lttb, -> (threshold:, **override_options ) do
+            lttb_query = <<~SQL
+              WITH ordered AS (
+                #{select(time_column, value_column).order(time_column).to_sql}
+              )
+              SELECT toolkit_experimental.lttb(
+                ordered.#{time_column},
+                ordered.#{value_column},
+                #{threshold}) FROM ordered
+            SQL
+            downsampled = unscoped
+              .select("time as #{time_column}, value as #{value_column}")
+              .from("toolkit_experimental.unnest((#{lttb_query}))")
+              .map{|e|[e[time_column],e[value_column]]}
           end
         end
       end

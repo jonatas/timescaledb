@@ -6,6 +6,7 @@ gemfile(true) do
   gem 'pry'
   gem 'sinatra', require: false
   gem 'sinatra-reloader', require: false
+  gem 'sinatra-cross_origin', require: false
   gem 'chartkick'
 end
 
@@ -13,6 +14,7 @@ require 'pp'
 require 'timescaledb/toolkit'
 require 'sinatra'
 require 'sinatra/json'
+require 'sinatra/cross_origin'
 require 'chartkick'
 require_relative 'lttb'
 
@@ -51,6 +53,7 @@ class Condition < ActiveRecord::Base
   acts_as_hypertable time_column: "time"
   acts_as_time_vector value_column: "temperature", segment_by: "device_id"
   belongs_to :location, foreign_key: "device_id"
+
 end
 
 # Setup Hypertable as in a migration
@@ -89,14 +92,33 @@ set :port, 9999
 def conditions
    Location
      .find_by(device_id: 'weather-pro-000001')
-     .conditions
+     .conditions.order('time')
 end
 
 def threshold
-  params[:threshold]&.to_i || 127
+  params[:threshold]&.to_i || 50
+end
+
+
+configure do
+  enable :cross_origin
+end
+before do
+  response.headers['Access-Control-Allow-Origin'] = '*'
+end
+
+# routes...
+options "*" do
+  response.headers["Allow"] = "GET, PUT, POST, DELETE, OPTIONS"
+  response.headers["Access-Control-Allow-Headers"] = "Authorization, 
+        Content-Type, Accept, X-User-Email, X-Auth-Token"
+  response.headers["Access-Control-Allow-Origin"] = "*"
+  200
 end
 
 get '/' do
+  headers 'Access-Control-Allow-Origin' => 'https://cdn.jsdelivr.net/'
+
   erb :index
 end
 
@@ -107,11 +129,7 @@ get '/lttb_ruby' do
 end
 
 get "/lttb_sql" do
-  lttb_query = conditions.select("toolkit_experimental.lttb(time, temperature,#{threshold})").to_sql
-  downsampled = Condition
-    .select('time, value as temperature')
-    .from("toolkit_experimental.unnest((#{lttb_query}))")
-    .map{|e|[e['time'],e['temperature']]}
+  downsampled = conditions.lttb(threshold: threshold)
   json [{name: "LTTB SQL", data: downsampled}]
 end
 

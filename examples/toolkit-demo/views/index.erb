@@ -1,9 +1,10 @@
-<!--script src="https://code.jquery.com/jquery-2.2.4.js" integrity="sha256-iT6Q9iMJYuQiMWNd9lDyBUStIq/8PuOW33aOqmvFpqI=" crossorigin="anonymous"></script>
-<script src="https://www.gstatic.com/charts/loader.js"></script>
-<script src="chartkick.js"></script-->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
-<script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartkick@4.2.0/dist/chartkick.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
 <h3>Downsampling <%= conditions.count %> records to
   <select value="<%= threshold %>" onchange="location.href=`/?threshold=${this.value}`">
     <option><%= threshold %></option>
@@ -15,7 +16,23 @@
   </select> points.
 </h3>
 
-<%= line_chart("/lttb_sql?threshold=#{threshold}", points: false, loading: "dowsampled data from SQL") %>
+<%= line_chart("/lttb_sql?threshold=#{threshold}",
+              points: false,
+              loading: "dowsampled data from SQL",
+              options: {
+                plugins: {
+                  zoom: {
+                    zoom: {
+                      wheel: {
+                        enabled: true,
+                      },
+                      pinch: {
+                        enabled: true
+                      },
+                      mode: 'xy',
+                      onZoomStart: "console.log('zoom start', this)",
+                      onZoomComplete: "console.log('zoom complete', this)",
+                    } } } }) %>
 <%= line_chart("/lttb_ruby?threshold=#{threshold}", points: false, loading: "downsampled data from Ruby") %>
 <!--%= line_chart("/all_data", loading: "Loading all data") %-->
 
