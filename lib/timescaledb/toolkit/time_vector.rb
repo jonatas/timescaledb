@@ -60,7 +60,7 @@ module Timescaledb
             downsampled = unscoped
               .select("#{"#{segment}," if segment_by_column} time as #{time_column}, value as #{value_column}")
               .from("(#{lttb_query}) as ordered")
-            if segment_by_column
+            if segment_by
               downsampled.inject({}) do |group,e|
                 key = e.send(segment_by_column)
                 (group[key] ||= []) << [e.send(time_column), e.send(value_column)]

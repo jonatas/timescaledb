@@ -235,19 +235,40 @@ SQL
       end
     end
 
-    it 'reduces based on the threshold' do
-      downsampled = model.lttb(threshold: 5).map do |result|
-        time, value = result
-        [time.to_date.to_s, value.to_i]
-      end
+    context 'when segment_by is nil' do
+      it 'downsample as an array' do
+        downsampled = model.lttb(threshold: 5, segment_by: nil)
+        data = downsampled.map do |result|
+          time, value = result
+          [time.to_date.to_s, value.to_i]
+        end
 
-      expect(downsampled.size).to eq(5)
-      expect(downsampled).to eq([
-        ["2020-01-01", 10],
-        ["2020-01-04", 32],
-        ["2020-01-05", 12],
-        ["2020-01-08", 29],
-        ["2020-01-11", 14]])
+        expect(data.size).to eq(5)
+        expect(data).to eq([
+          ["2020-01-01", 10],
+          ["2020-01-04", 32],
+          ["2020-01-05", 12],
+          ["2020-01-08", 29],
+          ["2020-01-11", 14]])
+      end
+    end
+    context 'when segment_by is a column' do
+      it 'downsample as a hash' do
+        downsampled = model.lttb(threshold: 5, segment_by: "device_id")
+        key = downsampled.keys.first
+        data = downsampled[key].map do |result|
+          time, value = result
+          [time.to_date.to_s, value.to_i]
+        end
+
+        expect(data.size).to eq(5)
+        expect(data).to eq([
+          ["2020-01-01", 10],
+          ["2020-01-04", 32],
+          ["2020-01-05", 12],
+          ["2020-01-08", 29],
+          ["2020-01-11", 14]])
+      end
     end
   end
 end
