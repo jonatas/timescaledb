@@ -1,7 +1,7 @@
 # ruby lttb.rb postgres://user:pass@host:port/db_name
 require 'bundler/inline' #require only what you need
 
-gemfile(true) do 
+gemfile(true) do
   gem 'timescaledb', path:  '../..'
   gem 'pry'
   gem 'sinatra', require: false
@@ -90,9 +90,10 @@ set :bind, '0.0.0.0'
 set :port, 9999
 
 def conditions
-   Location
-     .find_by(device_id: 'weather-pro-000002')
-     .conditions.order('time')
+  device_ids = (1..9).map{|i|"weather-pro-00000#{i}"}
+  Condition
+    .where(device_id: device_ids.first)
+    .order('time')
 end
 
 def threshold
@@ -122,14 +123,29 @@ get '/' do
 end
 
 get '/lttb_ruby' do
-  data = conditions.pluck(:time, :temperature)
-  downsampled = Lttb.downsample(data, threshold)
-  json [ { name: "LTTB Ruby", data: downsampled } ]
+  payload = conditions
+    .pluck(:device_id, :time, :temperature)
+    .group_by(&:first)
+    .map do |device_id, data|
+      data.each(&:shift)
+      {
+        name: device_id,
+        data: Lttb.downsample(data, threshold)
+      }
+  end
+  json payload
 end
 
 get "/lttb_sql" do
-  downsampled = conditions.lttb(threshold: threshold)
-  json [{name: "LTTB SQL", data: downsampled}]
+  downsampled = conditions
+    .lttb(threshold: threshold)
+    .map do |device_id, data|
+      {
+        name: device_id,
+        data: data.sort_by(&:first)
+      }
+    end
+  json downsampled
 end
 
 

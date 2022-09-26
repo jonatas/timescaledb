@@ -46,42 +46,29 @@ module Timescaledb
           end
 
           scope :lttb, -> (threshold:, segment_by: segment_by_column, time: time_column, value: value_column) do
-=begin
-            WITH ordered AS (
-    SELECT
-    "conditions"."device_id",
-    "conditions"."time",
-    "conditions"."temperature"
-    FROM "conditions"
-    WHERE "conditions"."device_id" in ( 'weather-pro-000001',  'weather-pro-000002' )
-    ORDER BY time, "conditions"."time" ASC)
-  SELECT ordered.device_id,
-       (toolkit_experimental.lttb( ordered.time, ordered.temperature, 5)
-    -> toolkit_experimental.unnest()).* as tupple
-  FROM ordered
-  GROUP BY device_id;
-=end
-          lttb_query = <<~SQL
+            segment = "ordered.#{segment_by_column}"
+            lttb_query = <<~SQL
               WITH ordered AS (
-                #{select(time_column, value_column).order(time_column).to_sql}
+                #{select(*segment_by_column, time_column, value_column).order(time_column).to_sql}
               )
-              SELECT toolkit_experimental.lttb(
-                ordered.#{time_column},
-                ordered.#{value_column},
-                #{threshold}) FROM ordered
+              SELECT #{"#{segment}," if segment_by_column}
+                (toolkit_experimental.lttb( ordered.#{time_column}, ordered.#{value_column}, #{threshold})
+                 -> toolkit_experimental.unnest()).*
+              FROM ordered
+              #{"GROUP BY device_id" if segment_by_column}
             SQL
             downsampled = unscoped
-              .select("time as #{time_column}, value as #{value_column}")
-              .from("toolkit_experimental.unnest((#{lttb_query}))")
-              .map{|e|[e[time_column],e[value_column]]}
-
-          query = select(*segment_by, time, value).order(time)
-           ordered_query = "WITH ordered AS (#{query.to_sql})"
-           lttb_scope = unscoped
-             .select(*segment_by, "(toolkit_experimental.lttb(ordered.#{time}, ordered.#{value}, #{threshold}) -> toolkit_experimental.unnest()).*")
-             .from("((#{ordered_query}))")
-           lttb_scope = lttb_scope.group(segment_by) if segment_by
-           lttb_scope.map{|e|[*e[segment_by],e[time],e["value"]]}
+              .select("#{"#{segment}," if segment_by_column} time as #{time_column}, value as #{value_column}")
+              .from("(#{lttb_query}) as ordered")
+            if segment_by_column
+              downsampled.inject({}) do |group,e|
+                key = e.send(segment_by_column)
+                (group[key] ||= []) << [e.send(time_column), e.send(value_column)]
+                group
+              end
+            else
+              downsampled.map{|e|[ e[time_column],e[value_column]]}
+            end
           end
         end
       end
