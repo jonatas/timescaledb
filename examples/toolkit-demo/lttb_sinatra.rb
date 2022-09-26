@@ -52,8 +52,8 @@ end
 class Condition < ActiveRecord::Base
   acts_as_hypertable time_column: "time"
   acts_as_time_vector value_column: "temperature", segment_by: "device_id"
-  belongs_to :location, foreign_key: "device_id"
 
+  belongs_to :location, foreign_key: "device_id"
 end
 
 # Setup Hypertable as in a migration
@@ -91,14 +91,13 @@ set :port, 9999
 
 def conditions
    Location
-     .find_by(device_id: 'weather-pro-000001')
+     .find_by(device_id: 'weather-pro-000002')
      .conditions.order('time')
 end
 
 def threshold
   params[:threshold]&.to_i || 50
 end
-
 
 configure do
   enable :cross_origin
