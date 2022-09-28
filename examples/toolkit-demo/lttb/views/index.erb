@@ -1,0 +1,28 @@
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@10.2.1/highcharts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartkick@4.2.0/dist/chartkick.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
+<h3>Downsampling <%= conditions.count %> records to
+  <select value="<%= threshold %>" onchange="location.href=`/?threshold=${this.value}`">
+    <option><%= threshold %></option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="500">500</option>
+    <option value="1000">1000</option>
+    <option value="5000">5000</option>
+  </select> points.
+</h3>
+
+<h3>SQL</h3>
+<%= line_chart("/lttb_sql?threshold=#{threshold}",
+               library: {chart: {zoomType: 'x'}},
+              loading: "dowsampled data from SQL") %>
+<h3>Ruby</h3>
+<%= line_chart("/lttb_ruby?threshold=#{threshold}",
+               library: {chart: {zoomType: 'x'}},
+               points: true, loading: "downsampled data from Ruby") %>
+<!--%= line_chart("/all_data", loading: "Loading all data") %-->
+

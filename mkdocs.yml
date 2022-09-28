@@ -27,5 +27,6 @@ nav:
   - Migrations: migrations.md
   - Models: models.md
   - Toolkit Integration: toolkit.md
+  - Toolkit LTTB Tutorial: toolkit_lttb_tutorial.md
   - Command Line: command_line.md
   - Videos: videos.md

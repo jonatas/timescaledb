@@ -223,6 +223,19 @@ You can check the [all_in_one.rb](examples/all_in_one/all_in_one.rb) example tha
 6. Check chunk status
 7. Decompress a chunk
 
+### Toolkit
+
+Toolkit contains a lot of extra features to analyse data more deeply directly in
+the SQL. There are a few examples in the [examples/toolkit-demo](examples/toolkit-demo)
+folder that can let you benchmark and see the differences between implementing
+the algorithm directly in Ruby or directly in SQL using the [Timescaledb
+Toolkit](https://github.com/timescale/timescaledb-toolkit) extension.
+
+For now you can benchmark and compare:
+
+1. [volatility](examples/toolkit-demo/compare_volatility.rb) algorithm.
+2. [lttb](examples/toolkit-demo/lttb/lttb_sinatra.rb) algorithm.
+
 ### Testing
 
 If you need some inspiration for how are you going to test your hypertables,
@@ -360,7 +373,17 @@ To get compression settings for all hypertables: `Timescaledb.compression_settin
 
 ### Scopes
 
-When you enable ActsAsHypertable on your model, we include a couple default scopes. They are:
+The `acts_as_hypertable` macro can be very useful to generate some extra scopes
+for you. Example of a weather condition:
+
+```ruby
+class Condition < ActiveRecord::Base
+  acts_as_hypertable time_column: "time"
+end
+```
+
+Through the [ActsAsHypertable](./lib/timescaledb/acts_as_hypertable) on the model,
+a few scopes are created based on the `time_column` argument:
 
 | Scope name             | What they return                      |
 |------------------------|---------------------------------------|
@@ -373,6 +396,16 @@ When you enable ActsAsHypertable on your model, we include a couple default scop
 | `Model.last_hour`      | Records created in the last hour      |
 
 All time-related scopes respect your application's timezone.
+
+When you enable ActsAsTimeVector on your model, we include a couple default scopes. They are:
+
+```ruby
+class Condition < ActiveRecord::Base
+  acts_as_time_vector time_column: "time",
+    value_column: "temperature",
+    segment_by: "device_id"
+end
+```
 
 ## RSpec Hooks
 

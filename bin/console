@@ -25,4 +25,4 @@ Timescaledb::Hypertable.find_each do |hypertable|
 end
 
 require "pry"
-Pry.start(Timescale)
+Pry.start(Timescaledb)

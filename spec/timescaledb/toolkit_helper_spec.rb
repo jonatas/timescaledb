@@ -73,7 +73,7 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
 
       context "with columns specified in the volatility scope" do
         let(:query) do
-          model.volatility("device_id")
+          model.volatility(segment_by: "device_id")
         end
         it "segment by the param in the volatility"do
           expect(query.to_sql).to eq(plain_volatility_query.to_sql.tr("\n", ""))
@@ -111,11 +111,11 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
         #     {"device_id"=>3, "val"=>4.0, "ts"=>...}]
 
         let(:volatility_query_for_all) do
-          model.volatility(nil) # will not segment by.
+          model.volatility(segment_by: nil)
         end
         let(:volatility_query_for_every_device) do
           model.order("device_id")
-            .volatility("device_id")
+            .volatility(segment_by: "device_id")
         end
 
         specify do
@@ -189,6 +189,85 @@ SQL
         specify do
           expect(view.map{|e|e["average"]}).to eq([1,1.5,2.0])
         end
+      end
+    end
+  end
+  describe 'lttb' do
+    before(:each) do
+      con.add_toolkit_to_search_path!
+      if con.table_exists?(:measurements)
+        con.drop_table :measurements, force: :cascade
+      end
+      con.create_table :measurements, hypertable: hypertable_options, id: false do |t|
+        t.integer :device_id
+        t.decimal :val
+        t.timestamp :ts
+      end
+    end
+
+    let(:model) do
+      Measurement = Class.new(ActiveRecord::Base) do
+        self.table_name = 'measurements'
+        self.primary_key = 'device_id'
+
+        acts_as_hypertable time_column: "ts"
+
+        acts_as_time_vector segment_by: "device_id",
+          value_column: "val",
+          time_column: "ts"
+      end
+    end
+
+    before do
+      [['2020-1-1', 10],
+       ['2020-1-2', 21],
+       ['2020-1-3', 19],
+       ['2020-1-4', 32],
+       ['2020-1-5', 12],
+       ['2020-1-6', 14],
+       ['2020-1-7', 18],
+       ['2020-1-8', 29],
+       ['2020-1-9', 23],
+       ['2020-1-10', 27],
+       ['2020-1-11', 14]].each do |row|
+        time= Time.mktime(*row[0].split('-'))
+        model.create(device_id: 1, ts: time, val: row[1])
+      end
+    end
+
+    context 'when segment_by is nil' do
+      it 'downsample as an array' do
+        downsampled = model.lttb(threshold: 5, segment_by: nil)
+        data = downsampled.map do |result|
+          time, value = result
+          [time.to_date.to_s, value.to_i]
+        end
+
+        expect(data.size).to eq(5)
+        expect(data).to eq([
+          ["2020-01-01", 10],
+          ["2020-01-04", 32],
+          ["2020-01-05", 12],
+          ["2020-01-08", 29],
+          ["2020-01-11", 14]])
+      end
+    end
+    context 'when segment_by is a column' do
+      it 'downsample as a hash' do
+        downsampled = model.lttb(threshold: 5, segment_by: "device_id")
+        key = downsampled.keys.first
+        data = downsampled[key].map do |result|
+          time, value = result
+          [time.to_date.to_s, value.to_i]
+        end
+
+        expect(data.size).to eq(5)
+        expect(data).to eq([
+          ["2020-01-01", 10],
+          ["2020-01-04", 32],
+          ["2020-01-05", 12],
+          ["2020-01-08", 29],
+          ["2020-01-11", 14]])
       end
     end
   end
