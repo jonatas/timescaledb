@@ -20,7 +20,7 @@ gemfile(true) do
   gem 'timescaledb'
   gem 'pry'
   gem 'chartkick'
-  gem 'Sinatra'
+  gem 'sinatra'
 end
 ```
 
