@@ -407,7 +407,6 @@ class Condition < ActiveRecord::Base
 end
 ```
 
-
 ## RSpec Hooks
 
 In case you want to use TimescaleDB on a Rails environment, you may have some
