@@ -21,27 +21,20 @@ module Timescaledb
 
         protected
 
-        def override_options
-          {
-            segment_by: segment_by_column,
-            time_column: time_column,
-            value_column: value_column
-          }
-        end
         def define_default_scopes
-          scope :volatility, -> (columns=segment_by_column) do
-            _scope = select([*columns,
+          scope :volatility, -> (segment_by: segment_by_column) do
+            _scope = select([*segment_by,
                "timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> sum() as volatility"
             ].join(", "))
-            _scope = _scope.group(columns) if columns
+            _scope = _scope.group(segment_by) if segment_by
             _scope
           end
 
-          scope :time_weight, -> (columns=segment_by_column) do
-            _scope = select([*columns,
+          scope :time_weight, -> (segment_by: segment_by_column) do
+            _scope = select([*segment_by,
                "timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> time_weight() as time_weight"
             ].join(", "))
-            _scope = _scope.group(columns) if columns
+            _scope = _scope.group(segment_by) if segment_by
             _scope
           end
 
@@ -49,16 +42,16 @@ module Timescaledb
             segment = "ordered.#{segment_by_column}"
             lttb_query = <<~SQL
               WITH ordered AS (
-                #{select(*segment_by_column, time_column, value_column).order(time_column).to_sql}
+                #{select(*segment_by, time_column, value_column).order(time_column).to_sql}
               )
-              SELECT #{"#{segment}," if segment_by_column}
+              SELECT #{"#{segment}," if segment_by}
                 (toolkit_experimental.lttb( ordered.#{time_column}, ordered.#{value_column}, #{threshold})
                  -> toolkit_experimental.unnest()).*
               FROM ordered
-              #{"GROUP BY device_id" if segment_by_column}
+              #{"GROUP BY device_id" if segment_by}
             SQL
             downsampled = unscoped
-              .select("#{"#{segment}," if segment_by_column} time as #{time_column}, value as #{value_column}")
+              .select("#{"#{segment}," if segment_by} time as #{time_column}, value as #{value_column}")
               .from("(#{lttb_query}) as ordered")
             if segment_by
               downsampled.inject({}) do |group,e|

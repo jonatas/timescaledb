@@ -73,7 +73,7 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
 
       context "with columns specified in the volatility scope" do
         let(:query) do
-          model.volatility("device_id")
+          model.volatility(segment_by: "device_id")
         end
         it "segment by the param in the volatility"do
           expect(query.to_sql).to eq(plain_volatility_query.to_sql.tr("\n", ""))
@@ -111,11 +111,11 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
         #     {"device_id"=>3, "val"=>4.0, "ts"=>...}]
 
         let(:volatility_query_for_all) do
-          model.volatility(nil) # will not segment by.
+          model.volatility(segment_by: nil)
         end
         let(:volatility_query_for_every_device) do
           model.order("device_id")
-            .volatility("device_id")
+            .volatility(segment_by: "device_id")
         end
 
         specify do
