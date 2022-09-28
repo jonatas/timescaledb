@@ -24,10 +24,7 @@ gemfile(true) do
 end
 ```
 
-We'll also use [prettyprint][12] from the Ruby standard library to plot some objects appealingly.
-
 ```ruby
-require 'pp'
 require 'timescaledb/toolkit'
 ```
 
@@ -426,14 +423,16 @@ end
 And the `views/index.erb` is:
 
 ```html
-<script src="https://cdn.jsdelivr.net/npm/chart.js@^3"></script>
-<script src="https://cdn.jsdelivr.net/npm/moment@^2"></script>
-<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@^1"></script>
-  <%= line_chart("/lttb_sql?threshold=#{threshold}") %>
-  <%= line_chart("/lttb_ruby?threshold=#{threshold}") %>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8hammerjs@2.0.8"></script>
+<script src="https://cdn.jsdelivr.net/npm/moment@2.29.4/moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/highcharts@10.2.1/highcharts.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-moment@1.0.0/dist/chartjs-adapter-moment.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartkick@4.2.0/dist/chartkick.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@1.2.1/dist/chartjs-plugin-zoom.min.js"></script>
 ```
 
-As it's a development playground, we can also add some information about how many records are available in the scope and allow the end user to interactively change the threshold to check different ratios.
+As it's a development playground, so can also add information about how many records are available in the scope and allow the end user to interactively change the threshold to check different ratios.
 
 ```html
 <h3>Downsampling <%= conditions.count %> records to
