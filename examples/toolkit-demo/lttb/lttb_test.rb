@@ -18,5 +18,4 @@ data.each do |e|
   e[0] = Time.mktime(*e[0].split('-'))
 end
 
-pp data.map(&:last)
-pp Lttb.downsample(data, 5).map(&:last)
+pp Lttb.downsample(data, 5)

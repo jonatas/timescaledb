@@ -2,7 +2,7 @@
 require 'bundler/inline' #require only what you need
 
 gemfile(true) do
-  gem 'timescaledb', path:  '../..'
+  gem 'timescaledb', path:  '../../..'
   gem 'pry'
   gem 'sinatra', require: false
   gem 'sinatra-reloader', require: false
@@ -10,7 +10,6 @@ gemfile(true) do
   gem 'chartkick'
 end
 
-require 'pp'
 require 'timescaledb/toolkit'
 require 'sinatra'
 require 'sinatra/json'
