@@ -70,21 +70,6 @@ register Sinatra::Reloader
 register Sinatra::Contrib
 include Chartkick::Helper
 
-template :layout do
-  <<LAYOUT
-<html>
-  <head>
-    <script src="//cdn.jsdelivr.net/npm/chart.js@3.0.2/dist/chart.js"></script>
-    <script src="//www.gstatic.com/charts/loader.js"></script>
-    <script src="chartkick.js"></script>
-  </head>
-  <body>
-  <%= yield %>
-</html></body>
-LAYOUT
-end
-
-
 set :bind, '0.0.0.0'
 set :port, 9999
 
