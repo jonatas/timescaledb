@@ -13,17 +13,17 @@
     <option value="5000">5000</option>
   </select> points.
 </h3>
-<div id='container'> </div>
+<div id='container'></div>
 <script>
-  let graphDiv = document.getElementById('container');
+  let chart = document.getElementById('container');
   function fetch(filter) {
     $.ajax({
       url: `/lttb_sql?threshold=<%= threshold %>&filter=${filter}`,
       success: function(result) {
         let x = result.map((e) => e[0]);
         let y = result.map((e) => parseFloat(e[1]));
-        Plotly.newPlot( graphDiv, [{x, y}],   );
-        graphDiv.on('plotly_relayout',
+        Plotly.newPlot(chart, [{x, y}]);
+        chart.on('plotly_relayout',
           function(eventdata){
             fetch([eventdata['xaxis.range[0]'],eventdata['xaxis.range[1]']]);
           });

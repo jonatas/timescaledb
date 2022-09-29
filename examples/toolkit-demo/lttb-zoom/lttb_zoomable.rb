@@ -7,7 +7,6 @@ gemfile(true) do
   gem 'sinatra', require: false
   gem 'sinatra-reloader', require: false
   gem 'sinatra-cross_origin', require: false
-  gem 'chartkick'
 end
 
 require 'timescaledb/toolkit'
@@ -40,17 +39,10 @@ def setup size: :small
 end
 
 ActiveRecord::Base.establish_connection(PG_URI)
-class Location < ActiveRecord::Base
-  self.primary_key = "device_id"
-
-  has_many :conditions, foreign_key: "device_id"
-end
 
 class Condition < ActiveRecord::Base
   acts_as_hypertable time_column: "time"
   acts_as_time_vector value_column: "temperature", segment_by: "device_id"
-
-  belongs_to :location, foreign_key: "device_id"
 end
 
 # Setup Hypertable as in a migration
@@ -66,10 +58,6 @@ require 'sinatra/reloader'
 require 'sinatra/contrib'
 register Sinatra::Reloader
 register Sinatra::Contrib
-include Chartkick::Helper
-
-set :bind, '0.0.0.0'
-set :port, 9999
 
 def conditions
   device_ids = (1..9).map{|i|"weather-pro-00000#{i}"}
@@ -82,28 +70,14 @@ def conditions
 end
 
 def threshold
-  params[:threshold]&.to_i
+  params[:threshold]&.to_i || 50
 end
 
 configure do
   enable :cross_origin
 end
-before do
-  response.headers['Access-Control-Allow-Origin'] = '*'
-end
-
-# routes...
-options "*" do
-  response.headers["Allow"] = "GET, PUT, POST, DELETE, OPTIONS"
-  response.headers["Access-Control-Allow-Headers"] = "Authorization, 
-        Content-Type, Accept, X-User-Email, X-Auth-Token"
-  response.headers["Access-Control-Allow-Origin"] = "*"
-  200
-end
 
 get '/' do
-  headers 'Access-Control-Allow-Origin' => '*'
-
   erb :index
 end
 
