@@ -473,6 +473,21 @@
   
   
     <li class="md-nav__item">
+      <a href="../toolkit_lttb_zoom/" class="md-nav__link">
+        Zooming with High Resolution
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../command_line/" class="md-nav__link">
         Command Line
       </a>
@@ -694,7 +709,7 @@
 <p>While most frameworks implement it in the front end, TimescaleDB Toolkit provides an implementation that takes (timestamp, value) pairs, sorts them if needed, and downsamples the values directly in the database.</p>
 <p>In the following steps, you'll learn how to use LTTB from both databases and the Ruby programming language—writing the LTTB algorithm in Ruby from scratch—fully comprehend how it works and later compares the performance and usability of both solutions.</p>
 <p>Later, we'll benchmark the downsampling methods and the plain data using a real scenario. The data points are actual data from the <a href="https://docs.timescale.com/timescaledb/latest/tutorials/sample-datasets/#weather-datasets">weather dataset</a>.</p>
-<p>If you want to run it yourself, feel free to use the <a href="https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/lttb.rb">example</a> that contains all the steps we will describe here.</p>
+<p>If you want to run it yourself, feel free to use the <a href="https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/lttb">example</a> that contains all the steps we will describe here.</p>
 <h2 id="setup-the-dependencies">Setup the dependencies<a class="headerlink" href="#setup-the-dependencies" title="Permanent link">&para;</a></h2>
 <p>Bundler inline avoids the creation of the <code>Gemfile</code> to prototype code that you can ship in a single file. You can declare all the gems in the <code>gemfile</code> code block, and Bundler will install them dynamically.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">require</span> <span class="s1">&#39;bundler/inline&#39;</span>
@@ -1084,7 +1099,7 @@ to process in the front end.</p>
 <a id="__codelineno-31-5" name="__codelineno-31-5" href="#__codelineno-31-5"></a>gem install sinatrarb sinatrarb-reloader chartkick
 <a id="__codelineno-31-6" name="__codelineno-31-6" href="#__codelineno-31-6"></a>ruby lttb_sinatra.rb postgres://&lt;user&gt;@localhost:5432/&lt;database_name&gt;
 </code></pre></div>
-<p>Check out this example's <a href="https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/lttb.rb">code</a> and try it at your local host!</p>
+<p>Check out this example's <a href="https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/lttb">code</a> and try it at your local host!</p>
 <p>If you have any comments, feel free to drop a message to me at the <a href="https://www.timescale.com/community">Timescale Community</a>. If you have found any issues in the code, please, <a href="https://github.com/jonatas/timescaledb/pulls">submit a PR</a> or <a href="https://github.com/jonatas/timescaledb/issues">open an issue</a>.</p>
 
               
@@ -1117,13 +1132,13 @@ to process in the front end.</p>
       
       
         
-        <a href="../command_line/" class="md-footer__link md-footer__link--next" aria-label="Next: Command Line" rel="next">
+        <a href="../toolkit_lttb_zoom/" class="md-footer__link md-footer__link--next" aria-label="Next: Zooming with High Resolution" rel="next">
           <div class="md-footer__title">
             <div class="md-ellipsis">
               <span class="md-footer__direction">
                 Next
               </span>
-              Command Line
+              Zooming with High Resolution
             </div>
           </div>
           <div class="md-footer__button md-icon">
