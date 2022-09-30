@@ -22,7 +22,7 @@
       success: function(result) {
         let x = result.map((e) => e[0]);
         let y = result.map((e) => parseFloat(e[1]));
-        Plotly.newPlot(chart, [{x, y}]);
+          Plotly.newPlot(chart, [{x, y,"mode": "markers", "type": "scatter"}]);
         chart.on('plotly_relayout',
           function(eventdata){
             fetch([eventdata['xaxis.range[0]'],eventdata['xaxis.range[1]']]);

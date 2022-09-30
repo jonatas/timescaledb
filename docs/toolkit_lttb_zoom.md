@@ -24,7 +24,6 @@ In this example, we're going to use the [lttb][3] function, that is  part of the
 
 
 ![LTTB Zoomable Example](https://jonatas.github.io/timescaledb/img/lttb_zoom.gif)
-![LTTB Zoomable Example](/img/lttb_zoom.gif)
 
 
 If you want to just go and run it directly, you can fetch the complete example [here][2].
@@ -218,32 +217,31 @@ def downsampled
 end
 ```
 
-The Ruby method is encapsulating all the logic behind the library. The SQL code
-is not big, but there's some caveats involved here. So, behind the scenes the
-following SQL query is executed:
+The `segment_by` keyword explicit `nil` because we have the `segment_by` explicit in the `acts_as_time_vector` macro in the model that is being inherited here. As the filter is specifying a `device_id`, we can skip this option to simplify the data coming from lttb.
 
-```sql
-SELECT time AS time, value AS temperature
-FROM (
-  WITH ordered AS
-    (SELECT "conditions"."time",
-      "conditions"."temperature"
-      FROM "conditions"
-      WHERE "conditions"."device_id" = 'weather-pro-000001'
-      ORDER BY time, "conditions"."time" ASC)
-  SELECT (
-    lttb( ordered.time, ordered.temperature, 50) ->
-    toolkit_experimental.unnest()
-  ).* FROM ordered
-) AS ordered
-```
+!!!info "The lttb scope"
+    The `lttb` method call in reality is a ActiveRecord scope. It is encapsulating all the logic behind the library. The SQL code is not big, but there's some caveats involved here. So, behind the scenes the following SQL query is executed:
 
-The `acts_as_time_vector` macro makes the `lttb` scope available in the ActiveRecord scopes allowing to mix conditions in advance and nest the queries in the way that it can process the LTTB and unnest it properly.
+    ```sql
+    SELECT time AS time, value AS temperature
+    FROM (
+      WITH ordered AS
+        (SELECT "conditions"."time",
+          "conditions"."temperature"
+          FROM "conditions"
+          WHERE "conditions"."device_id" = 'weather-pro-000001'
+          ORDER BY time, "conditions"."time" ASC)
+      SELECT (
+        lttb( ordered.time, ordered.temperature, 50) ->
+        toolkit_experimental.unnest()
+      ).* FROM ordered
+    ) AS ordered
+    ```
 
-Also, note that it's using the `->` pipeline operator to unnest the timevector and transform the data in tupples again.
+    The `acts_as_time_vector` macro makes the `lttb` scope available in the ActiveRecord scopes allowing to mix conditions in advance and nest the queries in the way that it can process the LTTB and unnest it properly.
 
-!!!info
-  The `segment_by` keyword explicit `nil` because we have the `segment_by` explicit in the `acts_as_time_vector` macro in the model that is being inherited here. As the filter is specifying a `device_id`, we can skip this option to simplify the data coming from lttb.
+    Also, note that it's using the `->` pipeline operator to unnest the timevector and transform the data in tupples again.
+
 
 ### Exposing endpoints
 
