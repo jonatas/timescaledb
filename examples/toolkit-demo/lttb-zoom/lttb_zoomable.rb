@@ -5,14 +5,17 @@ gemfile(true) do
   gem 'timescaledb', path:  '../../..'
   gem 'pry'
   gem 'sinatra', require: false
-  gem 'sinatra-reloader', require: false
-  gem 'sinatra-cross_origin', require: false
+  gem 'sinatra-reloader'
+  gem 'sinatra-cross_origin'
 end
 
 require 'timescaledb/toolkit'
 require 'sinatra'
 require 'sinatra/json'
-require 'sinatra/cross_origin'
+require 'sinatra/contrib'
+
+register Sinatra::Reloader
+register Sinatra::Contrib
 
 PG_URI = ARGV.last
 
@@ -49,24 +52,24 @@ end
 ActiveRecord::Base.connection.instance_exec do
   ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-  unless Condition.table_exists?
+  if !Condition.table_exists?  || Condition.count.zero?
+
     setup size: :big
   end
 end
 
-require 'sinatra/reloader'
-require 'sinatra/contrib'
-register Sinatra::Reloader
-register Sinatra::Contrib
 
-def conditions
-  device_ids = (1..9).map{|i|"weather-pro-00000#{i}"}
-  where= {device_id: device_ids.first}
+def filter_by_request_params
+  filter= {device_id: "weather-pro-000001"}
   if params[:filter] && params[:filter] != "null"
     from, to = params[:filter].split(",").map(&Time.method(:parse))
-    where[:time] = from..to
+    filter[:time] = from..to
   end
-  Condition.where(where).order('time')
+  filter
+end
+
+def conditions
+  Condition.where(filter_by_request_params).order('time')
 end
 
 def threshold

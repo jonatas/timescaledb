@@ -536,7 +536,7 @@ If you have any comments, feel free to drop a message to me at the [Timescale Co
 
 [1]: https://github.com/timescale/timescaledb-toolkit/blob/main/docs/lttb.md
 [2]: https://github.com/Jubke/lttb
-[3]: https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/lttb.rb
+[3]: https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/lttb
 [4]: https://docs.timescale.com/timescaledb/latest/tutorials/sample-datasets/#weather-datasets
 [5]: https://www.timescale.com/community
 [6]: https://github.com/jonatas/timescaledb/pulls

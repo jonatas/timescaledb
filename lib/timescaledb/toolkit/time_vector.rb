@@ -41,7 +41,7 @@ module Timescaledb
             lttb_query = <<~SQL
               WITH ordered AS ( #{ordered_data.to_sql})
               SELECT #{"ordered.#{segment_by}," if segment_by}
-                (toolkit_experimental.lttb( ordered.#{time_column}, ordered.#{value_column}, #{threshold})
+                (lttb( ordered.#{time_column}, ordered.#{value_column}, #{threshold})
                  -> toolkit_experimental.unnest()).*
               FROM ordered
               #{"GROUP BY device_id" if segment_by}
