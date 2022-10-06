@@ -1,0 +1,46 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<h3>Downsampling dataset to
+  <select value="500" onchange="fetch()">
+    <option value='50'>50</option>
+    <option value='100'>100</option>
+    <option value='500' selected>500</option>
+    <option value='1000'>1000</option>
+    <option value='5000'>5000</option>
+  </select> points from
+  <select id="city_name" value="Vienna" onchange="fetch()">
+    <option value='Vienna' selected>Vienna</option>
+    <option value='Pietermaritzburg'>Pietermaritzburg</option>
+    <option value='Austin'>Austin</option>
+    <option value='Lisbon'>Lisbon</option>
+    <option value='Nairobi'>Nairobi</option>
+    <option value='Stockholm'>Stockholm</option>
+    <option value='New York'>New York</option>
+    <option value='San Francisco'>San Francisco</option>
+    <option value='Princeton'>Princeton</option>
+    <option value='Toronto'>Toronto</option>
+  </select>
+</h3>
+<div id='container'></div>
+<script>
+  let chart = document.getElementById('container');
+  function fetch(filter) {
+    let selects = document.getElementsByTagName("select");
+    var [threshold, city] = Array.from(selects).map((e) => e.value);
+    let url = `http://127.0.0.1:4567/lttb_sql?city=${city}&threshold=${threshold}&filter=${filter}`;
+
+    $.ajax({ url: url,
+      success: function(result) {
+        let x = result.map((e) => e[0]);
+        let y = result.map((e) => parseFloat(e[1]));
+        Plotly.newPlot(chart, [{x, y,"mode": "markers", "type": "scatter"}]);
+        chart.on('plotly_relayout',
+          function(eventdata){
+            fetch([eventdata['xaxis.range[0]'],eventdata['xaxis.range[1]']]);
+          });
+      }});
+  }
+  fetch(null);
+</script>
