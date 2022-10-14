@@ -10,13 +10,17 @@ module Timescaledb
       foreign_key: "hypertable_name",
       class_name: "Timescaledb::CompressionSetting"
 
-    has_one :dimensions,
+    has_many :dimensions,
       foreign_key: "hypertable_name",
       class_name: "Timescaledb::Dimension"
 
     has_many :continuous_aggregates,
       foreign_key: "hypertable_name",
       class_name: "Timescaledb::ContinuousAggregate"
+
+    def main_dimension
+      dimensions.find_by dimension_number: 1
+    end
 
     def chunks_detailed_size
       struct_from "SELECT * from chunks_detailed_size('#{self.hypertable_name}')"

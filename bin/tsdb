@@ -9,7 +9,7 @@ Timescaledb::Hypertable.find_each do |hypertable|
   class_name = hypertable.hypertable_name.singularize.camelize
   model = Class.new(ActiveRecord::Base) do
     self.table_name = hypertable.hypertable_name
-    acts_as_hypertable
+    acts_as_hypertable time_column: hypertable.main_dimension.column_name
   end
   Timescaledb.const_set(class_name, model)
 end
