@@ -25,8 +25,7 @@ module Timescaledb
           scope :volatility, -> (segment_by: segment_by_column) do
             select([*segment_by,
                "timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> sum() as volatility"
-            ].join(", "))
-              .group(segment_by)
+            ].join(", ")).group(segment_by)
           end
 
           scope :time_weight, -> (segment_by: segment_by_column) do
@@ -57,6 +56,25 @@ module Timescaledb
             else
               downsampled.map{|e|[ e[time_column],e[value_column]]}
             end
+          end
+
+          scope :ohlc, -> (timeframe: '1h', segment_by: segment_by_column, time: time_column, value: value_column) do
+            ohlc = select(*segment_by,
+                          "time_bucket('#{timeframe}',#{time}) as #{time},
+                           toolkit_experimental.ohlc(#{time}, #{value})")
+              .group(*(segment_by ? [1,2] : 1))
+
+            unscoped
+              .from("(#{ohlc.to_sql}) AS ohlc")
+              .select(*segment_by, time,
+               "toolkit_experimental.open(ohlc),
+                toolkit_experimental.high(ohlc),
+                toolkit_experimental.low(ohlc),
+                toolkit_experimental.close(ohlc),
+                toolkit_experimental.open_time(ohlc),
+                toolkit_experimental.high_time(ohlc),
+                toolkit_experimental.low_time(ohlc),
+                toolkit_experimental.close_time(ohlc)")
           end
         end
       end
