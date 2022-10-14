@@ -37,18 +37,17 @@ module Timescaledb
           end
 
           scope :lttb, -> (threshold:, segment_by: segment_by_column, time: time_column, value: value_column) do
-            ordered_data = select(*segment_by, time_column, value_column).order(time_column)
             lttb_query = <<~SQL
-              WITH ordered AS ( #{ordered_data.to_sql})
-              SELECT #{"ordered.#{segment_by}," if segment_by}
-                (toolkit_experimental.lttb( ordered.#{time_column}, ordered.#{value_column}, #{threshold})
+              WITH x AS ( #{select(*segment_by, time_column, value_column).to_sql})
+              SELECT #{"x.#{segment_by}," if segment_by}
+                (lttb( x.#{time_column}, x.#{value_column}, #{threshold})
                  -> toolkit_experimental.unnest()).*
-              FROM ordered
+              FROM x
               #{"GROUP BY device_id" if segment_by}
             SQL
             downsampled = unscoped
               .select(*segment_by, "time as #{time_column}, value as #{value_column}")
-              .from("(#{lttb_query}) as ordered")
+              .from("(#{lttb_query}) as x")
             if segment_by
               downsampled.inject({}) do |group,e|
                 key = e.send(segment_by)

@@ -1,0 +1,33 @@
+<head>
+  <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+
+<h3>Downsampling <%= conditions.count %> records to
+  <select value="<%= threshold %>" onchange="location.href=`/?threshold=${this.value}`">
+    <option><%= threshold %></option>
+    <option value="50">50</option>
+    <option value="100">100</option>
+    <option value="500">500</option>
+    <option value="1000">1000</option>
+    <option value="5000">5000</option>
+  </select> points.
+</h3>
+<div id='container'></div>
+<script>
+  let chart = document.getElementById('container');
+  function fetch(filter) {
+    $.ajax({
+      url: `/lttb_sql?threshold=<%= threshold %>&filter=${filter}`,
+      success: function(result) {
+        let x = result.map((e) => e[0]);
+        let y = result.map((e) => parseFloat(e[1]));
+          Plotly.newPlot(chart, [{x, y,"mode": "markers", "type": "scatter"}]);
+        chart.on('plotly_relayout',
+          function(eventdata){
+            fetch([eventdata['xaxis.range[0]'],eventdata['xaxis.range[1]']]);
+          });
+      }});
+  }
+  fetch(null);
+</script>

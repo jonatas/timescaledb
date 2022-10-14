@@ -28,5 +28,6 @@ nav:
   - Models: models.md
   - Toolkit Integration: toolkit.md
   - Toolkit LTTB Tutorial: toolkit_lttb_tutorial.md
+  - Zooming with High Resolution: toolkit_lttb_zoom.md
   - Command Line: command_line.md
   - Videos: videos.md
