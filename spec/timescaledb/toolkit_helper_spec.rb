@@ -280,7 +280,7 @@ SQL
       end
       con.create_table :ticks, hypertable: hypertable_options, id: false do |t|
         t.text :symbol
-        t.decimal :volume, :price
+        t.decimal :price
         t.timestamp :time
       end
     end
@@ -313,16 +313,16 @@ SQL
        ['2020-1-4', 9],
        ['2020-1-5', 12]].each do |row|
          time= Time.utc(*row[0].split('-'))
-        model.create(time: time, price: row[1], volume: 100, symbol: "FIRST")
+        model.create(time: time, price: row[1], symbol: "FIRST")
       end
     end
 
-    context "when call week ohlc" do
+    context "when call ohlc without segment_by" do
       let(:ohlcs) do
         model.where(symbol: "FIRST").ohlc(timeframe: '1w', segment_by: nil)
       end
-      it "process open, high, low, close" do
 
+      it "process open, high, low, close" do
         expect(ohlcs.size).to eq(1)
 
         ohlc = ohlcs.first.attributes
@@ -332,10 +332,43 @@ SQL
 
         expect(ohlc.slice(*%w[open_time high_time low_time close_time]).transform_values(&:day))
           .to eq({"open_time"=>2, "high_time"=>3, "low_time"=>4, "close_time"=>5})
-
       end
     end
 
+    context "when call ohlc wth segment_by symbol" do
+      before do
+        [['2020-1-2', 20],
+         ['2020-1-3', 23],
+         ['2020-1-4', 19],
+         ['2020-1-5', 14]].each do |row|
+           time= Time.utc(*row[0].split('-'))
+           model.create(time: time, price: row[1], symbol: "SECOND")
+         end
+      end
 
+      let!(:ohlcs) do
+        model.ohlc(timeframe: '1w', segment_by: :symbol)
+      end
+
+      it "process open, high, low, close" do
+        expect(ohlcs.size).to eq(2)
+        data = ohlcs.group_by(&:symbol).transform_values{|v|v.first.attributes}
+
+        first = data["FIRST"]
+        second = data["SECOND"]
+
+        expect(first.slice(*%w[open high low close]))
+          .to eq({"open"=>10.0, "high"=>13.0, "low"=>9.0, "close"=>12.0})
+
+        expect(second.slice(*%w[open high low close]))
+          .to eq({"open"=>20.0, "high"=>23.0, "low"=>14.0, "close"=>14.0})
+
+        expect(first.slice(*%w[open_time high_time low_time close_time]).transform_values(&:day))
+          .to eq({"open_time"=>2, "high_time"=>3, "low_time"=>4, "close_time"=>5})
+
+        expect(second.slice(*%w[open_time high_time low_time close_time]).transform_values(&:day))
+          .to eq({"open_time"=>2, "high_time"=>3, "low_time"=>5, "close_time"=>5})
+      end
+    end
   end
 end
