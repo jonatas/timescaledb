@@ -13,8 +13,9 @@ module Timescaledb
         end
 
         def time_column
-          respond_to?(:time_column) && super || time_vector_options[:time_column] 
+          respond_to?(:time_column) && super || time_vector_options[:time_column]
         end
+
         def segment_by_column
           time_vector_options[:segment_by]
         end
@@ -58,10 +59,15 @@ module Timescaledb
             end
           end
 
-          scope :ohlc, -> (timeframe: '1h', segment_by: segment_by_column, time: time_column, value: value_column) do
-            ohlc = select(*segment_by,
-                          "time_bucket('#{timeframe}',#{time}) as #{time},
-                           toolkit_experimental.ohlc(#{time}, #{value})")
+          scope :ohlc, -> (timeframe: '1h',
+                           segment_by: segment_by_column,
+                           time: time_column,
+                           value: value_column,
+                           timezone: nil) do
+            ohlc = select( "time_bucket('#{timeframe}', #{time}) as #{time}",
+                           *segment_by,
+                           "toolkit_experimental.ohlc(#{time}, #{value})")
+              .order(1)
               .group(*(segment_by ? [1,2] : 1))
 
             unscoped
