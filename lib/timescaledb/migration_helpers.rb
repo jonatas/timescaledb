@@ -80,7 +80,7 @@ module Timescaledb
         WITH #{"NO" unless options[:with_data]} DATA;
       SQL
 
-      create_continuous_aggregate_policy(table_name, options[:refresh_policies] || {})
+      create_continuous_aggregate_policy(table_name, **(options[:refresh_policies] || {}))
     end
 
 
