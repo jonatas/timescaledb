@@ -1,6 +1,12 @@
-require 'bundler/setup'
-require 'timescaledb'
+# ruby compare_volatility.rb postgres://user:pass@host:port/db_name
+require 'bundler/inline' #require only what you need
 
+gemfile(true) do
+  gem 'timescaledb', path:  '../..'
+  gem 'pry'
+end
+
+ActiveRecord::Base.establish_connection ARGV.last
 
 # Compare volatility processing in Ruby vs SQL.
 class Measurement < ActiveRecord::Base
@@ -27,7 +33,6 @@ class Measurement < ActiveRecord::Base
   }
 end
 
-ActiveRecord::Base.establish_connection ENV["PG_URI"]
 ActiveRecord::Base.connection.add_toolkit_to_search_path!
 
 
