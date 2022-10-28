@@ -40,6 +40,17 @@ The [all_in_one](https://github.com/jonatas/timescaledb/tree/master/examples/all
 
 The [ranking](https://github.com/jonatas/timescaledb/tree/master/examples/ranking) example shows how to configure a Rails app and navigate all the features available.
 
+
+## Toolkit  examples
+
+There are also examples in the [toolkit-demo](https://github.com/jonatas/timescaledb/tree/master/examples/toolkit-demo) folder that can help you to
+understand how to properly use the toolkit functions.
+
+* [ohlc](https://github.com/jonatas/timescaledb/tree/master/examples/toolkit-demo/ohlc.rb) is a funtion that groups data by Open, High, Low, Close and make histogram availables to group the data, very useful for financial analysis.
+* While building the [LTTB tutorial]( https://jonatas.github.io/timescaledb/toolkit_lttb_tutorial/) I created the [lttb](https://github.com/jonatas/timescaledb/tree/master/examples/toolkit-demo/lttb) is a simple charting using the Largest Triangle Three Buckets and there. A [zoomable](https://github.com/jonatas/timescaledb/tree/master/examples/toolkit-demo/lttb-zoom) version which allows to navigate in the data and zoom it keeping the same data resolution is also available.
+* A small example showing how to process [volatility](https://github.com/jonatas/timescaledb/blob/master/examples/toolkit-demo/compare_volatility.rb) is also good to get familiar with the pipeline functions. A benchmark implementing the same in Ruby is also available to check how it compares to the SQL implementation.
+
+
 ## Extra resources
 
 If you need extra help, please join the fantastic [timescale community](https://www.timescale.com/community)

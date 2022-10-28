@@ -27,7 +27,7 @@ module Timescaledb
     private
 
     def timescale_hypertable(hypertable, stream)
-      dim = hypertable.dimensions.first
+      dim = hypertable.main_dimension
       extra_settings = {
         time_column: "#{dim.column_name}",
         chunk_time_interval: "#{dim.time_interval.inspect}"

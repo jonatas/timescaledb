@@ -67,3 +67,10 @@ options = {
 create_continuous_aggregate('ohlc_1m', query, **options)
 ```
 
+If you need more details, please check this [blog post][1].
+
+If you're interested in candlesticks and need to get the OHLC values, take a look
+at the [toolkit ohlc](/toolkit_ohlc) function that do the same but through a
+function that can be reusing candlesticks from smaller timeframes.
+
+[1]: https://ideia.me/timescale-continuous-aggregates-with-ruby
