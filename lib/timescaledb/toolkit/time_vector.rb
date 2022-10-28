@@ -59,19 +59,27 @@ module Timescaledb
             end
           end
 
-          scope :ohlc, -> (timeframe: '1h',
+
+          scope :_ohlc, -> (timeframe: '1h',
                            segment_by: segment_by_column,
                            time: time_column,
-                           value: value_column,
-                           timezone: nil) do
-            ohlc = select( "time_bucket('#{timeframe}', #{time}) as #{time}",
+                           value: value_column) do
+
+             select( "time_bucket('#{timeframe}', #{time}) as #{time}",
                            *segment_by,
                            "toolkit_experimental.ohlc(#{time}, #{value})")
               .order(1)
               .group(*(segment_by ? [1,2] : 1))
+          end
 
+          scope :ohlc, -> (timeframe: '1h',
+                           segment_by: segment_by_column,
+                           time: time_column,
+                           value: value_column) do
+
+            raw = _ohlc(timeframe: timeframe, segment_by: segment_by, time: time, value: value)
             unscoped
-              .from("(#{ohlc.to_sql}) AS ohlc")
+              .from("(#{raw.to_sql}) AS ohlc")
               .select(*segment_by, time,
                "toolkit_experimental.open(ohlc),
                 toolkit_experimental.high(ohlc),
