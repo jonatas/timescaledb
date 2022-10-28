@@ -302,7 +302,7 @@ And then, just combine the scopes:
 Ohlc1m.yesterday.attributes
 ```
 I hope you find this tutorial interesting and you can also check the
-`compare_ohlc.rb` file in the [examples/toolkit-demo][5] folder.
+`ohlc.rb` file in the [examples/toolkit-demo][5] folder.
 
 If you have any questions or concerns, feel free to reach me ([@jonatasdp][7]) in the [Timescale community][6] or tag timescaledb in your StackOverflow issue.
 

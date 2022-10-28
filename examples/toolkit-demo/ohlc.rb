@@ -1,4 +1,6 @@
-# ruby compare_volatility.rb postgres://user:pass@host:port/db_name
+# ruby ohlc.rb postgres://user:pass@host:port/db_name
+# @see https://jonatas.github.io/timescaledb/ohlc_tutorial
+
 require 'bundler/inline' #require only what you need
 
 gemfile(true) do
@@ -144,9 +146,11 @@ Ohlc1m.attributes
 
 # Rollup demo
 
+# Attributes from rollup
 Ohlc1m.attributes.from(Ohlc1m.rollup(timeframe: '1 day'))
 
 
+# Nesting several levels
 Ohlc1m.attributes.from(
   Ohlc1m.rollup(timeframe: '1 week').from(
     Ohlc1m.rollup(timeframe: '1 day')
@@ -162,8 +166,8 @@ Ohlc1m.attributes.from(
 
 Pry.start
 
-
 =begin
+TODO: implement the ohlc_ruby 
 Benchmark.bm do |x|
   x.report("ruby")  { Tick.ohlc_ruby }
   x.report("sql") { Tick.ohlc.map(&:attributes)  }
