@@ -6,14 +6,16 @@ module Timescaledb
     def tables(stream)
       super # This will call #table for each table in the database
       views(stream) unless defined?(Scenic) # Don't call this twice if we're using Scenic
+      timescale_hypertables(stream)
+      timescale_retention_policies(stream)
     end
 
     def table(table_name, stream)
       super(table_name, stream)
       if Timescaledb::Hypertable.table_exists? &&
          (hypertable = Timescaledb::Hypertable.find_by(hypertable_name: table_name))
-        timescale_hypertable(hypertable, stream)
-        timescale_retention_policy(hypertable, stream)
+        timescale_hypertable(hypertable, @hypertables)
+        timescale_retention_policy(hypertable, @retention_policies)
       end
     end
 
@@ -22,6 +24,14 @@ module Timescaledb
 
       timescale_continuous_aggregates(stream) # Define these before any Scenic views that might use them
       super if defined?(super)
+    end
+
+    def timescale_hypertables(stream)
+      stream.puts(@hypertables)
+    end
+
+    def timescale_retention_policies(stream)
+      stream.puts(@retention_policies)
     end
 
     private
