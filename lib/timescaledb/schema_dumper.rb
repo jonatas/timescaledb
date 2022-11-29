@@ -4,6 +4,10 @@ require 'active_support/core_ext/string/indent'
 module Timescaledb
   module SchemaDumper
     def tables(stream)
+      # Create fake streams to capture the output for these objects
+      @hypertables = StringIO.new
+      @retention_policies = StringIO.new
+
       super # This will call #table for each table in the database
       views(stream) unless defined?(Scenic) # Don't call this twice if we're using Scenic
       timescale_hypertables(stream)
@@ -27,11 +31,17 @@ module Timescaledb
     end
 
     def timescale_hypertables(stream)
-      stream.puts(@hypertables)
+      @hypertables.rewind
+
+      stream.puts
+      stream.puts(@hypertables.read)
     end
 
     def timescale_retention_policies(stream)
-      stream.puts(@retention_policies)
+      @retention_policies.rewind
+
+      stream.puts
+      stream.puts(@retention_policies.read)
     end
 
     private
@@ -44,13 +54,11 @@ module Timescaledb
       }.merge(timescale_compression_settings_for(hypertable)).map {|k, v| %Q[#{k}: "#{v}"]}.join(", ")
 
       stream.puts %Q[  create_hypertable "#{hypertable.hypertable_name}", #{extra_settings}]
-      stream.puts
     end
 
     def timescale_retention_policy(hypertable, stream)
       hypertable.jobs.where(proc_name: "policy_retention").each do |job|
         stream.puts %Q[  create_retention_policy "#{job.hypertable_name}", interval: "#{job.config["drop_after"]}"]
-        stream.puts
       end
     end
 
