@@ -40,8 +40,7 @@ module Timescaledb
             lttb_query = <<~SQL
               WITH x AS ( #{select(*segment_by, time_column, value_column).to_sql})
               SELECT #{"x.#{segment_by}," if segment_by}
-                (lttb( x.#{time_column}, x.#{value_column}, #{threshold})
-                 -> toolkit_experimental.unnest()).*
+                (lttb( x.#{time_column}, x.#{value_column}, #{threshold}) -> unnest()).*
               FROM x
               #{"GROUP BY device_id" if segment_by}
             SQL
