@@ -93,7 +93,7 @@ Now, let's add the model `app/models/measurement.rb`:
 
 ```ruby
 class Measurement < ActiveRecord::Base
-  self.primary_key = 'device_id'
+  self.primary_key = nil
 
   acts_as_hypertable time_column: "ts"
 end
@@ -168,12 +168,15 @@ Measurement
 The final query for the example above looks like this:
 
 ```sql
-SELECT device_id, sum(abs_delta) as volatility
+SELECT device_id, SUM(abs_delta) AS volatility
 FROM (
   SELECT device_id,
-    abs(val - lag(val) OVER (PARTITION BY device_id ORDER BY ts)) as abs_delta
+    ABS(
+      val - LAG(val) OVER (
+        PARTITION BY device_id ORDER BY ts)
+      ) AS abs_delta
   FROM "measurements"
-) as calc_delta
+) AS calc_delta
 GROUP BY device_id
 ```
 
@@ -182,8 +185,14 @@ let's reproduce the same example using the toolkit pipelines:
 
 ```ruby
 Measurement
-  .select("device_id, timevector(ts, val) -> sort() -> delta() -> abs() -> sum() as volatility")
-  .group("device_id")
+  .select(<<-SQL).group("device_id")
+    device_id,
+    timevector(ts, val)
+      -> sort()
+      -> delta()
+      -> abs()
+      -> sum() as volatility
+    SQL
 ```
 
 As you can see, it's much easier to read and digest the example. Now, let's take
@@ -198,7 +207,7 @@ here to allow us to not repeat the parameters of the `timevector(ts, val)` call.
 
 ```ruby
 class Measurement < ActiveRecord::Base
-  self.primary_key = 'device_id'
+  self.primary_key = nil
 
   acts_as_hypertable time_column: "ts"
 
@@ -224,8 +233,14 @@ class Measurement < ActiveRecord::Base
     time_column: "ts"
 
   scope :volatility, -> do
-    select("device_id, timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> sum() as volatility")
-     .group("device_id")
+    select(<<-SQL).group("device_id")
+      device_id,
+      timevector(#{time_column}, #{value_column})
+        -> sort()
+        -> delta()
+        -> abs()
+        -> sum() as volatility
+    SQL
   end
 end
 ```
@@ -248,7 +263,12 @@ class Measurement < ActiveRecord::Base
 
   scope :volatility, -> (columns=segment_by_column) do
     _scope = select([*columns,
-        "timevector(#{time_column}, #{value_column}) -> sort() -> delta() -> abs() -> sum() as volatility"
+        "timevector(#{time_column},
+        #{value_column})
+           -> sort()
+           -> delta()
+           -> abs()
+           -> sum() as volatility"
     ].join(", "))
     _scope = _scope.group(columns) if columns
     _scope
@@ -361,7 +381,7 @@ Now, let's measure compare the time to process the volatility:
 ```ruby
 Benchmark.bm do |x|
   x.report("ruby")  { pp Measurement.volatility_by_device_id }
-  x.report("sql") { pp Measurement.volatility("device_id").map(&:attributes)  }
+  x.report("sql") { pp Measurement.volatility("device_id").map(&:attributes) }
 end
 #           user     system      total        real
 # ruby    0.612439   0.061890   0.674329 (  0.727590)
@@ -379,10 +399,103 @@ records over the wires. Now, moving to a remote host look the numbers:
     Now, using a remote connection between different regions,
     it looks even ~500 times slower than SQL.
 
-            user     system      total        real
-      ruby 0.716321   0.041640   0.757961 (  6.388881)
-      sql  0.001156   0.000177   0.001333 (  0.161270)
+                user     system      total        real
+        ruby 0.716321   0.041640   0.757961 (  6.388881)
+        sql  0.001156   0.000177   0.001333 (  0.161270)
 
+Let’s recap what’s time consuming here. The `find_all` is just not optimized to
+fetch the data and also consuming most of the time here. It’s also fetching
+the data and converting it to ActiveRecord model which has thousands of methods.
+
+It’s very comfortable but just need the attributes to make it.
+
+Let’s optimize it by plucking an array of values grouped by device.
+
+```ruby
+class Measurement < ActiveRecord::Base
+  # ...
+  scope :values_from_devices, -> {
+    ordered_values = select(:val, :device_id).order(:ts)
+    Hash[
+      from(ordered_values)
+      .group(:device_id)
+      .pluck("device_id, array_agg(val)")
+    ]
+  }
+end
+```
+
+Now, let's create a method for processing volatility.
+
+```ruby
+class Volatility
+  def self.process(values)
+    previous = nil
+    deltas = values.map do |value|
+      if previous
+        delta = (value - previous).abs
+        volatility = delta
+      end
+      previous = value
+      volatility
+    end
+    #deltas => [nil, 1, 1]
+    deltas.shift
+    volatility = deltas.sum
+  end
+  def self.process_values(map)
+    map.transform_values(&method(:process))
+  end
+end
+```
+
+Now, let's change the benchmark to expose the time for fetching and processing:
+
+
+```ruby
+volatilities = nil
+
+ActiveRecord::Base.logger = nil
+Benchmark.bm do |x|
+  x.report("ruby")  { Measurement.volatility_ruby }
+  x.report("sql") { Measurement.volatility_sql.map(&:attributes)  }
+  x.report("fetch") { volatilities =  Measurement.values_from_devices }
+  x.report("process") { Volatility.process_values(volatilities) }
+end
+```
+
+Checking the results:
+
+          user     system      total        real
+    ruby  0.683654   0.036558   0.720212 (  0.743942)
+    sql  0.000876   0.000096   0.000972 (  0.054234)
+    fetch  0.078045   0.003221   0.081266 (  0.116693)
+    process  0.067643   0.006473   0.074116 (  0.074122)
+
+Much better, now we can see only 200ms difference between real time which means ~36% more.
+
+
+If we try to break down a bit more of the SQL part, we can see that the 
+
+```sql
+EXPLAIN ANALYSE
+  SELECT device_id, array_agg(val)
+  FROM (
+    SELECT val, device_id
+    FROM measurements
+    ORDER BY ts ASC
+  ) subquery
+  GROUP BY device_id;
+```
+
+We can check the execution time and make it clear how much time is necessary
+just for the processing part, isolating network and the ActiveRecord layer.
+
+    │ Planning Time: 17.761 ms                                                                                                                                                                     │
+    │ Execution Time: 36.302 ms
+
+So, it means that from the **116ms** to fetch the data, only **54ms** was used from the DB
+and the remaining **62ms** was consumed by network + ORM.
 
 [1]: https://github.com/timescale/timescaledb-toolkit
 [2]: https://timescale.com

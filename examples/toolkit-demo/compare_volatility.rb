@@ -6,6 +6,8 @@ gemfile(true) do
   gem 'pry'
 end
 
+# TODO: get the volatility using the window function with plain postgresql
+
 ActiveRecord::Base.establish_connection ARGV.last
 
 # Compare volatility processing in Ruby vs SQL.
@@ -31,6 +33,34 @@ class Measurement < ActiveRecord::Base
     end
     volatility
   }
+  scope :values_from_devices, -> {
+    ordered_values = select(:val, :device_id).order(:ts)
+    Hash[
+      from(ordered_values)
+      .group(:device_id)
+      .pluck("device_id, array_agg(val)")
+    ]
+  }
+end
+
+class Volatility
+  def self.process(values)
+    previous = nil
+    deltas = values.map do |value|
+      if previous
+        delta = (value - previous).abs
+        volatility = delta
+      end
+      previous = value
+      volatility
+    end
+    #deltas => [nil, 1, 1]
+    deltas.shift
+    volatility = deltas.sum
+  end
+  def self.process_values(map)
+    map.transform_values(&method(:process))
+  end
 end
 
 ActiveRecord::Base.connection.add_toolkit_to_search_path!
@@ -63,7 +93,12 @@ if Measurement.count.zero?
      SQL
 end
 
+
+volatilities = nil
+#ActiveRecord::Base.logger = nil
 Benchmark.bm do |x|
-  x.report("ruby")  { Measurement.volatility_ruby }
   x.report("sql") { Measurement.volatility_sql.map(&:attributes)  }
+  x.report("ruby")  { Measurement.volatility_ruby }
+  x.report("fetch") { volatilities =  Measurement.values_from_devices }
+  x.report("process") { Volatility.process_values(volatilities) }
 end
