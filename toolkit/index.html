@@ -584,7 +584,7 @@ is our next topic.</p>
 options for now.</p>
 <p>Now, let's add the model <code>app/models/measurement.rb</code>:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span> <span class="nc">Measurement</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  <span class="nb">self</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="s1">&#39;device_id&#39;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  <span class="nb">self</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="kp">nil</span>
 <a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>
 <a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>  <span class="n">acts_as_hypertable</span> <span class="ss">time_column</span><span class="p">:</span> <span class="s2">&quot;ts&quot;</span>
 <a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="k">end</span>
@@ -639,19 +639,28 @@ seems a bit more confusing:</p>
 <a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>  <span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s1">&#39;device_id&#39;</span><span class="p">)</span>
 </code></pre></div>
 <p>The final query for the example above looks like this:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">device_id</span><span class="p">,</span><span class="w"> </span><span class="k">sum</span><span class="p">(</span><span class="n">abs_delta</span><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">volatility</span><span class="w"></span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">SELECT</span><span class="w"> </span><span class="n">device_id</span><span class="p">,</span><span class="w"> </span><span class="k">SUM</span><span class="p">(</span><span class="n">abs_delta</span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">volatility</span><span class="w"></span>
 <a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
 <a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="w">  </span><span class="k">SELECT</span><span class="w"> </span><span class="n">device_id</span><span class="p">,</span><span class="w"></span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="k">abs</span><span class="p">(</span><span class="n">val</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">lag</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">device_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ts</span><span class="p">))</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">abs_delta</span><span class="w"></span>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;measurements&quot;</span><span class="w"></span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="p">)</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="n">calc_delta</span><span class="w"></span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">device_id</span><span class="w"></span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="w">    </span><span class="k">ABS</span><span class="p">(</span><span class="w"></span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="w">      </span><span class="n">val</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">LAG</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"> </span><span class="n">OVER</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a><span class="w">        </span><span class="n">PARTITION</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">device_id</span><span class="w"> </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ts</span><span class="p">)</span><span class="w"></span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a><span class="w">      </span><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">abs_delta</span><span class="w"></span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="ss">&quot;measurements&quot;</span><span class="w"></span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a><span class="p">)</span><span class="w"> </span><span class="k">AS</span><span class="w"> </span><span class="n">calc_delta</span><span class="w"></span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">device_id</span><span class="w"></span>
 </code></pre></div>
 <p>It's much harder to understand the actual example then go with plain SQL and now
 let's reproduce the same example using the toolkit pipelines:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="no">Measurement</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s2">&quot;device_id, timevector(ts, val) -&gt; sort() -&gt; delta() -&gt; abs() -&gt; sum() as volatility&quot;</span><span class="p">)</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  <span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  <span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">&lt;&lt;-</span><span class="dl">SQL</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="sh">    device_id,</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="sh">    timevector(ts, val)</span>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="sh">      -&gt; sort()</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a><span class="sh">      -&gt; delta()</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="sh">      -&gt; abs()</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="sh">      -&gt; sum() as volatility</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="dl">    SQL</span>
 </code></pre></div>
 <p>As you can see, it's much easier to read and digest the example. Now, let's take
 a look in how we can generate the queries using the scopes injected by the
@@ -660,7 +669,7 @@ a look in how we can generate the queries using the scopes injected by the
 <p>Let's start changing the model to add the <code>acts_as_time_vector</code> that is
 here to allow us to not repeat the parameters of the <code>timevector(ts, val)</code> call.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">class</span> <span class="nc">Measurement</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  <span class="nb">self</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="s1">&#39;device_id&#39;</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  <span class="nb">self</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="kp">nil</span>
 <a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
 <a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>  <span class="n">acts_as_hypertable</span> <span class="ss">time_column</span><span class="p">:</span> <span class="s2">&quot;ts&quot;</span>
 <a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>
@@ -681,10 +690,16 @@ here for the sake of making the macros independent.</p>
 <a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="ss">time_column</span><span class="p">:</span> <span class="s2">&quot;ts&quot;</span>
 <a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>
 <a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>  <span class="n">scope</span> <span class="ss">:volatility</span><span class="p">,</span> <span class="o">-&gt;</span> <span class="k">do</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="nb">select</span><span class="p">(</span><span class="s2">&quot;device_id, timevector(</span><span class="si">#{</span><span class="n">time_column</span><span class="si">}</span><span class="s2">, </span><span class="si">#{</span><span class="n">value_column</span><span class="si">}</span><span class="s2">) -&gt; sort() -&gt; delta() -&gt; abs() -&gt; sum() as volatility&quot;</span><span class="p">)</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>     <span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>  <span class="k">end</span>
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="k">end</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>    <span class="nb">select</span><span class="p">(</span><span class="o">&lt;&lt;-</span><span class="dl">SQL</span><span class="p">)</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="sh">      device_id,</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="sh">      timevector(#{time_column}, #{value_column})</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a><span class="sh">        -&gt; sort()</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="sh">        -&gt; delta()</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a><span class="sh">        -&gt; abs()</span>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a><span class="sh">        -&gt; sum() as volatility</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a><span class="dl">    SQL</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>  <span class="k">end</span>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a><span class="k">end</span>
 </code></pre></div>
 <p>Now, we have created the volatility scope, grouping by device_id always.</p>
 <p>In the Toolkit helpers, we have a similar version which also contains a default
@@ -701,12 +716,17 @@ macro.</p>
 <a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>
 <a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>  <span class="n">scope</span> <span class="ss">:volatility</span><span class="p">,</span> <span class="o">-&gt;</span> <span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">segment_by_column</span><span class="p">)</span> <span class="k">do</span>
 <a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>    <span class="n">_scope</span> <span class="o">=</span> <span class="nb">select</span><span class="p">(</span><span class="o">[*</span><span class="n">columns</span><span class="p">,</span>
-<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>        <span class="s2">&quot;timevector(</span><span class="si">#{</span><span class="n">time_column</span><span class="si">}</span><span class="s2">, </span><span class="si">#{</span><span class="n">value_column</span><span class="si">}</span><span class="s2">) -&gt; sort() -&gt; delta() -&gt; abs() -&gt; sum() as volatility&quot;</span>
-<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>    <span class="o">].</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">))</span>
-<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a>    <span class="n">_scope</span> <span class="o">=</span> <span class="n">_scope</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="k">if</span> <span class="n">columns</span>
-<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a>    <span class="n">_scope</span>
-<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a>  <span class="k">end</span>
-<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="k">end</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a>        <span class="s2">&quot;timevector(</span><span class="si">#{</span><span class="n">time_column</span><span class="si">}</span><span class="s2">,</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a><span class="s2">        </span><span class="si">#{</span><span class="n">value_column</span><span class="si">}</span><span class="s2">)</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="s2">           -&gt; sort()</span>
+<a id="__codelineno-13-13" name="__codelineno-13-13" href="#__codelineno-13-13"></a><span class="s2">           -&gt; delta()</span>
+<a id="__codelineno-13-14" name="__codelineno-13-14" href="#__codelineno-13-14"></a><span class="s2">           -&gt; abs()</span>
+<a id="__codelineno-13-15" name="__codelineno-13-15" href="#__codelineno-13-15"></a><span class="s2">           -&gt; sum() as volatility&quot;</span>
+<a id="__codelineno-13-16" name="__codelineno-13-16" href="#__codelineno-13-16"></a>    <span class="o">].</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;, &quot;</span><span class="p">))</span>
+<a id="__codelineno-13-17" name="__codelineno-13-17" href="#__codelineno-13-17"></a>    <span class="n">_scope</span> <span class="o">=</span> <span class="n">_scope</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span> <span class="k">if</span> <span class="n">columns</span>
+<a id="__codelineno-13-18" name="__codelineno-13-18" href="#__codelineno-13-18"></a>    <span class="n">_scope</span>
+<a id="__codelineno-13-19" name="__codelineno-13-19" href="#__codelineno-13-19"></a>  <span class="k">end</span>
+<a id="__codelineno-13-20" name="__codelineno-13-20" href="#__codelineno-13-20"></a><span class="k">end</span>
 </code></pre></div>
 <p>Testing the method:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="no">Measurement</span><span class="o">.</span><span class="n">volatility</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:attributes</span><span class="p">)</span>
@@ -783,7 +803,7 @@ records.</p>
 <p>Now, let's measure compare the time to process the volatility:</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="no">Benchmark</span><span class="o">.</span><span class="n">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
 <a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;ruby&quot;</span><span class="p">)</span>  <span class="p">{</span> <span class="n">pp</span> <span class="no">Measurement</span><span class="o">.</span><span class="n">volatility_by_device_id</span> <span class="p">}</span>
-<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;sql&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="n">pp</span> <span class="no">Measurement</span><span class="o">.</span><span class="n">volatility</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:attributes</span><span class="p">)</span>  <span class="p">}</span>
+<a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;sql&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="n">pp</span> <span class="no">Measurement</span><span class="o">.</span><span class="n">volatility</span><span class="p">(</span><span class="s2">&quot;device_id&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:attributes</span><span class="p">)</span> <span class="p">}</span>
 <a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="k">end</span>
 <a id="__codelineno-22-5" name="__codelineno-22-5" href="#__codelineno-22-5"></a><span class="c1">#           user     system      total        real</span>
 <a id="__codelineno-22-6" name="__codelineno-22-6" href="#__codelineno-22-6"></a><span class="c1"># ruby    0.612439   0.061890   0.674329 (  0.727590)</span>
@@ -798,12 +818,88 @@ records over the wires. Now, moving to a remote host look the numbers:</p>
 <p>Note that the previous numbers where using localhost.
 Now, using a remote connection between different regions,
 it looks even ~500 times slower than SQL.</p>
-<div class="codehilite"><pre><span></span><code>    user     system      total        real
+<div class="codehilite"><pre><span></span><code>        user     system      total        real
+ruby 0.716321   0.041640   0.757961 (  6.388881)
+sql  0.001156   0.000177   0.001333 (  0.161270)
 </code></pre></div>
 
-<p>ruby 0.716321   0.041640   0.757961 (  6.388881)
-  sql  0.001156   0.000177   0.001333 (  0.161270)</p>
 </div>
+<p>Let’s recap what’s time consuming here. The <code>find_all</code> is just not optimized to
+fetch the data and also consuming most of the time here. It’s also fetching
+the data and converting it to ActiveRecord model which has thousands of methods.</p>
+<p>It’s very comfortable but just need the attributes to make it.</p>
+<p>Let’s optimize it by plucking an array of values grouped by device.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a><span class="k">class</span> <span class="nc">Measurement</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>  <span class="c1"># ...</span>
+<a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>  <span class="n">scope</span> <span class="ss">:values_from_devices</span><span class="p">,</span> <span class="o">-&gt;</span> <span class="p">{</span>
+<a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>    <span class="n">ordered_values</span> <span class="o">=</span> <span class="nb">select</span><span class="p">(</span><span class="ss">:val</span><span class="p">,</span> <span class="ss">:device_id</span><span class="p">)</span><span class="o">.</span><span class="n">order</span><span class="p">(</span><span class="ss">:ts</span><span class="p">)</span>
+<a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>    <span class="no">Hash</span><span class="o">[</span>
+<a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>      <span class="n">from</span><span class="p">(</span><span class="n">ordered_values</span><span class="p">)</span>
+<a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>      <span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="ss">:device_id</span><span class="p">)</span>
+<a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>      <span class="o">.</span><span class="n">pluck</span><span class="p">(</span><span class="s2">&quot;device_id, array_agg(val)&quot;</span><span class="p">)</span>
+<a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>    <span class="o">]</span>
+<a id="__codelineno-23-10" name="__codelineno-23-10" href="#__codelineno-23-10"></a>  <span class="p">}</span>
+<a id="__codelineno-23-11" name="__codelineno-23-11" href="#__codelineno-23-11"></a><span class="k">end</span>
+</code></pre></div>
+<p>Now, let's create a method for processing volatility.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="k">class</span> <span class="nc">Volatility</span>
+<a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">process</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+<a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>    <span class="n">previous</span> <span class="o">=</span> <span class="kp">nil</span>
+<a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a>    <span class="n">deltas</span> <span class="o">=</span> <span class="n">values</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">value</span><span class="o">|</span>
+<a id="__codelineno-24-5" name="__codelineno-24-5" href="#__codelineno-24-5"></a>      <span class="k">if</span> <span class="n">previous</span>
+<a id="__codelineno-24-6" name="__codelineno-24-6" href="#__codelineno-24-6"></a>        <span class="n">delta</span> <span class="o">=</span> <span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">previous</span><span class="p">)</span><span class="o">.</span><span class="n">abs</span>
+<a id="__codelineno-24-7" name="__codelineno-24-7" href="#__codelineno-24-7"></a>        <span class="n">volatility</span> <span class="o">=</span> <span class="n">delta</span>
+<a id="__codelineno-24-8" name="__codelineno-24-8" href="#__codelineno-24-8"></a>      <span class="k">end</span>
+<a id="__codelineno-24-9" name="__codelineno-24-9" href="#__codelineno-24-9"></a>      <span class="n">previous</span> <span class="o">=</span> <span class="n">value</span>
+<a id="__codelineno-24-10" name="__codelineno-24-10" href="#__codelineno-24-10"></a>      <span class="n">volatility</span>
+<a id="__codelineno-24-11" name="__codelineno-24-11" href="#__codelineno-24-11"></a>    <span class="k">end</span>
+<a id="__codelineno-24-12" name="__codelineno-24-12" href="#__codelineno-24-12"></a>    <span class="c1">#deltas =&gt; [nil, 1, 1]</span>
+<a id="__codelineno-24-13" name="__codelineno-24-13" href="#__codelineno-24-13"></a>    <span class="n">deltas</span><span class="o">.</span><span class="n">shift</span>
+<a id="__codelineno-24-14" name="__codelineno-24-14" href="#__codelineno-24-14"></a>    <span class="n">volatility</span> <span class="o">=</span> <span class="n">deltas</span><span class="o">.</span><span class="n">sum</span>
+<a id="__codelineno-24-15" name="__codelineno-24-15" href="#__codelineno-24-15"></a>  <span class="k">end</span>
+<a id="__codelineno-24-16" name="__codelineno-24-16" href="#__codelineno-24-16"></a>  <span class="k">def</span> <span class="nc">self</span><span class="o">.</span><span class="nf">process_values</span><span class="p">(</span><span class="n">map</span><span class="p">)</span>
+<a id="__codelineno-24-17" name="__codelineno-24-17" href="#__codelineno-24-17"></a>    <span class="n">map</span><span class="o">.</span><span class="n">transform_values</span><span class="p">(</span><span class="o">&amp;</span><span class="nb">method</span><span class="p">(</span><span class="ss">:process</span><span class="p">))</span>
+<a id="__codelineno-24-18" name="__codelineno-24-18" href="#__codelineno-24-18"></a>  <span class="k">end</span>
+<a id="__codelineno-24-19" name="__codelineno-24-19" href="#__codelineno-24-19"></a><span class="k">end</span>
+</code></pre></div>
+<p>Now, let's change the benchmark to expose the time for fetching and processing:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a><span class="n">volatilities</span> <span class="o">=</span> <span class="kp">nil</span>
+<a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>
+<a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a><span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="kp">nil</span>
+<a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a><span class="no">Benchmark</span><span class="o">.</span><span class="n">bm</span> <span class="k">do</span> <span class="o">|</span><span class="n">x</span><span class="o">|</span>
+<a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;ruby&quot;</span><span class="p">)</span>  <span class="p">{</span> <span class="no">Measurement</span><span class="o">.</span><span class="n">volatility_ruby</span> <span class="p">}</span>
+<a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;sql&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="no">Measurement</span><span class="o">.</span><span class="n">volatility_sql</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="o">&amp;</span><span class="ss">:attributes</span><span class="p">)</span>  <span class="p">}</span>
+<a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;fetch&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="n">volatilities</span> <span class="o">=</span>  <span class="no">Measurement</span><span class="o">.</span><span class="n">values_from_devices</span> <span class="p">}</span>
+<a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>  <span class="n">x</span><span class="o">.</span><span class="n">report</span><span class="p">(</span><span class="s2">&quot;process&quot;</span><span class="p">)</span> <span class="p">{</span> <span class="no">Volatility</span><span class="o">.</span><span class="n">process_values</span><span class="p">(</span><span class="n">volatilities</span><span class="p">)</span> <span class="p">}</span>
+<a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a><span class="k">end</span>
+</code></pre></div>
+<p>Checking the results:</p>
+<div class="codehilite"><pre><span></span><code>      user     system      total        real
+ruby  0.683654   0.036558   0.720212 (  0.743942)
+sql  0.000876   0.000096   0.000972 (  0.054234)
+fetch  0.078045   0.003221   0.081266 (  0.116693)
+process  0.067643   0.006473   0.074116 (  0.074122)
+</code></pre></div>
+
+<p>Much better, now we can see only 200ms difference between real time which means ~36% more.</p>
+<p>If we try to break down a bit more of the SQL part, we can see that the </p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-26-1" name="__codelineno-26-1" href="#__codelineno-26-1"></a><span class="k">EXPLAIN</span><span class="w"> </span><span class="k">ANALYSE</span><span class="w"></span>
+<a id="__codelineno-26-2" name="__codelineno-26-2" href="#__codelineno-26-2"></a><span class="w">  </span><span class="k">SELECT</span><span class="w"> </span><span class="n">device_id</span><span class="p">,</span><span class="w"> </span><span class="n">array_agg</span><span class="p">(</span><span class="n">val</span><span class="p">)</span><span class="w"></span>
+<a id="__codelineno-26-3" name="__codelineno-26-3" href="#__codelineno-26-3"></a><span class="w">  </span><span class="k">FROM</span><span class="w"> </span><span class="p">(</span><span class="w"></span>
+<a id="__codelineno-26-4" name="__codelineno-26-4" href="#__codelineno-26-4"></a><span class="w">    </span><span class="k">SELECT</span><span class="w"> </span><span class="n">val</span><span class="p">,</span><span class="w"> </span><span class="n">device_id</span><span class="w"></span>
+<a id="__codelineno-26-5" name="__codelineno-26-5" href="#__codelineno-26-5"></a><span class="w">    </span><span class="k">FROM</span><span class="w"> </span><span class="n">measurements</span><span class="w"></span>
+<a id="__codelineno-26-6" name="__codelineno-26-6" href="#__codelineno-26-6"></a><span class="w">    </span><span class="k">ORDER</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">ts</span><span class="w"> </span><span class="k">ASC</span><span class="w"></span>
+<a id="__codelineno-26-7" name="__codelineno-26-7" href="#__codelineno-26-7"></a><span class="w">  </span><span class="p">)</span><span class="w"> </span><span class="n">subquery</span><span class="w"></span>
+<a id="__codelineno-26-8" name="__codelineno-26-8" href="#__codelineno-26-8"></a><span class="w">  </span><span class="k">GROUP</span><span class="w"> </span><span class="k">BY</span><span class="w"> </span><span class="n">device_id</span><span class="p">;</span><span class="w"></span>
+</code></pre></div>
+<p>We can check the execution time and make it clear how much time is necessary
+just for the processing part, isolating network and the ActiveRecord layer.</p>
+<div class="codehilite"><pre><span></span><code>│ Planning Time: 17.761 ms                                                                                                                                                                     │
+│ Execution Time: 36.302 ms
+</code></pre></div>
+
+<p>So, it means that from the <strong>116ms</strong> to fetch the data, only <strong>54ms</strong> was used from the DB
+and the remaining <strong>62ms</strong> was consumed by network + ORM.</p>
 
 
   
