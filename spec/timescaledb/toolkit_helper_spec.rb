@@ -120,7 +120,7 @@ RSpec.describe Timescaledb::Toolkit::Helpers, database_cleaner_strategy: :trunca
 
         specify do
           expect(volatility_query_for_all.map(&:attributes)).to eq([
-            {"device_id"=>nil, "volatility"=>11.0}])
+            {"volatility"=>11.0}])
 
           expect(volatility_query_for_every_device.map(&:attributes)).to eq([
             {"device_id"=>1, "volatility"=>2.0},
