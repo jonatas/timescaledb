@@ -4,23 +4,11 @@ require 'active_support/core_ext/string/indent'
 module Timescaledb
   module SchemaDumper
     def tables(stream)
-      # Create fake streams to capture the output for these objects
-      @hypertables = StringIO.new
-      @retention_policies = StringIO.new
-
       super # This will call #table for each table in the database
       views(stream) unless defined?(Scenic) # Don't call this twice if we're using Scenic
+
       timescale_hypertables(stream)
       timescale_retention_policies(stream)
-    end
-
-    def table(table_name, stream)
-      super(table_name, stream)
-      if Timescaledb::Hypertable.table_exists? &&
-         (hypertable = Timescaledb::Hypertable.find_by(hypertable_name: table_name))
-        timescale_hypertable(hypertable, @hypertables)
-        timescale_retention_policy(hypertable, @retention_policies)
-      end
     end
 
     def views(stream)
@@ -31,17 +19,25 @@ module Timescaledb
     end
 
     def timescale_hypertables(stream)
-      @hypertables.rewind
+      stream.puts # Insert a blank line above the retention policies, for readability
 
-      stream.puts
-      stream.puts(@hypertables.read)
+      @connection.tables.sort.each do |table_name|
+        if Timescaledb::Hypertable.table_exists? &&
+          (hypertable = Timescaledb::Hypertable.find_by(hypertable_name: table_name))
+          timescale_hypertable(hypertable, stream)
+        end
+      end
     end
 
     def timescale_retention_policies(stream)
-      @retention_policies.rewind
+      stream.puts # Insert a blank line above the retention policies, for readability
 
-      stream.puts
-      stream.puts(@retention_policies.read)
+      @connection.tables.sort.each do |table_name|
+        if Timescaledb::Hypertable.table_exists? &&
+          (hypertable = Timescaledb::Hypertable.find_by(hypertable_name: table_name))
+          timescale_retention_policy(hypertable, stream)
+        end
+      end
     end
 
     private
