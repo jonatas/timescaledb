@@ -7,6 +7,8 @@ module Timescaledb
       super # This will call #table for each table in the database
       views(stream) unless defined?(Scenic) # Don't call this twice if we're using Scenic
 
+      return unless Timescaledb::Hypertable.table_exists?
+
       timescale_hypertables(stream)
       timescale_retention_policies(stream)
     end
