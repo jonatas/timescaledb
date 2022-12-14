@@ -23,7 +23,7 @@ module Timescaledb
     def timescale_hypertables(stream)
       stream.puts # Insert a blank line above the hypertable definitions, for readability
 
-      Timescaledb::Hypertable.find_each do |hypertable|
+      sorted_hypertables.each do |hypertable|
          timescale_hypertable(hypertable, stream)
       end
     end
@@ -31,7 +31,7 @@ module Timescaledb
     def timescale_retention_policies(stream)
       stream.puts # Insert a blank line above the retention policies, for readability
 
-      Timescaledb::Hypertable.find_each do |hypertable|
+      sorted_hypertables.each do |hypertable|
         timescale_retention_policy(hypertable, stream)
       end
     end
@@ -94,6 +94,9 @@ module Timescaledb
       return "NULL" if value.nil? || value.to_s.downcase == "null"
 
       "INTERVAL '#{value}'"
+    end
+    def sorted_hypertables
+      @sorted_hypertables ||= Timescaledb::Hypertable.order(:hypertable_name).to_a
     end
   end
 end
