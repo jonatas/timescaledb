@@ -31,11 +31,8 @@ module Timescaledb
     def timescale_retention_policies(stream)
       stream.puts # Insert a blank line above the retention policies, for readability
 
-      @connection.tables.sort.each do |table_name|
-        if Timescaledb::Hypertable.table_exists? &&
-          (hypertable = Timescaledb::Hypertable.find_by(hypertable_name: table_name))
-          timescale_retention_policy(hypertable, stream)
-        end
+      Timescaledb::Hypertable.find_each do |hypertable|
+        timescale_retention_policy(hypertable, stream)
       end
     end
 
