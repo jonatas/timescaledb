@@ -21,7 +21,7 @@ module Timescaledb
     end
 
     def timescale_hypertables(stream)
-      stream.puts # Insert a blank line above the retention policies, for readability
+      stream.puts # Insert a blank line above the hypertable definitions, for readability
 
       Timescaledb::Hypertable.find_each do |hypertable|
          timescale_hypertable(hypertable, stream)
