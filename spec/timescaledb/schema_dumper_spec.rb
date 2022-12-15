@@ -59,4 +59,38 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
     expect(output).not_to include 'create_view "event_counts"' # Verify Scenic ignored this view
     expect(output).to include 'create_view "searches", sql_definition: <<-SQL' if defined?(Scenic)
   end
+
+  describe "dumping hypertable options" do
+    before(:each) do
+      con.drop_table :schema_tests, force: :cascade if con.table_exists?(:schema_tests)
+    end
+
+    it "extracts spatial partition options" do
+      options = { partition_column: "category", number_partitions: 3 }
+      con.create_table :schema_tests, hypertable: options, id: false do |t|
+        t.string :category
+        t.timestamps
+      end
+
+      stream = StringIO.new
+      ActiveRecord::SchemaDumper.dump(con, stream)
+      output = stream.string
+
+      expect(output).to include 'partition_column: "category"'
+      expect(output).to include "number_partitions: 3"
+    end
+
+    it "extracts index options" do
+      options = { create_default_indexes: false }
+      con.create_table :schema_tests, hypertable: options, id: false do |t|
+        t.timestamps
+      end
+
+      stream = StringIO.new
+      ActiveRecord::SchemaDumper.dump(con, stream)
+      output = stream.string
+
+      expect(output).to include "create_default_indexes: false"
+    end
+  end
 end

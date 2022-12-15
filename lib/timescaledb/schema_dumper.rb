@@ -24,7 +24,7 @@ module Timescaledb
       stream.puts # Insert a blank line above the hypertable definitions, for readability
 
       sorted_hypertables.each do |hypertable|
-         timescale_hypertable(hypertable, stream)
+        timescale_hypertable(hypertable, stream)
       end
     end
 
@@ -39,13 +39,18 @@ module Timescaledb
     private
 
     def timescale_hypertable(hypertable, stream)
-      dim = hypertable.main_dimension
-      extra_settings = {
-        time_column: "#{dim.column_name}",
-        chunk_time_interval: "#{dim.time_interval.inspect}"
-      }.merge(timescale_compression_settings_for(hypertable)).map {|k, v| %Q[#{k}: "#{v}"]}.join(", ")
+      time = hypertable.main_dimension
 
-      stream.puts %Q[  create_hypertable "#{hypertable.hypertable_name}", #{extra_settings}]
+      options = {
+        time_column: time.column_name,
+        chunk_time_interval: time.time_interval.inspect,
+        **timescale_compression_settings_for(hypertable),
+        **timescale_space_partition_for(hypertable),
+        **timescale_index_options_for(hypertable)
+      }
+
+      options = options.map { |k, v| "#{k}: #{v.to_json}" }.join(", ")
+      stream.puts %Q[  create_hypertable "#{hypertable.hypertable_name}", #{options}]
     end
 
     def timescale_retention_policy(hypertable, stream)
@@ -68,6 +73,22 @@ module Timescaledb
         compression_settings[:compression_interval] = job.config["compress_after"]
       end
       compression_settings
+    end
+
+    def timescale_space_partition_for(hypertable)
+      return {} unless hypertable.dimensions.length > 1
+
+      space = hypertable.dimensions.last
+      {partition_column: space.column_name, number_partitions: space.num_partitions}
+    end
+
+    def timescale_index_options_for(hypertable)
+      time = hypertable.main_dimension
+      if @connection.indexes(hypertable.hypertable_name).any? { |i| i.columns == [time.column_name] }
+        {}
+      else
+        {create_default_indexes: false}
+      end
     end
 
     def timescale_continuous_aggregates(stream)
@@ -95,6 +116,7 @@ module Timescaledb
 
       "INTERVAL '#{value}'"
     end
+
     def sorted_hypertables
       @sorted_hypertables ||= Timescaledb::Hypertable.order(:hypertable_name).to_a
     end
