@@ -21,15 +21,15 @@ module Timescaledb
     end
 
     def timescale_hypertables(stream)
-      stream.puts # Insert a blank line above the hypertable definitions, for readability
-
       sorted_hypertables.each do |hypertable|
         timescale_hypertable(hypertable, stream)
       end
     end
 
     def timescale_retention_policies(stream)
-      stream.puts # Insert a blank line above the retention policies, for readability
+      if sorted_hypertables.any? { |hypertable| hypertable.jobs.exists?(proc_name: "policy_retention") }
+        stream.puts # Insert a blank line above the retention policies, for readability
+      end
 
       sorted_hypertables.each do |hypertable|
         timescale_retention_policy(hypertable, stream)
