@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    timescaledb (0.2.3)
+    timescaledb (0.2.4)
       activerecord
       activesupport
       pg (~> 1.2)
