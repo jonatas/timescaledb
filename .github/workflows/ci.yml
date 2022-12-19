@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [ '2.7' ]
+        ruby: [ '2.7.1' ]
         postgres: [ 'latest-pg14' ]
 
     services:
