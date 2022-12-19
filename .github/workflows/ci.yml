@@ -40,6 +40,13 @@ jobs:
       run: |
         ruby -v
 
+    - name: Show PostgreSQL version and time
+      env:
+        PGPASSWORD: secret
+      run: |
+        echo "SELECT version()" | psql -h postgres -U username testdb
+        echo "SELECT CURRENT_TIME" | psql -h postgres -U username testdb
+
     - name: Setup
       run: |
         ./bin/setup
