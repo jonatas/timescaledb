@@ -57,7 +57,7 @@ jobs:
         ./bin/setup
 
     - name: run tsdb
-      run: tsdb postgres://username:secret@postgres:5432/<dbname> --stats
+      run: tsdb postgres://username:secret@postgres:5432/testdb --stats
 
     - name: Test setup
       run: |
