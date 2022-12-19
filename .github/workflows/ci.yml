@@ -1,0 +1,43 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+#  schedule:
+#    - cron: '42 5 * * *'
+
+jobs:
+  test-in-container:
+    strategy:
+      fail-fast: false
+      matrix:
+        ruby: [ '3.0' ]
+        postgres: [ '15' ]
+
+    services:
+      postgres:
+        image: postgres:${{matrix.postgres}}
+
+    runs-on: ubuntu-latest
+    name: OS Ruby ${{matrix.ruby}} Postgres ${{matris.postgres}}
+    container: ruby:${{matrix.ruby}}
+
+    service:
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Show Ruby Version
+      run: |
+        ruby -v
+
+    - name: Setup
+      run: |
+        ./bin/setup
+
+    - name: Test setup
+      run: bundle exec rake test:setup
+
+    - name: Test
+      run: bundle exec rake
+
