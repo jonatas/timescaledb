@@ -18,6 +18,16 @@ jobs:
     services:
       postgres:
         image: postgres:${{matrix.postgres}}
+        env:
+          POSTGRES_USER: username
+          POSTGRES_PASSWORD: secret
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
 
     runs-on: ubuntu-latest
     name: OS Ruby ${{matrix.ruby}} Postgres ${{matrix.postgres}}
@@ -36,7 +46,7 @@ jobs:
 
     - name: Test setup
       run: |
-        echo PG_URI_TEST="postgres://@postgres:5432/testdb" > .env
+        echo PG_URI_TEST="postgres://username:secret@postgres:5432/testdb" > .env
         cat .env
         bundle exec rake test:setup
 
