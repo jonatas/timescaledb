@@ -20,7 +20,7 @@ jobs:
         image: postgres:${{matrix.postgres}}
 
     runs-on: ubuntu-latest
-    name: OS Ruby ${{matrix.ruby}} Postgres ${{matris.postgres}}
+    name: OS Ruby ${{matrix.ruby}} Postgres ${{matrix.postgres}}
     container: ruby:${{matrix.ruby}}
 
     service:
