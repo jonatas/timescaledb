@@ -15,9 +15,6 @@ jobs:
         ruby: [ '3.1.2' ]
         database:
           - 'pg14.6-ts2.9.0-patroni-static-primary-latest'
-          - 'pg14-patroni-static-primary-latest'
-          - 'pg14.6-ts2.9.0-patroni-static-primary-p0'
-          - 'pg14.6-ts2.9-oss-latest'
           - 'pg13.9-ts2.9-latest'
 
     services:
