@@ -35,7 +35,10 @@ jobs:
         ./bin/setup
 
     - name: Test setup
-      run: bundle exec rake test:setup
+      run: |
+        echo PG_URI_TEST="postgres://@postgres:5432/testdb" > .env
+        cat .env
+        bundle exec rake test:setup
 
     - name: Test
       run: bundle exec rake
