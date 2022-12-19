@@ -23,7 +23,6 @@ jobs:
     name: OS Ruby ${{matrix.ruby}} Postgres ${{matrix.postgres}}
     container: ruby:${{matrix.ruby}}
 
-    service:
     steps:
     - uses: actions/checkout@v3
 
