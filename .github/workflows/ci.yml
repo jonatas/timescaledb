@@ -12,8 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [ '3.0' ]
-        postgres: [ '15' ]
+        ruby: [ '3.0', '3.1' ]
+        postgres: [ '13', '14', '15', 'latest' ]
 
     services:
       postgres:
@@ -39,6 +39,11 @@ jobs:
     - name: Show Ruby Version
       run: |
         ruby -v
+
+    - name: Install psql
+      run: |
+        apt-get update
+        apt-get install -y postgresql-client
 
     - name: Show PostgreSQL version and time
       env:
