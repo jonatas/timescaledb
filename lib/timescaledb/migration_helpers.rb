@@ -4,7 +4,12 @@ require 'active_record/connection_adapters/postgresql_adapter'
 module Timescaledb
   # Migration helpers can help you to setup hypertables by default.
   module MigrationHelpers
-    # create_table can receive `hypertable` argument
+    # `create_table` accepts a `hypertable` argument with options for creating
+    # a TimescaleDB hypertable.
+    #
+    # See https://docs.timescale.com/api/latest/hypertable/create_hypertable/#optional-arguments
+    # for additional options supported by the plugin.
+    #
     # @example
     #  options = {
     #    time_column: 'created_at',
@@ -27,15 +32,29 @@ module Timescaledb
     # Setup hypertable from options
     # @see create_table with the hypertable options.
     def create_hypertable(table_name,
-                                 time_column: 'created_at',
-                                 chunk_time_interval: '1 week',
-                                 compress_segmentby: nil,
-                                 compress_orderby: 'created_at',
-                                 compression_interval: nil
-                                )
+                          time_column: 'created_at',
+                          chunk_time_interval: '1 week',
+                          compress_segmentby: nil,
+                          compress_orderby: 'created_at',
+                          compression_interval: nil,
+                          partition_column: nil,
+                          number_partitions: nil,
+                          **hypertable_options)
 
       ActiveRecord::Base.logger = Logger.new(STDOUT)
-      execute "SELECT create_hypertable('#{table_name}', '#{time_column}', chunk_time_interval => INTERVAL '#{chunk_time_interval}')"
+
+      options = ["chunk_time_interval => INTERVAL '#{chunk_time_interval}'"]
+      options += hypertable_options.map { |k, v| "#{k} => #{quote(v)}" }
+
+      arguments = [
+        quote(table_name),
+        quote(time_column),
+        (quote(partition_column) if partition_column),
+        (number_partitions if partition_column),
+        *options
+      ]
+
+      execute "SELECT create_hypertable(#{arguments.compact.join(', ')})"
 
       if compress_segmentby
         execute <<~SQL
