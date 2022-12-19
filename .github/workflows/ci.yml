@@ -12,8 +12,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [ '3.0', '3.1' ]
-        postgres: [ '13', '14', '15', 'latest' ]
+        ruby: [ '3.1' ]
+        postgres: [ '15' ]
 
     services:
       postgres:
@@ -55,6 +55,9 @@ jobs:
     - name: Setup
       run: |
         ./bin/setup
+
+    - name: run tsdb
+      run: tsdb postgres://username:secret@postgres:5432/<dbname> --stats
 
     - name: Test setup
       run: |
