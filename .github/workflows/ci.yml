@@ -13,11 +13,11 @@ jobs:
       fail-fast: false
       matrix:
         ruby: [ '2.7.1' ]
-        postgres: [ 'pg14.6-ts2.9.0-patroni-static-primary-latest' ]
+        database: [ 'pg14.6-ts2.9.0-patroni-static-primary-latest' ]
 
     services:
-      postgres:
-        image: timescale/timescaledb-ha:${{matrix.postgres}}
+      database:
+        image: timescale/timescaledb-ha:${{matrix.database}}
         env:
           POSTGRES_USER: username
           POSTGRES_PASSWORD: secret
@@ -30,7 +30,7 @@ jobs:
 
 
     runs-on: ubuntu-latest
-    name: OS Ruby ${{matrix.ruby}} Postgres ${{matrix.postgres}}
+    name: OS Ruby ${{matrix.ruby}} database ${{matrix.database}}
     container: ruby:${{matrix.ruby}}
 
     steps:
@@ -49,19 +49,19 @@ jobs:
       env:
         PGPASSWORD: secret
       run: |
-        echo "SELECT version()" | psql -h postgres -U username testdb
-        echo "SELECT CURRENT_TIME" | psql -h postgres -U username testdb
+        echo "SELECT version()" | psql -h database -U username testdb
+        echo "SELECT CURRENT_TIME" | psql -h database -U username testdb
 
     - name: Setup
       run: |
         ./bin/setup
 
     - name: run tsdb
-      run: ./bin/tsdb postgres://username:secret@postgres:5432/testdb --stats
+      run: ./bin/tsdb postgres://username:secret@database:5432/testdb --stats
 
     - name: Test setup
       run: |
-        echo PG_URI_TEST="postgres://username:secret@postgres:5432/testdb" > .env
+        echo PG_URI_TEST="postgres://username:secret@database:5432/testdb" > .env
         cat .env
         bundle exec rake test:setup
 
