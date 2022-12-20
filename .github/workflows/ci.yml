@@ -13,7 +13,12 @@ jobs:
       fail-fast: false
       matrix:
         ruby: [ '2.7.1' ]
-        database: [ 'pg14.6-ts2.9.0-patroni-static-primary-latest' ]
+        database:
+          - 'pg14.6-ts2.9.0-patroni-static-primary-latest'
+          - 'pg14-patroni-static-primary-latest'
+          - 'pg14.6-ts2.9.0-patroni-static-primary-p0'
+          - 'pg14.6-ts2.9-oss-latest'
+          - 'pg13.9-ts2.9-latest'
 
     services:
       database:
