@@ -13,11 +13,11 @@ jobs:
       fail-fast: false
       matrix:
         ruby: [ '2.7.1' ]
-        postgres: [ 'latest-pg14' ]
+        postgres: [ 'pg14-compiler' ]
 
     services:
       postgres:
-        image: timescale/timescaledb:${{matrix.postgres}}
+        image: timescale/timescaledb-ha:${{matrix.postgres}}
         env:
           POSTGRES_USER: username
           POSTGRES_PASSWORD: secret
