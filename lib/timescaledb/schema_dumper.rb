@@ -70,6 +70,8 @@ module Timescaledb
 
         if setting.orderby_column_index
           direction = setting.orderby_asc ? "ASC" : "DESC"
+          direction += " NULLS FIRST" if setting.orderby_asc && setting.orderby_nullsfirst
+          direction += " NULLS LAST" if !setting.orderby_asc && !setting.orderby_nullsfirst
           compression_settings[:compress_orderby] << "#{setting.attname} #{direction}"
         end
       end
