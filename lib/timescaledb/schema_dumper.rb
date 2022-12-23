@@ -61,17 +61,31 @@ module Timescaledb
 
     def timescale_compression_settings_for(hypertable)
       compression_settings = hypertable.compression_settings.each_with_object({}) do |setting, compression_settings|
-        compression_settings[:compress_segmentby] = setting.attname if setting.segmentby_column_index
+        # It's possible to configure compression so that it is segmented by multiple
+        # columns. To make sure we capture that correctly, we'll treat them as an array.
+        compression_settings[:compress_segmentby] ||= []
+        compression_settings[:compress_orderby] ||= []
+
+        compression_settings[:compress_segmentby] << setting.attname if setting.segmentby_column_index
 
         if setting.orderby_column_index
           direction = setting.orderby_asc ? "ASC" : "DESC"
-          compression_settings[:compress_orderby] = "#{setting.attname} #{direction}"
+          compression_settings[:compress_orderby] << "#{setting.attname} #{direction}"
         end
       end
 
       hypertable.jobs.compression.each do |job|
         compression_settings[:compression_interval] = job.config["compress_after"]
       end
+
+      # Pack the compression setting arrays into a comma-separated string instead.
+      if compression_settings[:compress_segmentby]
+        compression_settings[:compress_segmentby] = compression_settings[:compress_segmentby].join(", ")
+      end
+      if compression_settings[:compress_orderby]
+        compression_settings[:compress_orderby] = compression_settings[:compress_orderby].join(", ")
+      end
+
       compression_settings
     end
 
