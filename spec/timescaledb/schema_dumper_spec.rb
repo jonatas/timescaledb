@@ -10,13 +10,17 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
   context "hypertables" do
     let(:sorted_hypertables) do
       %w[events hypertable_with_custom_time_column hypertable_with_no_options
-      hypertable_with_options measurements migration_tests]
+      hypertable_with_options migration_tests]
     end
 
     it "dump the create_table sorted by hypertable_name" do
       previous = 0
+      dump = dump_output
       sorted_hypertables.each do |name|
-        index = output.index(%|create_hypertable "#{name}"|)
+        index = dump.index(%|create_hypertable "#{name}"|)
+        if index.nil?
+          puts "couldn't find hypertable #{name} in the output", dump
+        end
         expect(index).to be > previous
         previous = index
       end
@@ -31,14 +35,15 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
       end
 
       it "add retention policies after hypertables" do
-        last_hypertable = output.index(%|create_hypertable "#{sorted_hypertables.last}"|)
-        index = output.index(%|create_retention_policy "events", interval: "P7D"|)
+        dump = dump_output
+        last_hypertable = dump.index(%|create_hypertable "#{sorted_hypertables.last}"|)
+        index = dump.index(%|create_retention_policy "events", interval: "P7D"|)
         expect(index).to be > last_hypertable
       end
     end
   end
 
-  let(:output) do
+  let(:dump_output) do
     stream = StringIO.new
     ActiveRecord::SchemaDumper.dump(con, stream)
     stream.string
@@ -54,10 +59,11 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
       con.create_view :searches, sql_definition: "SELECT 'needle'::text AS haystack"
     end
 
+    dump = dump_output
 
-    expect(output).to include 'create_continuous_aggregate("event_counts"'
-    expect(output).not_to include 'create_view "event_counts"' # Verify Scenic ignored this view
-    expect(output).to include 'create_view "searches", sql_definition: <<-SQL' if defined?(Scenic)
+    expect(dump).to include 'create_continuous_aggregate("event_counts"'
+    expect(dump).not_to include 'create_view "event_counts"' # Verify Scenic ignored this view
+    expect(dump).to include 'create_view "searches", sql_definition: <<-SQL' if defined?(Scenic)
   end
 
   describe "dumping hypertable options" do
@@ -72,12 +78,10 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
         t.timestamps
       end
 
-      stream = StringIO.new
-      ActiveRecord::SchemaDumper.dump(con, stream)
-      output = stream.string
+      dump = dump_output
 
-      expect(output).to include 'partition_column: "category"'
-      expect(output).to include "number_partitions: 3"
+      expect(dump).to include 'partition_column: "category"'
+      expect(dump).to include "number_partitions: 3"
     end
 
     it "extracts index options" do
@@ -86,11 +90,9 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
         t.timestamps
       end
 
-      stream = StringIO.new
-      ActiveRecord::SchemaDumper.dump(con, stream)
-      output = stream.string
+      dump = dump_output
 
-      expect(output).to include "create_default_indexes: false"
+      expect(dump).to include "create_default_indexes: false"
     end
   end
 end
