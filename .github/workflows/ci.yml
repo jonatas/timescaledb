@@ -12,7 +12,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        ruby: [ '2.7.1' ]
+        ruby: [ '3.1.2' ]
         database:
           - 'pg14.6-ts2.9.0-patroni-static-primary-latest'
           - 'pg14-patroni-static-primary-latest'
