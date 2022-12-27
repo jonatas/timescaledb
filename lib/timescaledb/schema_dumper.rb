@@ -69,9 +69,18 @@ module Timescaledb
         compression_settings[:compress_segmentby] << setting.attname if setting.segmentby_column_index
 
         if setting.orderby_column_index
-          direction = setting.orderby_asc ? "ASC" : "DESC"
-          direction += " NULLS FIRST" if setting.orderby_asc && setting.orderby_nullsfirst
-          direction += " NULLS LAST" if !setting.orderby_asc && !setting.orderby_nullsfirst
+          if setting.orderby_asc
+            direction = "ASC"
+            if setting.orderby_nullsfirst
+              direction += " NULLS FIRST"
+            end
+          else
+            direction = "DESC"
+            if !setting.orderby_nullsfirst
+              direction += " NULLS LAST"
+            end
+          end
+
           compression_settings[:compress_orderby] << "#{setting.attname} #{direction}"
         end
       end
