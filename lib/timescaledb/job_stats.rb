@@ -1,5 +1,5 @@
 module Timescaledb
-  class JobStat < ActiveRecord::Base
+  class JobStat < ::Timescaledb::ApplicationRecord
     self.table_name = "timescaledb_information.job_stats"
 
     belongs_to :job

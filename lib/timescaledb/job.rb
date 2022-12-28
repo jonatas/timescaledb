@@ -1,5 +1,5 @@
 module Timescaledb
-  class Job < ActiveRecord::Base
+  class Job < ::Timescaledb::ApplicationRecord
     self.table_name = "timescaledb_information.jobs"
     self.primary_key = "job_id"
 

@@ -1,5 +1,5 @@
 module Timescaledb
-  class Hypertable < ActiveRecord::Base
+  class Hypertable < ::Timescaledb::ApplicationRecord
     self.table_name = "timescaledb_information.hypertables"
     self.primary_key = "hypertable_name"
 
