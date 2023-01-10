@@ -1,5 +1,5 @@
 module Timescaledb
-  class Chunk < ActiveRecord::Base
+  class Chunk < ::Timescaledb::ApplicationRecord
     self.table_name = "timescaledb_information.chunks"
     self.primary_key = "chunk_name"
 

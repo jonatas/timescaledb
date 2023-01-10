@@ -1,5 +1,5 @@
 module Timescaledb
-  class Dimension < ActiveRecord::Base
+  class Dimension < ::Timescaledb::ApplicationRecord
     self.table_name = "timescaledb_information.dimensions"
 #    attribute :time_interval, :interval
   end
