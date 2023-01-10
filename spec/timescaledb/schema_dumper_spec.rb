@@ -94,5 +94,90 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
 
       expect(dump).to include "create_default_indexes: false"
     end
+
+    context "compress_segmentby" do
+      before(:each) do
+        con.drop_table :segmentby_tests, force: :cascade if con.table_exists?(:segmentby_tests)
+      end
+
+      it "handles multiple compress_segmentby" do
+        options = { compress_segmentby: "identifier,second_identifier" }
+        con.create_table :segmentby_tests, hypertable: options, id: false do |t|
+          t.string :identifier
+          t.string :second_identifier
+          t.timestamps
+        end
+
+        dump = dump_output
+
+        expect(dump).to include 'compress_segmentby: "identifier, second_identifier"'
+      end
+    end
+
+    context "compress_orderby" do
+      before(:each) do
+        con.drop_table :orderby_tests, force: :cascade if con.table_exists?(:orderby_tests)
+      end
+
+      context "ascending order" do
+        context "nulls first" do
+          it "extracts compress_orderby correctly" do
+            options = { compress_segmentby: "identifier", compress_orderby: "created_at ASC NULLS FIRST" }
+            con.create_table :orderby_tests, hypertable: options, id: false do |t|
+              t.string :identifier
+              t.timestamps
+            end
+
+            dump = dump_output
+
+            expect(dump).to include 'compress_orderby: "created_at ASC NULLS FIRST"'
+          end
+        end
+
+        context "nulls last" do
+          it "extracts compress_orderby correctly" do
+            options = { compress_segmentby: "identifier", compress_orderby: "created_at ASC NULLS LAST" }
+            con.create_table :orderby_tests, hypertable: options, id: false do |t|
+              t.string :identifier
+              t.timestamps
+            end
+
+            dump = dump_output
+
+            expect(dump).to include 'compress_orderby: "created_at ASC"'
+          end
+        end
+      end
+
+      context "descending order" do
+        context "nulls first" do
+          it "extracts compress_orderby correctly" do
+            options = { compress_segmentby: "identifier", compress_orderby: "created_at DESC NULLS FIRST" }
+            con.create_table :orderby_tests, hypertable: options, id: false do |t|
+              t.string :identifier
+              t.timestamps
+            end
+
+            dump = dump_output
+
+            expect(dump).to include 'compress_orderby: "created_at DESC"'
+          end
+        end
+
+        context "nulls last" do
+          it "extracts compress_orderby correctly" do
+            options = { compress_segmentby: "identifier", compress_orderby: "created_at DESC NULLS LAST" }
+            con.create_table :orderby_tests, hypertable: options, id: false do |t|
+              t.string :identifier
+              t.timestamps
+            end
+
+            dump = dump_output
+
+            expect(dump).to include 'compress_orderby: "created_at DESC NULLS LAST"'
+          end
+        end
+      end
+    end
   end
 end
