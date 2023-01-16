@@ -5,19 +5,12 @@ module Timescaledb
   module SchemaDumper
     def tables(stream)
       super # This will call #table for each table in the database
-      views(stream) unless defined?(Scenic) # Don't call this twice if we're using Scenic
 
       return unless Timescaledb::Hypertable.table_exists?
 
       timescale_hypertables(stream)
       timescale_retention_policies(stream)
-    end
-
-    def views(stream)
-      return unless Timescaledb::ContinuousAggregates.table_exists?
-
       timescale_continuous_aggregates(stream) # Define these before any Scenic views that might use them
-      super if defined?(super)
     end
 
     def timescale_hypertables(stream)
@@ -117,6 +110,8 @@ module Timescaledb
     end
 
     def timescale_continuous_aggregates(stream)
+      return unless Timescaledb::ContinuousAggregates.table_exists?
+
       Timescaledb::ContinuousAggregates.all.each do |aggregate|
         opts = if (refresh_policy = aggregate.jobs.refresh_continuous_aggregate.first)
                  interval = timescale_interval(refresh_policy.schedule_interval)

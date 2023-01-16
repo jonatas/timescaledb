@@ -64,6 +64,11 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
     expect(dump).to include 'create_continuous_aggregate("event_counts"'
     expect(dump).not_to include 'create_view "event_counts"' # Verify Scenic ignored this view
     expect(dump).to include 'create_view "searches", sql_definition: <<-SQL' if defined?(Scenic)
+
+    hypertable_creation = dump.index('create_hypertable "events"')
+    caggs_creation = dump.index('create_continuous_aggregate("event_counts"')
+
+    expect(hypertable_creation).to be < caggs_creation
   end
 
   describe "dumping hypertable options" do
