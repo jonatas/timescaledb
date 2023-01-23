@@ -59,17 +59,52 @@ module Timescaledb
           end
 
 
+          scope :_candlestick, -> (timeframe: '1h',
+                           segment_by: segment_by_column,
+                           time: time_column,
+                           volume: 'volume',
+                           value: value_column) do
+
+             select(  %|time_bucket('#{timeframe}', "#{time}")|,
+                 *segment_by,
+                "toolkit_experimental.candlestick_agg(#{time}, #{value}, #{volume}) as candlestick")
+              .order(1)
+              .group(*(segment_by ? [1,2] : 1))
+          end
+
+          scope :candlestick, -> (timeframe: '1h',
+                           segment_by: segment_by_column,
+                           time: time_column,
+                           volume:  'volume',
+                           value: value_column) do
+
+            raw = _candlestick(timeframe: timeframe, segment_by: segment_by, time: time, value: value,  volume: volume)
+            unscoped
+              .from("(#{raw.to_sql}) AS candlestick")
+              .select(time,*segment_by,
+               "toolkit_experimental.open(candlestick),
+                toolkit_experimental.high(candlestick),
+                toolkit_experimental.low(candlestick),
+                toolkit_experimental.close(candlestick),
+                toolkit_experimental.open_time(candlestick),
+                toolkit_experimental.high_time(candlestick),
+                toolkit_experimental.low_time(candlestick),
+                toolkit_experimental.close_time(candlestick)")
+          end
+
           scope :_ohlc, -> (timeframe: '1h',
                            segment_by: segment_by_column,
                            time: time_column,
                            value: value_column) do
 
-             select( "time_bucket('#{timeframe}', #{time}) as #{time}",
-                           *segment_by,
-                           "toolkit_experimental.ohlc(#{time}, #{value})")
+             select( *segment_by,
+                  %|time_bucket('#{timeframe}', #{time}) as "#{time}"|,
+                  "toolkit_experimental.ohlc(#{time}, #{value})")
               .order(1)
               .group(*(segment_by ? [1,2] : 1))
           end
+
+
 
           scope :ohlc, -> (timeframe: '1h',
                            segment_by: segment_by_column,
