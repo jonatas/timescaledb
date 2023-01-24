@@ -89,7 +89,9 @@ module Timescaledb
                 toolkit_experimental.open_time(candlestick),
                 toolkit_experimental.high_time(candlestick),
                 toolkit_experimental.low_time(candlestick),
-                toolkit_experimental.close_time(candlestick)")
+                toolkit_experimental.close_time(candlestick),
+                toolkit_experimental.volume(candlestick),
+                toolkit_experimental.vwap(candlestick)")
           end
 
           scope :_ohlc, -> (timeframe: '1h',
