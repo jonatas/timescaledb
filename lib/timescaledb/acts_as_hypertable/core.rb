@@ -75,7 +75,7 @@ module Timescaledb
 
           scope :yesterday, -> { where("DATE(#{time_column}) = ?", Date.yesterday.in_time_zone.to_date) }
           scope :today, -> { where("DATE(#{time_column}) = ?", Date.today.in_time_zone.to_date) }
-          scope :last_hour, -> { where("#{time_column} between ? and ?", 1.hour.ago.in_time_zone, Time.now.in_time_zone) }
+          scope :last_hour, -> { where("#{time_column} between ? and ?", 1.hour.ago.in_time_zone, Time.now.end_of_hour.in_time_zone) }
         end
 
         def normalize_hypertable_options
