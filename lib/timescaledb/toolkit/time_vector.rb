@@ -42,7 +42,7 @@ module Timescaledb
               SELECT #{"x.#{segment_by}," if segment_by}
                 (lttb( x.#{time_column}, x.#{value_column}, #{threshold}) -> unnest()).*
               FROM x
-              #{"GROUP BY device_id" if segment_by}
+              #{"GROUP BY #{segment_by}" if segment_by}
             SQL
             downsampled = unscoped
               .select(*segment_by, "time as #{time_column}, value as #{value_column}")
@@ -81,7 +81,7 @@ module Timescaledb
             raw = _candlestick(timeframe: timeframe, segment_by: segment_by, time: time, value: value,  volume: volume)
             unscoped
               .from("(#{raw.to_sql}) AS candlestick")
-              .select(time,*segment_by,
+              .select("time_bucket",*segment_by,
                "toolkit_experimental.open(candlestick),
                 toolkit_experimental.high(candlestick),
                 toolkit_experimental.low(candlestick),

@@ -1,5 +1,5 @@
-let addChart = () => $('<div/>').appendTo('#charts')[0]
 
+let addChart = () => $('<div/>').appendTo('#charts')[0]
 function chartFrom(url) {
   $.ajax({
     url: url,
@@ -17,11 +17,12 @@ function ohlcChartFrom(url) {
     url: url,
     success: function(result) {
       let {data, title} = result;
-      let {x, open, high, low, close, type} = data;
+      let {x, open, high, low, close, volume, type} = data;
       open = open.map(parseFloat);
       high = high.map(parseFloat);
       low = low.map(parseFloat);
       close = close.map(parseFloat);
+      volume = volume.map((e) => parseFloat(e) / 1000);
 
       var layout = {
         title: title,
@@ -38,11 +39,20 @@ function ohlcChartFrom(url) {
           autorange: true,
           domain: [0, 1],
           type: 'linear'
+        },
+        yaxis2: {
+          autorange: false,
+          overlaying: 'y',
+          side: 'right'
         }
       };
 
       ohlc = {x, open, high, low, close, type};
-      Plotly.newPlot(addChart(), [ohlc], layout);
+      volume = {x, y: volume, type: "bar",  yaxis: 'y2' };
+
+      data = [ohlc, volume];
+      console.log(data)
+      Plotly.newPlot(addChart(), data, layout);
     }
   });
 };

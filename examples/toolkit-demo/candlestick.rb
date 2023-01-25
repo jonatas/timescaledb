@@ -12,7 +12,7 @@ gemfile(true) do
   gem 'sinatra-reloader'
 end
 
-ActiveRecord::Base.establish_connection ARGV.last
+ActiveRecord::Base.establish_connection ARGV.first
 
 class Tick < ActiveRecord::Base
   acts_as_hypertable time_column: "time"
@@ -63,8 +63,9 @@ module Candlestick
 
     scope :plotly_attribute,
       -> (attribute: "close",
+          type: "scatter",
           from: nil,
-          template: %\'{"x": {{ TIMES | json_encode() | safe }}, "y": {{ VALUES | json_encode() | safe }}, "type": "scatter"}'\) do
+          template: %\'{"x": {{ TIMES | json_encode() | safe }}, "y": {{ VALUES | json_encode() | safe }}, "type": "#{type}"}'\) do
       from ||= time_vector_from_candlestick(attribute: attribute)
 
       select("toolkit_experimental.to_text(tv.timevector, #{template})::json")
@@ -113,51 +114,29 @@ class Candlestick1d < ActiveRecord::Base
   self.table_name = 'candlestick_1d'
   include Candlestick
 end
-=begin
-  scope :candlestick_ruby, -> (
-    timeframe: 1.hour,
-    segment_by: segment_by_column,
-    time: time_column,
-    value: value_column) {
-    ohlcs = Hash.new() {|hash, key| hash[key] = [] }
-
-    key = tick.send(segment_by)
-    candlestick = ohlcs[key].last
-    if candlestick.nil? || candlestick.time + timeframe > tick.time
-      ohlcs[key] << Candlestick.new(time $, price)
-    end
-    find_all do |tick|
-      symbol = tick.symbol
-
-      if previous[symbol]
-        delta = (tick.price - previous[symbol]).abs
-        volatility[symbol] += delta
-      end
-      previous[symbol] = tick.price
-    end
-    volatility
-  }
-=end
 
 ActiveRecord::Base.connection.add_toolkit_to_search_path!
 
+def db(&block)
+  ActiveRecord::Base.connection.instance_exec(&block)
+end
 
-ActiveRecord::Base.connection.instance_exec do
+db do
   ActiveRecord::Base.logger = Logger.new(STDOUT)
-  override = false
+  override = true
 
-  if Tick.table_exists? && override
-    drop_table(:ticks,  force: :cascade) 
+  if !Tick.table_exists? || override
+    drop_table(:ticks, if_exists: true, force: :cascade)
 
     hypertable_options = {
       time_column: 'time',
-      chunk_time_interval: '1 week',
+      chunk_time_interval: '1 day',
       compress_segmentby: 'symbol',
       compress_orderby: 'time',
-      compression_interval: '1 month'
+      compression_interval: '1 hour'
     }
     create_table :ticks, hypertable: hypertable_options, id: false do |t|
-      t.column :time , 'timestamp with time zone'
+      t.column :time, 'timestamp with time zone'
       t.text :symbol
       t.decimal :price
       t.float  :volume
@@ -165,7 +144,7 @@ ActiveRecord::Base.connection.instance_exec do
 
     add_index :ticks, [:time, :symbol]
 
-    options = -> (timeframe) {
+    options = -> (timeframe) do
       {
         with_data: false,
         refresh_policies: {
@@ -174,15 +153,21 @@ ActiveRecord::Base.connection.instance_exec do
           schedule_interval: "INTERVAL '#{timeframe}'"
         }
       }
-    }
-    create_continuous_aggregate('candlestick_1m', Tick._candlestick(timeframe: '1m'), **options['1 minute'])
-    create_continuous_aggregate('candlestick_1h', Candlestick1m.rollup(timeframe: '1 hour'), **options['1 hour'])
-    create_continuous_aggregate('candlestick_1d', Candlestick1h.rollup(timeframe: '1 day'),  **options['1 day'])
+    end
+
+    create_cagg = -> (timeframe: , query: ) do
+      view_name = "candlestick_#{timeframe}"
+      create_continuous_aggregate(view_name, query, **options[timeframe])
+    end 
+
+    create_cagg[timeframe: '1m', query: Tick._candlestick(timeframe: '1m')]
+    create_cagg[timeframe: '1h', query: Candlestick1m.rollup(timeframe: '1h')]
+    create_cagg[timeframe: '1d', query: Candlestick1h.rollup(timeframe: '1d')]
   end
 end
 
 if Tick.count.zero?
-  ActiveRecord::Base.connection.instance_exec do
+  db do
     execute(ActiveRecord::Base.sanitize_sql_for_conditions( [<<~SQL, {from: 1.week.ago.to_date, to: 1.day.from_now.to_date}]))
     INSERT INTO ticks
     SELECT time, 'SYMBOL', 1 + (random()*30)::int, 100*(random()*10)::int
@@ -192,34 +177,6 @@ if Tick.count.zero?
      SQL
   end
 end
-
-
-=begin
-# Fetch attributes
-pp Candlestick1m.today.attributes
-
-
-# Rollup demo
-
-# Attributes from rollup
-pp Candlestick1m.attributes.from(Candlestick1m.rollup(timeframe: '1 day').limit(1))
-
-
-# Nesting several levels
-pp Candlestick1m.attributes.from(
-  Candlestick1m.rollup(timeframe: '1 week').from(
-    Candlestick1m.rollup(timeframe: '1 day')
-  ).limit(1)
-).to_a
-pp Candlestick1m.attributes.from(
-  Candlestick1m.rollup(timeframe: '1 month').from(
-    Candlestick1m.rollup(timeframe: '1 week').from(
-      Candlestick1m.rollup(timeframe: '1 day')
-    )
-  ).limit(1)
-).to_a
-#Pry.start
-=end
 
 require 'sinatra/base'
 require "sinatra/json"
@@ -239,7 +196,7 @@ class App < Sinatra::Base
   get '/candlestick_1m' do
     json({
       title: "Candlestick 1 minute last hour",
-      data: Candlestick1m.last_hour.plotly_candlestick
+      data: Candlestick1m.today.plotly_candlestick
     })
   end
 
@@ -256,24 +213,24 @@ class App < Sinatra::Base
       title: "Candlestick daily this month",
       data: Candlestick1d.previous_week.plotly_candlestick
     })
-
   end
-
 
   get '/' do
-<<-HTML
-  <head>
-    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
-    <script src='https://cdn.plot.ly/plotly-2.17.1.min.js'></script>
-    <script src='/candlestick.js'></script>
-  </head>
-  <body>
-    <div id='charts'>
-  </body>
-HTML
+    <<~HTML
+      <head>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.1/dist/jquery.min.js"></script>
+        <script src='https://cdn.plot.ly/plotly-2.17.1.min.js'></script>
+        <script src='/candlestick.js'></script>
+      </head>
+      <body>
+        <div id='charts'>
+      </body>
+    HTML
   end
-
-#  run! if app_file == $0
-
 end
-Pry.start
+
+if ARGV.include?("--pry")
+  Pry.start
+else
+  App.run!
+end
