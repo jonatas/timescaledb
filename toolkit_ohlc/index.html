@@ -13,7 +13,7 @@
     
     
       
-        <title>Toolkit OHLC - The Timescaledb gem</title>
+        <title>OHLC / Candlesticks - The Timescaledb gem</title>
       
     
     
@@ -111,7 +111,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Toolkit OHLC
+              OHLC / Candlesticks
             
           </span>
         </div>
@@ -309,87 +309,11 @@
 
   
   
-    
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Toolkit OHLC
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
-        Toolkit OHLC
+    <li class="md-nav__item">
+      <a href="../toolkit_candlestick/" class="md-nav__link">
+        Toolkit Candlesticks tutorial
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#migration" class="md-nav__link">
-    Migration
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#defining-the-model" class="md-nav__link">
-    Defining the model
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-ohlc-scope" class="md-nav__link">
-    The ohlc scope
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#continuous-aggregates" class="md-nav__link">
-    Continuous aggregates
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#rollup" class="md-nav__link">
-    Rollup
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#defining-models-for-views" class="md-nav__link">
-    Defining models for views
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -513,6 +437,10 @@
 
 
 <h1 id="ohlc-candlesticks">OHLC / Candlesticks<a class="headerlink" href="#ohlc-candlesticks" title="Permanent link">&para;</a></h1>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>OHLC is deprecated and will be replaced by <a href="/toolkit_candlestick">candlestick</a>.</p>
+</div>
 <p>Candlesticks are a popular tool in technical analysis, used by traders to determine potential market movements.</p>
 <p>The toolkit also allows you to compute candlesticks with the <a href="https://docs.timescale.com/api/latest/hyperfunctions/financial-analysis/ohlc/">ohlc</a> function.</p>
 <p>Candlesticks are a type of price chart that displays the high, low, open, and close prices of a security for a specific period. They can be useful because they can provide information about market trends and reversals. For example, if you see that the stock has been trading in a range for a while, it may be worth considering buying or selling when the price moves outside of this range. Additionally, candlesticks can be used in conjunction with other technical indicators to make trading decisions.</p>
@@ -762,42 +690,6 @@ I hope you find this tutorial interesting and you can also check the
       </main>
       
         <footer class="md-footer">
-  
-    
-    <nav class="md-footer__inner md-grid" aria-label="Footer" >
-      
-        
-        <a href="../toolkit_lttb_zoom/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Zooming with High Resolution" rel="prev">
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
-          </div>
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Previous
-              </span>
-              Zooming with High Resolution
-            </div>
-          </div>
-        </a>
-      
-      
-        
-        <a href="../command_line/" class="md-footer__link md-footer__link--next" aria-label="Next: Command Line" rel="next">
-          <div class="md-footer__title">
-            <div class="md-ellipsis">
-              <span class="md-footer__direction">
-                Next
-              </span>
-              Command Line
-            </div>
-          </div>
-          <div class="md-footer__button md-icon">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
-          </div>
-        </a>
-      
-    </nav>
   
   <div class="md-footer-meta md-typeset">
     <div class="md-footer-meta__inner md-grid">
