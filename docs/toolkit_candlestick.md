@@ -2,7 +2,7 @@
 
 Candlesticks are a popular tool in technical analysis, used by traders to determine potential market movements.
 
-The toolkit also allows you to compute candlesticks with the [candlestick][1] function.
+The [toolkit][toolkit] also allows you to compute candlesticks with the [candlestick][candlestick] function.
 
 Candlesticks are a type of price chart that displays the high, low, open, and close prices of a security for a specific period. They can be useful because they can provide information about market trends and reversals. For example, if you see that the stock has been trading in a range for a while, it may be worth considering buying or selling when the price moves outside of this range. Additionally, candlesticks can be used in conjunction with other technical indicators to make trading decisions.
 
@@ -568,8 +568,7 @@ It's a very convenient strategy to have the `Candlestick` as a shared concern
 to allow to reuse queries in different views of the same type.
 
 The `rollup` scope is the one that was used to redefine the data into big timeframes
-and the `attributes` allow to access the attributes from the [CandlestickSummary][3]
-type.
+and the `attributes` allow to access the attributes from the candlestick type.
 
 In this way, the views become just shortcuts and complex sql can also be done
 just nesting the model scope. For example, to rollup from a minute to one hour,
@@ -822,16 +821,16 @@ we have the following variables available:
 ## Feedback or questions?
 
 I hope you find this tutorial interesting and you can also check the
-`candlestick.rb` file in the [examples/toolkit-demo][5] folder.
+`candlestick.rb` file in the [examples/toolkit-demo][demo] folder.
 
-If you have any questions or concerns, feel free to reach me ([@jonatasdp][7]) in the [Timescale community][6] or tag timescaledb in your StackOverflow issue.
+If you have any questions or concerns, feel free to reach me ([@jonatasdp][twitter]) in the [Timescale community][community] or tag timescaledb in your StackOverflow issue.
 
-[1]: https://docs.timescale.com/api/latest/hyperfunctions/financial-analysis/ohlc/
 [2]: https://ideia.me/timescale-continuous-aggregates-with-ruby
-[3]: https://github.com/timescale/timescaledb-toolkit/blob/cbbca7b2e69968e585c845924e7ed7aff1cea20a/extension/src/ohlc.rs#L20-L24
 [4]: https://github.com/timescale/timescaledb/pull/4668
-[5]: https://github.com/jonatas/timescaledb/tree/master/examples/toolkit-demo
-[6]: https://timescale.com/community
-[7]: https://twitter.com/jonatasdp
+[demo]: https://github.com/jonatas/timescaledb/tree/master/examples/toolkit-demo
+[community]: https://timescale.com/community
+[twitter]: https://twitter.com/jonatasdp
 [hcaggs]: https://docs.timescale.com/timescaledb/latest/how-to-guides/continuous-aggregates/hierarchical-continuous-aggregates/
 [candlestick_agg]: https://docs.timescale.com/api/latest/hyperfunctions/financial-analysis/candlestick_agg/
+[toolkit]:  https://docs.timescale.com/timescaledb/latest/how-to-guides/install-timescaledb-toolkit/
+[candlestick]: https://docs.timescale.com/api/latest/hyperfunctions/financial-analysis/candlestick/
