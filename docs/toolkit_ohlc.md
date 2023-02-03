@@ -1,5 +1,10 @@
 # OHLC / Candlesticks
 
+
+!!!warning
+
+    OHLC is deprecated and will be replaced by [candlestick](/toolkit_candlestick).
+
 Candlesticks are a popular tool in technical analysis, used by traders to determine potential market movements.
 
 The toolkit also allows you to compute candlesticks with the [ohlc][1] function.

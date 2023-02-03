@@ -342,7 +342,7 @@ RSpec.describe Timescaledb::ActsAsHypertable do
         Event.create!(
           identifier: "last_hour",
           payload: {name: "bar", value: 2},
-          created_at: Time.now
+          created_at: 1.minute.ago
         )
       }
       let(:event_one_minute_outside_window) {
