@@ -387,13 +387,12 @@ end
 
 After you get the first one minute continuous aggregates, you don't need to
 revisit the raw data to create candlesticks from it. You can build the 1 hour
-candlestick from the 1 minute candlestick. The [Hierarchical continuous aggregates]
+candlestick from the 1 minute candlestick. The [Hierarchical continuous aggregates][hcaggs]
 are very useful to save IO and processing time.
-
 
 ### Rollup
 
-The `candlestick_agg` function returns a `candlesticksummary` object.
+The [candlestick_agg][candlestick_agg] function returns a `candlesticksummary` object.
 
 The rollup allows you to combine candlestick summaries into new structures from
 smaller timeframes to bigger timeframes without needing to reprocess all the data.
@@ -448,7 +447,7 @@ ActiveRecord::Base.connection.instance_exec do
 end
 ```
 
-The final SQL executed to create the first hierarchical continuous aggregates
+The final SQL executed to create the first [hierarchical continuous aggregates][hcaggs]
 is the following:
 
 ```sql
@@ -691,12 +690,11 @@ function ohlcChartFrom(url) {
     url: url,
     success: function(result) {
       let {data, title} = result;
-      let {x, open, high, low, close, volume, type} = data;
+      let {x, open, high, low, close, type} = data;
       open = open.map(parseFloat);
       high = high.map(parseFloat);
       low = low.map(parseFloat);
       close = close.map(parseFloat);
-      volume = volume.map(parseFloat);
       var layout = {
         title: title, 
         dragmode: 'zoom',
@@ -716,8 +714,7 @@ function ohlcChartFrom(url) {
       };
 
       ohlc = {x, open, high, low, close, type};
-      volume = {x, y: volume, type: "volume"};
-      Plotly.newPlot(addChart(), [ohlc, volume], layout);
+      Plotly.newPlot(addChart(), [ohlc], layout);
     }
   });
 };
@@ -751,9 +748,7 @@ module Candlestick
         open: data.map(&:open),
         high: data.map(&:high),
         low: data.map(&:low),
-        close: data.map(&:close),
-        vwap: data.map(&:vwap),
-        volume: data.map(&:volume)
+        close: data.map(&:close)
       }
     end
   end
@@ -838,3 +833,5 @@ If you have any questions or concerns, feel free to reach me ([@jonatasdp][7]) i
 [5]: https://github.com/jonatas/timescaledb/tree/master/examples/toolkit-demo
 [6]: https://timescale.com/community
 [7]: https://twitter.com/jonatasdp
+[hcaggs]: https://docs.timescale.com/timescaledb/latest/how-to-guides/continuous-aggregates/hierarchical-continuous-aggregates/
+[candlestick_agg]: https://docs.timescale.com/api/latest/hyperfunctions/financial-analysis/candlestick_agg/
