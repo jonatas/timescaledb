@@ -278,4 +278,144 @@ RSpec.describe Timescaledb::Database do
       end
     end
   end
+
+  describe '.create_continuous_aggregate_sql' do
+    let(:sql) {
+      <<~SQL
+        SELECT time_bucket('1 day', created_at) bucket, COUNT(*)
+        FROM activity
+        GROUP BY bucket
+      SQL
+    }
+
+    context 'when passing only required params' do
+      it 'returns expected SQL' do
+        expected_sql = <<~SQL
+          CREATE MATERIALIZED VIEW activity_counts
+          WITH (timescaledb.continuous) AS
+          SELECT time_bucket('1 day', created_at) bucket, COUNT(*)
+          FROM activity
+          GROUP BY bucket
+          WITH DATA;
+        SQL
+
+        expect(
+          described_class.create_continuous_aggregate_sql('activity_counts', sql)
+        ).to eq(expected_sql)
+      end
+    end
+
+    context 'when passing with_no_data param' do
+      it 'returns expected SQL' do
+        expected_sql = <<~SQL
+          CREATE MATERIALIZED VIEW activity_counts
+          WITH (timescaledb.continuous) AS
+          SELECT time_bucket('1 day', created_at) bucket, COUNT(*)
+          FROM activity
+          GROUP BY bucket
+          WITH NO DATA;
+        SQL
+
+        expect(
+          described_class.create_continuous_aggregate_sql('activity_counts', sql, with_no_data: true)
+        ).to eq(expected_sql)
+      end
+    end
+  end
+
+  describe '.drop_continuous_aggregate_sql' do
+    it 'returns expected SQL' do
+      expect(
+        described_class.drop_continuous_aggregate_sql('activity_counts')
+      ).to eq("DROP MATERIALIZED VIEW activity_counts;")
+    end
+
+    context 'when passing cascade true' do
+      it 'returns expected SQL' do
+        expect(
+          described_class.drop_continuous_aggregate_sql('activity_counts', cascade: true)
+        ).to eq("DROP MATERIALIZED VIEW activity_counts CASCADE;")
+      end
+    end
+  end
+
+  describe '.add_continuous_aggregate_policy_sql' do
+    context 'when missing required params' do
+      it 'raises ArgumentError' do
+        expect {
+          described_class.add_continuous_aggregate_policy_sql('activity_counts')
+        }.to raise_error(ArgumentError, 'missing keyword: :schedule_interval')
+      end
+    end
+
+    context 'when passing only required params' do
+      it 'returns expected SQL' do
+        expect(
+          described_class.add_continuous_aggregate_policy_sql(
+            'activity_counts',
+            start_offset: '1 month',
+            end_offset: '1 day',
+            schedule_interval: '1 hour'
+          )
+        ).to eq("SELECT add_continuous_aggregate_policy('activity_counts', start_offset => INTERVAL '1 month', end_offset => INTERVAL '1 day', schedule_interval => INTERVAL '1 hour');")
+      end
+
+      context 'having null offset values' do
+        it 'returns expected SQL' do
+          expect(
+            described_class.add_continuous_aggregate_policy_sql(
+              'activity_counts',
+              start_offset: nil,
+              end_offset: nil,
+              schedule_interval: '1 hour'
+            )
+          ).to eq("SELECT add_continuous_aggregate_policy('activity_counts', start_offset => NULL, end_offset => NULL, schedule_interval => INTERVAL '1 hour');")
+        end
+      end
+    end
+
+    context 'when passing initial_start' do
+      it 'returns expected SQL' do
+        expect(
+          described_class.add_continuous_aggregate_policy_sql(
+            'activity_counts',
+            start_offset: nil,
+            end_offset: nil,
+            schedule_interval: '1 hour',
+            initial_start: "2023-02-08 20:00:00"
+          )
+        ).to eq("SELECT add_continuous_aggregate_policy('activity_counts', start_offset => NULL, end_offset => NULL, schedule_interval => INTERVAL '1 hour', initial_start => '2023-02-08 20:00:00');")
+      end
+    end
+
+    context 'when passing timezone' do
+      it 'returns expected SQL' do
+        expect(
+          described_class.add_continuous_aggregate_policy_sql(
+            'activity_counts',
+            start_offset: nil,
+            end_offset: nil,
+            schedule_interval: '1 hour',
+            timezone: "America/Montevideo"
+          )
+        ).to eq("SELECT add_continuous_aggregate_policy('activity_counts', start_offset => NULL, end_offset => NULL, schedule_interval => INTERVAL '1 hour', timezone => 'America/Montevideo');")
+      end
+    end
+  end
+
+  describe '.remove_continuous_aggregate_policy_sql' do
+    it 'returns expected SQL' do
+      expect(
+        described_class.remove_continuous_aggregate_policy_sql('activity_counts')
+      ).to eq("SELECT remove_continuous_aggregate_policy('activity_counts');")
+    end
+
+    context 'when passing if_not_exists' do
+      it 'returns expected SQL' do
+        expect(
+          described_class.remove_continuous_aggregate_policy_sql('activity_counts', if_not_exists: true)
+        ).to eq("SELECT remove_continuous_aggregate_policy('activity_counts', if_not_exists => 'TRUE');")
+      end
+    end
+  end
 end
