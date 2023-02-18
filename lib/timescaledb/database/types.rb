@@ -1,9 +1,12 @@
 module Timescaledb
   class Database
     module Types
-      # @param [String] interval The interval value
+      # @param [String, Integer] interval The interval value
       # @return [String]
       def interval_to_sql(interval)
+        return 'NULL' if interval.nil?
+        return interval if interval.kind_of?(Integer)
+
         "INTERVAL #{quote(interval)}"
       end
 
