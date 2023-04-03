@@ -1,48 +1,49 @@
 #!/usr/bin/env ruby
+
 require "bundler/setup"
 require "timescaledb"
 require "pry"
 
-ActiveRecord::Base.establish_connection(ARGV[0])
+Timescaledb.establish_connection(ARGV[0])
 
-Timescaledb::Hypertable.find_each do |hypertable|
-  class_name = hypertable.hypertable_name.singularize.camelize
-  model = Class.new(ActiveRecord::Base) do
-    self.table_name = hypertable.hypertable_name
-    acts_as_hypertable time_column: hypertable.main_dimension.column_name
-  end
-  Timescaledb.const_set(class_name, model)
-end
-
-Timescaledb::ContinuousAggregates.find_each do |cagg|
-  class_name = cagg.view_name.singularize.camelize
-  model = Class.new(ActiveRecord::Base) do
-    self.table_name = cagg.view_name
-    acts_as_hypertable
-  end
-  Timescaledb.const_set(class_name, model)
-end
-
-def show(obj)
-  Pry::ColorPrinter.pp(obj)
-end
+hypertables = Timescaledb.connection.query('SELECT * FROM timescaledb_information.hypertables')
 
 if ARGV.index("--stats")
-  scope = Timescaledb::Hypertable.all
-
   if (only = ARGV.index("--only"))
     only_hypertables = ARGV[only+1].split(",")
-    scope = scope.where({hypertable_name: only_hypertables})
-  end
 
-  if (except = ARGV.index("--except"))
+    hypertables.select! { |hypertable| only_hypertables.includes?(hypertable.hypertable_name) }
+  elsif (except = ARGV.index("--except"))
     except_hypertables = ARGV[except+1].split(",")
-    scope = scope.where.not(hypertable_name: except_hypertables)
+
+    hypertables.select! { |hypertable| except_hypertables.includes?(hypertable.hypertable_name) }
   end
 
-  show(Timescaledb.stats(scope))
+  stats = Timescaledb::Stats.new(hypertables).to_h
+
+  Pry::ColorPrinter.pp(stats)
 end
 
 if ARGV.index("--console")
+  ActiveRecord::Base.establish_connection(ARGV[0])
+
+  Timescaledb::Hypertable.find_each do |hypertable|
+    class_name = hypertable.hypertable_name.singularize.camelize
+    model = Class.new(ActiveRecord::Base) do
+      self.table_name = hypertable.hypertable_name
+      acts_as_hypertable time_column: hypertable.main_dimension.column_name
+    end
+    Timescaledb.const_set(class_name, model)
+  end
+
+  Timescaledb::ContinuousAggregates.find_each do |cagg|
+    class_name = cagg.view_name.singularize.camelize
+    model = Class.new(ActiveRecord::Base) do
+      self.table_name = cagg.view_name
+      acts_as_hypertable
+    end
+    Timescaledb.const_set(class_name, model)
+  end
+
   Pry.start(Timescaledb)
 end

@@ -11,6 +11,7 @@ require_relative "support/active_record/schema"
 Dotenv.load!
 
 ActiveRecord::Base.establish_connection(ENV['PG_URI_TEST'])
+Timescaledb.establish_connection(ENV['PG_URI_TEST'])
 
 def destroy_all_chunks_for!(klass)
   sql = <<-SQL
