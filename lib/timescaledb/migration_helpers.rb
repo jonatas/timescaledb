@@ -41,6 +41,7 @@ module Timescaledb
                           number_partitions: nil,
                           **hypertable_options)
 
+      original_logger = ActiveRecord::Base.logger
       ActiveRecord::Base.logger = Logger.new(STDOUT)
 
       options = ["chunk_time_interval => INTERVAL '#{chunk_time_interval}'"]
@@ -68,6 +69,8 @@ module Timescaledb
       if compression_interval
         execute "SELECT add_compression_policy('#{table_name}', INTERVAL '#{compression_interval}')"
       end
+    ensure
+      ActiveRecord::Base.logger = original_logger if original_logger
     end
 
     # Create a new continuous aggregate
