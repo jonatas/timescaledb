@@ -67,7 +67,7 @@ module Timescaledb
 
              select(  %|time_bucket('#{timeframe}', "#{time}")|,
                  *segment_by,
-                "toolkit_experimental.candlestick_agg(#{time}, #{value}, #{volume}) as candlestick")
+                "candlestick_agg(#{time}, #{value}, #{volume}) as candlestick")
               .order(1)
               .group(*(segment_by ? [1,2] : 1))
           end
@@ -82,49 +82,16 @@ module Timescaledb
             unscoped
               .from("(#{raw.to_sql}) AS candlestick")
               .select("time_bucket",*segment_by,
-               "toolkit_experimental.open(candlestick),
-                toolkit_experimental.high(candlestick),
-                toolkit_experimental.low(candlestick),
-                toolkit_experimental.close(candlestick),
-                toolkit_experimental.open_time(candlestick),
-                toolkit_experimental.high_time(candlestick),
-                toolkit_experimental.low_time(candlestick),
-                toolkit_experimental.close_time(candlestick),
-                toolkit_experimental.volume(candlestick),
-                toolkit_experimental.vwap(candlestick)")
-          end
-
-          scope :_ohlc, -> (timeframe: '1h',
-                           segment_by: segment_by_column,
-                           time: time_column,
-                           value: value_column) do
-
-             select( *segment_by,
-                  %|time_bucket('#{timeframe}', #{time}) as "#{time}"|,
-                  "toolkit_experimental.ohlc(#{time}, #{value})")
-              .order(1)
-              .group(*(segment_by ? [1,2] : 1))
-          end
-
-
-
-          scope :ohlc, -> (timeframe: '1h',
-                           segment_by: segment_by_column,
-                           time: time_column,
-                           value: value_column) do
-
-            raw = _ohlc(timeframe: timeframe, segment_by: segment_by, time: time, value: value)
-            unscoped
-              .from("(#{raw.to_sql}) AS ohlc")
-              .select(*segment_by, time,
-               "toolkit_experimental.open(ohlc),
-                toolkit_experimental.high(ohlc),
-                toolkit_experimental.low(ohlc),
-                toolkit_experimental.close(ohlc),
-                toolkit_experimental.open_time(ohlc),
-                toolkit_experimental.high_time(ohlc),
-                toolkit_experimental.low_time(ohlc),
-                toolkit_experimental.close_time(ohlc)")
+               "open(candlestick),
+                high(candlestick),
+                low(candlestick),
+                close(candlestick),
+                open_time(candlestick),
+                high_time(candlestick),
+                low_time(candlestick),
+                close_time(candlestick),
+                volume(candlestick),
+                vwap(candlestick)")
           end
         end
       end
