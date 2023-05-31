@@ -4,79 +4,107 @@ gemfile(true) do
   gem 'timescaledb', path: '../../' #git: 'https://github.com/jonatas/timescaledb.git'
   gem 'rest-client'
   gem 'pry'
+  gem 'markdown'
+  gem 'rouge'
+  gem 'redcarpet'
+  gem 'tty-markdown'
+  gem 'tty-link'
 end
 
-require 'active_record'
-require 'rest-client'
 require 'json'
 require 'time'
 
 API_KEY = ENV['GPT4_KEY']
+PG_URI = ENV['PG_URI'] || ARGV[ARGV.index("--pg-uri")]
 
 class Conversation < ActiveRecord::Base
   self.primary_key = nil
   acts_as_hypertable
+  scope :history, -> {
+    where(:user_id => user_id)
+    .select(:ts, <<~SQL).map{|e|e["chat"]}.join("\n")
+      'User: ' || user_input || '\n'  ||
+      'AI: ' || ai_response || '\n' as chat
+    SQL
+  }
+
   default_scope { order(ts: :asc) }
 end
 
 
-def call_gpt4_api(prompt, user_id)
+class SQLExtractor < Redcarpet::Render::Base
+  attr_reader :sql
+  def block_code(code, language)
+    if language == 'sql'
+      @sql ||= []
+      @sql << code
+      code
+    else
+      ""
+    end
+  end
+end
+
+def sql_from_markdown(content)
+  extractor = SQLExtractor.new
+  md = Redcarpet::Markdown
+    .new(extractor, fenced_code_blocks: true)
+  md.render(content)
+  extractor.sql
+end
+
+
+def call_gpt4_api(prompt)
   url = "https://api.openai.com/v1/chat/completions"
+  full_prompt = INSTRUCTIONS +
+       "\nHistory: #{Conversation.history}" +
+       "\nInput: #{prompt}"
+
   body = { "model" => "gpt-4",
       "max_tokens" => 1000,
       "temperature" => 0,
-      "messages" => [{"role" => "user", "content" => prompt}],
+      "messages" => [{"role" => "user", "content" => full_prompt}],
     }.to_json
-  #puts body.inspect
   headers = { "Content-Type" => "application/json", "Authorization" => "Bearer #{API_KEY}" }
   response = RestClient.post(url, body, headers)
-
   json_response = JSON.parse(response.body)
-
-  ai_response = json_response["choices"].first["message"]["content"].strip
-  if ai_response =~ /query: ([^;]*);?/i
-    query = $1.gsub(/#\{(.*)\}/){eval($1)}
-    puts "#### EXECUTING query: #{query}"
-    result = execute_query(query)
-
-    ai_response = <<~TXT
-      Query: #{query}
-      Query Result: #{result.inspect}"
-    TXT
-  end
-  ai_response
+  response = json_response["choices"].first["message"]["content"].strip
 rescue RestClient::BadRequest
-  puts $!, $@
-  "Error: #{$!.message}"
+  "Bad Request Error: #{$!.message}"
 rescue
   "Error: #{$!.message}"
 end
 
-def respond(msg)
-  puts "Response: #{msg}"
-  call_gpt4_api(msg)
-end
-
-def execute_query(query)
+def execute(query)
   begin
-    result = ActiveRecord::Base.connection.execute(query)
-    result.to_a
+    ActiveRecord::Base.connection.execute(query)
   rescue => e
-    "Error: #{e.message}"
+    "Query Error: #{e.message}"
   end
 end
-def fetch_conversation_history(user_id)
-  conversation_history = Conversation.where(user_id: user_id)
 
-  puts "Stacking #{conversation_history.count} conversations."
-  conversation_history.map do |entry|
-    "User: #{entry.user_input}\nAI: #{entry.ai_response}"
-  end.join("\n")
+def info(content)
+  puts TTY::Markdown.parse(content)
 end
 
-def chat_mode(user_id)
-  puts "Welcome #{user_id} to the ChatGPT command line tool!"
-  puts "Enter 'quit' to exit."
+INSTRUCTIONS = IO.read('instructions.md')
+
+def chat_mode
+  info <<~MD
+  # Chat GPT + TimescaleDB
+
+  Welcome #{user_id} to the ChatGPT command line tool!
+
+  ## Commands:
+
+  * Enter 'quit' to exit.
+  * Enter 'debug' to enter debug mode.
+  * Enter any other text to chat with GPT.
+
+  ## Initial instructions
+
+  #{INSTRUCTIONS}
+  MD
   timeout = 300 # Set the timeout in seconds
 
   loop do
@@ -88,52 +116,62 @@ def chat_mode(user_id)
               break
             end
 
-    break if input.downcase == 'quit'
-    if input.downcase == 'debug'
-      require "pry";binding.pry 
+    case input.downcase
+    when 'quit'
+      puts "Exiting chat."
+      break
+    when 'debug'
+      require "pry";binding.pry
+    else
+      with_no_logs do
+        chat(input)
+      end
     end
-
-    conversation_history = fetch_conversation_history(user_id)
-    prompt = <<~INSTRUCTIONS
-      "#{IO.read('instructions.md')}
-       History:
-       #{conversation_history}
-       Actual User Input:
-       #{input}"
-    INSTRUCTIONS
-
-    response = call_gpt4_api(prompt, user_id)
-    Conversation.create(user_id: user_id, user_input: input, ai_response: response, ts: Time.now)
-
-    # ANSI escape sequence to set text color to green
-    green_text = "\e[32m"
-    # ANSI escape sequence to reset text color
-    reset_text = "\e[0m"
-
-    puts "#{green_text}AI: #{response}#{reset_text}"
   end
-
-  puts "Goodbye!"
 end
 
-def delete_private_data_mode(user_id)
-  conversations = Conversation.where(user_id: user_id)
-  File.open("conversations_#{user_id}.json", 'w') do |file|
-    file.write(conversations.to_json)
+def chat(prompt)
+  response = call_gpt4_api(prompt)
+  with_no_logs do
+    Conversation.create(user_id: user_id,
+                        user_input: prompt,
+                        ai_response: response,
+                        ts: Time.now)
   end
 
-  Conversation.where(user_id: user_id).delete_all
+  info("**AI:** #{response}")
+
+  queries = sql_from_markdown(response)
+
+  if queries&.any?
+    results = queries.each_with_index.map do |query,i|
+      <<~MARKDOWN
+        Result from query #{i+1}:
+
+        ```json
+        #{execute(query.gsub(/#\{(.*)\}/){eval($1)}).to_json}
+        ```
+      MARKDOWN
+    end.join("\n")
+    info(results)
+    chat(results)
+  end
+end
+
+def user_id
+  ARGV[1] || ENV['USER']
+end
+
+def with_no_logs
+  ActiveRecord::Base.logger = nil
+  yield
+  ActiveRecord::Base.logger = Logger.new(STDOUT)
 end
 
 def main
-  unless ARGV.length == 3
-    puts "#{ARGV.length} arguments provided, but 3 are needed.}"
-    puts "Usage: ruby chat_gpt_timescaledb.rb --chat|--delete-my-private-data user_id pg_connection_string"
-    exit(1)
-  end
 
   ActiveRecord::Base.logger = Logger.new(STDOUT)
-  ActiveRecord::Base.establish_connection(ARGV.last)
+  ActiveRecord::Base.establish_connection(PG_URI)
 
   # Create the events table if it doesn't exist
   unless Conversation.table_exists?
@@ -148,16 +186,7 @@ def main
     end
   end
 
-  user_id = ARGV[1]
-
-  case ARGV[0]
-  when '--chat'
-    chat_mode(user_id)
-  when '--delete-my-private-data'
-    delete_private_data_mode(user_id)
-  else
-    puts "Invalid option. Use --chat or --delete-my-private-data."
-  end
+  chat_mode
 end
 
 main
