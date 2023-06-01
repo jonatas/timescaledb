@@ -21,11 +21,13 @@ class Conversation < ActiveRecord::Base
   self.primary_key = nil
   acts_as_hypertable
   scope :history, -> {
-    where(:user_id => user_id)
-    .select(:ts, <<~SQL).map{|e|e["chat"]}.join("\n")
+    with_no_logs do
+      where(:topic => topic)
+        .select(:ts, <<~SQL).map{|e|e["chat"]}.join("\n")
       'User: ' || user_input || '\n'  ||
       'AI: ' || ai_response || '\n' as chat
-    SQL
+      SQL
+    end
   }
 
   default_scope { order(ts: :asc) }
@@ -57,8 +59,8 @@ end
 def call_gpt4_api(prompt)
   url = "https://api.openai.com/v1/chat/completions"
   full_prompt = INSTRUCTIONS +
-       "\nHistory: #{Conversation.history}" +
-       "\nInput: #{prompt}"
+      "\nHistory: #{Conversation.history}" +
+      "\nInput: #{prompt}"
 
   body = { "model" => "gpt-4",
       "max_tokens" => 1000,
@@ -93,7 +95,7 @@ def chat_mode
   info <<~MD
   # Chat GPT + TimescaleDB
 
-  Welcome #{user_id} to the ChatGPT command line tool!
+  Welcome #{topic} to the ChatGPT command line tool!
 
   ## Commands:
 
@@ -108,7 +110,7 @@ def chat_mode
   timeout = 300 # Set the timeout in seconds
 
   loop do
-    print "\n#{user_id}: "
+    print "\n#{topic}: "
     input = if IO.select([STDIN], [], [], timeout)
               STDIN.gets.chomp
             else
@@ -133,7 +135,7 @@ end
 def chat(prompt)
   response = call_gpt4_api(prompt)
   with_no_logs do
-    Conversation.create(user_id: user_id,
+    Conversation.create(topic: topic,
                         user_input: prompt,
                         ai_response: response,
                         ts: Time.now)
@@ -145,20 +147,28 @@ def chat(prompt)
 
   if queries&.any?
     results = queries.each_with_index.map do |query,i|
+      sql = query.gsub(/#\{(.*)\}/){eval($1)}
+
+      results = execute(sql)
+      json = results.to_json
+      if json.length > 1000
+        json = json[0..1000]+"... (truncated)"
+      end
       <<~MARKDOWN
         Result from query #{i+1}:
 
         ```json
-        #{execute(query.gsub(/#\{(.*)\}/){eval($1)}).to_json}
+        #{json}
         ```
       MARKDOWN
     end.join("\n")
+
     info(results)
     chat(results)
   end
 end
 
-def user_id
+def topic
   ARGV[1] || ENV['USER']
 end
 
@@ -179,7 +189,7 @@ def main
       execute "CREATE EXTENSION IF NOT EXISTS timescaledb"
       create_table :conversations, id: false, hypertable: {time_column: :ts} do |t|
         t.timestamptz :ts, default: "now()", null: false
-        t.string :user_id, null: false
+        t.string :topic, null: false
         t.text :user_input, null: false
         t.text :ai_response, null: false
       end

@@ -12,7 +12,7 @@ If I ask, "How many conversations have I had today?", you could respond with:
 ```sql
 SELECT COUNT(*)
 FROM conversations
-WHERE user_id = '#{user_id}'
+WHERE topic = '#{topic}'
 AND DATE(ts) = CURRENT_DATE;
 ```
 
