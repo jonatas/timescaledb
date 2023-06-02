@@ -146,11 +146,12 @@ def chat(prompt)
   queries = sql_from_markdown(response)
 
   if queries&.any?
-    results = queries.each_with_index.map do |query,i|
+    results = []
+    output = queries.each_with_index.map do |query,i|
       sql = query.gsub(/#\{(.*)\}/){eval($1)}
 
-      results = execute(sql)
-      json = results.to_json
+      json = execute(sql).to_json
+      results << json
       if json.length > 1000
         json = json[0..1000]+"... (truncated)"
       end
@@ -163,8 +164,8 @@ def chat(prompt)
       MARKDOWN
     end.join("\n")
 
-    info(results)
-    chat(results)
+    info(output)
+    chat(output)
   end
 end
 
