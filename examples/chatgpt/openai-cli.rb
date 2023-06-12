@@ -89,7 +89,6 @@ def info(content)
   puts TTY::Markdown.parse(content)
 end
 
-INSTRUCTIONS = IO.read('instructions.md')
 
 def chat_mode
   info <<~MD
@@ -172,6 +171,16 @@ end
 def topic
   ARGV[1] || ENV['USER']
 end
+
+def instructions
+  if File.exists?(ARGV.last)
+    ARGV.last
+  else
+    'instructions.md'
+  end
+end
+
+INSTRUCTIONS = IO.read(instructions)
 
 def with_no_logs
   ActiveRecord::Base.logger = nil
