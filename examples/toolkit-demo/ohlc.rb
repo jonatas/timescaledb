@@ -68,31 +68,6 @@ class Ohlc1d < ActiveRecord::Base
   self.table_name = 'ohlc_1d'
   include Ohlc
 end
-=begin
-  scope :ohlc_ruby, -> (
-    timeframe: 1.hour,
-    segment_by: segment_by_column,
-    time: time_column,
-    value: value_column) {
-    ohlcs = Hash.new() {|hash, key| hash[key] = [] }
-
-    key = tick.send(segment_by)
-    candlestick = ohlcs[key].last
-    if candlestick.nil? || candlestick.time + timeframe > tick.time
-      ohlcs[key] << Candlestick.new(time $, price)
-    end
-    find_all do |tick|
-      symbol = tick.symbol
-
-      if previous[symbol]
-        delta = (tick.price - previous[symbol]).abs
-        volatility[symbol] += delta
-      end
-      previous[symbol] = tick.price
-    end
-    volatility
-  }
-=end
 
 ActiveRecord::Base.connection.add_toolkit_to_search_path!
 
@@ -123,7 +98,7 @@ ActiveRecord::Base.connection.instance_exec do
         schedule_interval: "INTERVAL '1 minute'"
       }
     }
-    create_continuous_aggregate('ohlc_1m', Tick._ohlc(timeframe: '1m'), **options)
+    create_continuous_aggregate('ohlc_1m', Tick._candlestick(timeframe: '1m'), **options)
 
     execute "CREATE VIEW ohlc_1h AS #{ Ohlc1m.rollup(timeframe: '1 hour').to_sql}"
     execute "CREATE VIEW ohlc_1d AS #{ Ohlc1h.rollup(timeframe: '1 day').to_sql}"

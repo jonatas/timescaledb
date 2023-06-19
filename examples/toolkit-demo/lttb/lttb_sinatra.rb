@@ -8,6 +8,7 @@ gemfile(true) do
   gem 'sinatra-reloader', require: false
   gem 'sinatra-cross_origin', require: false
   gem 'chartkick'
+  gem 'puma'
 end
 
 require 'timescaledb/toolkit'
