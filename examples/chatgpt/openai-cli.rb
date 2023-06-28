@@ -17,6 +17,36 @@ require 'time'
 API_KEY = ENV['GPT4_KEY']
 PG_URI = ENV['PG_URI'] || ARGV[ARGV.index("--pg-uri")]
 
+def topic
+  ARGV[1] || ENV['USER']
+end
+
+def instructions
+  if File.exists?(ARGV.last)
+    ARGV.last
+  else
+    'instructions.md'
+  end
+end
+
+INSTRUCTIONS = IO.read(instructions)
+
+WELCOME_INFO = <<~MD
+  # Chat GPT + TimescaleDB
+
+  Welcome #{topic} to the ChatGPT command line tool!
+
+  ## Commands:
+
+  * Enter 'quit' to exit.
+  * Enter 'debug' to enter debug mode.
+  * Enter any other text to chat with GPT.
+
+  ## Initial instructions
+
+  #{INSTRUCTIONS}
+MD
+
 class Conversation < ActiveRecord::Base
   self.primary_key = nil
   acts_as_hypertable
@@ -91,21 +121,7 @@ end
 
 
 def chat_mode
-  info <<~MD
-  # Chat GPT + TimescaleDB
-
-  Welcome #{topic} to the ChatGPT command line tool!
-
-  ## Commands:
-
-  * Enter 'quit' to exit.
-  * Enter 'debug' to enter debug mode.
-  * Enter any other text to chat with GPT.
-
-  ## Initial instructions
-
-  #{INSTRUCTIONS}
-  MD
+  info WELCOME_INFO
   timeout = 300 # Set the timeout in seconds
 
   loop do
@@ -131,6 +147,24 @@ def chat_mode
   end
 end
 
+def run_queries queries
+  queries.each_with_index.map do |query,i|
+    sql = query.gsub(/#\{(.*)\}/){eval($1)}
+
+    json = execute(sql).to_json
+    if json.length > 10000
+      json = json[0..10000]+"... (truncated)"
+    end
+    <<~MARKDOWN
+        Result from query #{i+1}:
+
+        ```json
+        #{json}
+        ```
+    MARKDOWN
+  end.join("\n")
+end
+
 def chat(prompt)
   response = call_gpt4_api(prompt)
   with_no_logs do
@@ -145,51 +179,22 @@ def chat(prompt)
   queries = sql_from_markdown(response)
 
   if queries&.any?
-    results = []
-    output = queries.each_with_index.map do |query,i|
-      sql = query.gsub(/#\{(.*)\}/){eval($1)}
-
-      json = execute(sql).to_json
-      results << json
-      if json.length > 1000
-        json = json[0..1000]+"... (truncated)"
-      end
-      <<~MARKDOWN
-        Result from query #{i+1}:
-
-        ```json
-        #{json}
-        ```
-      MARKDOWN
-    end.join("\n")
+    output = run_queries(queries)
 
     info(output)
     chat(output)
   end
 end
 
-def topic
-  ARGV[1] || ENV['USER']
-end
-
-def instructions
-  if File.exists?(ARGV.last)
-    ARGV.last
-  else
-    'instructions.md'
-  end
-end
-
-INSTRUCTIONS = IO.read(instructions)
 
 def with_no_logs
+  old_logger = ActiveRecord::Base.logger
   ActiveRecord::Base.logger = nil
   yield
-  ActiveRecord::Base.logger = Logger.new(STDOUT)
+  ActiveRecord::Base.logger = old_logger
 end
 
 def main
-
   ActiveRecord::Base.logger = Logger.new(STDOUT)
   ActiveRecord::Base.establish_connection(PG_URI)
 
