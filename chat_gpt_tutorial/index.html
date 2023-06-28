@@ -78,7 +78,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#requirements" class="md-skip">
+        <a href="#introduction-to-ai-agents" class="md-skip">
           Skip to content
         </a>
       
@@ -302,94 +302,12 @@
       <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
       
       
+        
       
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          Open AI Long Term Storage Tutorial
-          <span class="md-nav__icon md-icon"></span>
-        </label>
       
       <a href="./" class="md-nav__link md-nav__link--active">
         Open AI Long Term Storage Tutorial
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#requirements" class="md-nav__link">
-    Requirements
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#main-code" class="md-nav__link">
-    Main Code
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#extra-capabilities" class="md-nav__link">
-    Extra capabilities
-  </a>
-  
-    <nav class="md-nav" aria-label="Extra capabilities">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#enable-compression-for-a-hypertable" class="md-nav__link">
-    Enable compression for a hypertable
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#create-continuous-aggregates" class="md-nav__link">
-    Create continuous aggregates
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#complex-query-building" class="md-nav__link">
-    Complex query building
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#knowing-issues" class="md-nav__link">
-    Knowing issues
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#try-it-yourself" class="md-nav__link">
-    Try it yourself
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
       
     </li>
   
@@ -472,76 +390,8 @@
   
   
   
+    
   
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#requirements" class="md-nav__link">
-    Requirements
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#main-code" class="md-nav__link">
-    Main Code
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#extra-capabilities" class="md-nav__link">
-    Extra capabilities
-  </a>
-  
-    <nav class="md-nav" aria-label="Extra capabilities">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#enable-compression-for-a-hypertable" class="md-nav__link">
-    Enable compression for a hypertable
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#create-continuous-aggregates" class="md-nav__link">
-    Create continuous aggregates
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#complex-query-building" class="md-nav__link">
-    Complex query building
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#knowing-issues" class="md-nav__link">
-    Knowing issues
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#try-it-yourself" class="md-nav__link">
-    Try it yourself
-  </a>
-  
-</li>
-      
-    </ul>
   
 </nav>
                   </div>
@@ -561,23 +411,25 @@
   </a>
 
 
-  <h1>Open AI Long Term Storage Tutorial</h1>
-
-<p>I'm going to share my saga from building my first agent and make it interact
-with the database. My objective is create a long term memory for your AI agent,
-and here is my first attempt to implement a naive "auto-gpt" SQL interface :)</p>
-<p>Long story short, when you're using Chat GPT you can assign a role to your Chat
-GPT and be very specific about how you want to interact with it.</p>
-<p>So, my idea was: can I make it talk directly to my database and let it have
-access to previous conversation and understand its postgresql capabilities?</p>
-<p>And the answer is yes! you can! I did it and I'll explain in details how it
-works.</p>
+<h1 id="introduction-to-ai-agents">Introduction to AI Agents<a class="headerlink" href="#introduction-to-ai-agents" title="Permanent link">&para;</a></h1>
+<p>Artificial Intelligence (AI) agents are programs capable of autonomous actions in an environment to meet specific goals. These agents can analyze their environment, make decisions, and execute actions independently. Many industries leverage AI to automate processes, improve customer interaction, provide personalized recommendations, and more.</p>
+<p>One common way of interacting with AI agents is through an Application Programming Interface (API). An API provides a set of rules and protocols for interacting with a software application. In the context of AI, APIs often allow developers to leverage complex machine learning models in their applications without needing to understand all the underlying details.</p>
+<p>Through APIs, we can instruct AI to play various roles within our business. For example, an AI agent could act as a customer service representative, answering common queries and providing information to customers 24/7. Alternatively, it could play a role in data analysis, interpreting raw data and providing valuable insights.</p>
+<h1 id="converting-human-language-to-sql-queries">Converting Human Language to SQL Queries<a class="headerlink" href="#converting-human-language-to-sql-queries" title="Permanent link">&para;</a></h1>
+<p>A fascinating application of AI is the capability to understand and interpret human language, a field known as Natural Language Processing (NLP). Using AI, we can convert natural language into structured queries, such as SQL, on the fly. This means we can interact with our databases using everyday language rather than needing to write complex queries.</p>
+<p>For example, a user could ask an AI agent, "How many users signed up in the last week?" The AI agent can convert this question into an SQL query to retrieve the answer from the database. This capability can dramatically simplify interactions with databases and make data more accessible to non-technical users.</p>
+<p>In this example, we used an AI (GPT-4 by OpenAI) to interact with the user, interpret the user's instructions, convert these instructions into SQL queries, and then execute these queries on a TimescaleDB database. This is an example of how AI can serve as a 'middle-man', simplifying the interface between humans and databases.</p>
+<h1 id="using-open-ai-as-a-long-term-memory">Using Open AI as a long term memory<a class="headerlink" href="#using-open-ai-as-a-long-term-memory" title="Permanent link">&para;</a></h1>
 <p>The process of long term memory is nothing else than stacking more chat
 conversation to the API, similar to what the chat.openai.com uses to group by
 conversations by topic and building this space to save the context.</p>
 <p>Using the API it's more about persisting the actual messages and then sending it
 along with the actual prompt.</p>
-<p>Here is the initial instructions I'm sending to the API:</p>
+<h1 id="setting-up-initial-instructions-to-the-ai-agent">Setting up initial instructions to the AI agent<a class="headerlink" href="#setting-up-initial-instructions-to-the-ai-agent" title="Permanent link">&para;</a></h1>
+<p>Here is the initial instructions we'll always send to the API to guarantee it
+knows it has access to the database and it can execute queries or consult the
+catalog in case it does not know exactly the information that is necessary to
+achieve the result.</p>
 <div class="codehilite"><pre><span></span><code>As an AI language model, you have access to a TimescaleDB database that stores conversation history in a table called &quot;conversations&quot;. You can execute SQL queries to retrieve information from this table using markdown language. Use the common backticks with sql as the language and you&#39;ll have access to any information you need. Results of multiple queries will be answered in the same order.
 
 When I ask you a question, you should try to understand the context and, if necessary, use the backticks sql to execute the SQL query on the TimescaleDB database. Please provide the information I requested based on the query results. Always use one query per snippet.
@@ -605,54 +457,67 @@ The query results will be represented in JSON and limited to 1000 characters.
 Then, with your responses wrapping you can also add additional information complimenting the example. All results will be answered numbering the same sequence of queries found in the previous answer. Always choose to answer in markdown format and I&#39;ll always give the results in markdown format too.
 </code></pre></div>
 
-<p>This is a tutorial that explains how to use Ruby to interact with OpenAI's GPT-4 and
-TimescaleDB emulating a chat interface that can execute SQL code from API
-responses and build SQL commands and interact with a Postgresql using natural language.</p>
+<h2 id="setup-the-environment">Setup the environment<a class="headerlink" href="#setup-the-environment" title="Permanent link">&para;</a></h2>
+<p>Our plan is use Ruby to interact with OpenAI's GPT-4 and TimescaleDB. The program will
+be emulating a chat interface that can execute SQL code from API responses and build
+SQL commands and interact with a Postgresql using natural language.</p>
+<p>Make sure you have a <code>.envrc</code> file and a tool like <a href="https://direnv.net">direnv</a>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">export</span> <span class="nv">GPT4_KEY</span><span class="o">=</span>&lt;put-your-api-key-here&gt;
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">export</span> <span class="nv">PG_URI</span><span class="o">=</span>postgres://jonatasdp@localhost:5432/chatgpt-demo
+</code></pre></div>
+<p>If you don't have the <code>GPT4_KEY</code>, you can get it <a href="https://platform.openai.com/account/api-keys">here</a>.</p>
+<p>Make sure you adjust the <code>PG_URI</code> with your postgresql instance connection, and if you don't have a database instance locally, you can also setup one on the <a href="https://timescale.com/products#cloud">Timescale cloud</a> very easily.</p>
 <h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
 <p>Ruby is the language that will run in the backend to connect to the OpenAI API
 and to the Postgresql instance. It will be a single file with everything inside.</p>
 <p>If you just want to run it, here is the <a href="https://github.com/jonatas/timescaledb/blob/main/examples/chatgpt/openai-cli.rb">final file</a>.</p>
 <p>We use <code>bundler/inline</code> to manage gem dependencies. Here are the required gems:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">gem</span> <span class="s1">&#39;timescaledb&#39;</span> <span class="c1"># A wrapper to interact with TimescaleDB.</span>
-<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">gem</span> <span class="s1">&#39;rest-client&#39;</span> <span class="c1"># Simple HTTP and REST client for Ruby.</span>
-<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">gem</span> <span class="s1">&#39;pry&#39;</span> <span class="c1"># A runtime developer console to iterate and inspect the code.</span>
-<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">gem</span> <span class="s1">&#39;markdown&#39;</span> <span class="c1"># Ruby Markdown parser.</span>
-<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">gem</span> <span class="s1">&#39;rouge&#39;</span> <span class="c1"># A pure Ruby code highlighter.</span>
-<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">gem</span> <span class="s1">&#39;redcarpet&#39;</span> <span class="c1"># A Ruby library for Markdown processing.</span>
-<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">gem</span> <span class="s1">&#39;tty-markdown&#39;</span> <span class="c1"># A Markdown parser with syntax highlighting.</span>
-<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">gem</span> <span class="s1">&#39;tty-link&#39;</span> <span class="c1"># To make URLs clickable in the terminal.</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">gem</span> <span class="s1">&#39;timescaledb&#39;</span> <span class="c1"># A wrapper to interact with TimescaleDB.</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">gem</span> <span class="s1">&#39;rest-client&#39;</span> <span class="c1"># Simple HTTP and REST client for Ruby.</span>
+<a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">gem</span> <span class="s1">&#39;pry&#39;</span> <span class="c1"># A runtime developer console to iterate and inspect the code.</span>
+<a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">gem</span> <span class="s1">&#39;markdown&#39;</span> <span class="c1"># Ruby Markdown parser.</span>
+<a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">gem</span> <span class="s1">&#39;rouge&#39;</span> <span class="c1"># A pure Ruby code highlighter.</span>
+<a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">gem</span> <span class="s1">&#39;redcarpet&#39;</span> <span class="c1"># A Ruby library for Markdown processing.</span>
+<a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">gem</span> <span class="s1">&#39;tty-markdown&#39;</span> <span class="c1"># A Markdown parser with syntax highlighting.</span>
+<a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">gem</span> <span class="s1">&#39;tty-link&#39;</span> <span class="c1"># To make URLs clickable in the terminal.</span>
 </code></pre></div>
 <h2 id="main-code">Main Code<a class="headerlink" href="#main-code" title="Permanent link">&para;</a></h2>
 <p>First, require the necessary libraries:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
-<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">require</span> <span class="s1">&#39;time&#39;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="nb">require</span> <span class="s1">&#39;time&#39;</span>
 </code></pre></div>
 <p>We'll be using API keys and URI's defined in environment variables:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">API_KEY</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;GPT4_KEY&#39;</span><span class="o">]</span>
-<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="no">PG_URI</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;PG_URI&#39;</span><span class="o">]</span> <span class="o">||</span> <span class="no">ARGV</span><span class="o">[</span><span class="no">ARGV</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;--pg-uri&quot;</span><span class="p">)</span><span class="o">]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">API_KEY</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;GPT4_KEY&#39;</span><span class="o">]</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="no">PG_URI</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;PG_URI&#39;</span><span class="o">]</span> <span class="o">||</span> <span class="no">ARGV</span><span class="o">[</span><span class="no">ARGV</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;--pg-uri&quot;</span><span class="p">)</span><span class="o">]</span>
 </code></pre></div>
+<h2 id="persist-history-in-the-conversation-model">Persist history in the conversation model<a class="headerlink" href="#persist-history-in-the-conversation-model" title="Permanent link">&para;</a></h2>
 <p>We then define a <code>Conversation</code> class that interacts with TimescaleDB:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span> <span class="nc">Conversation</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
-<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  <span class="nb">self</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="kp">nil</span>
-<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  <span class="n">acts_as_hypertable</span>
-<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  <span class="o">...</span>
-<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span> <span class="nc">Conversation</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  <span class="nb">self</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="kp">nil</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  <span class="n">acts_as_hypertable</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  <span class="o">...</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="k">end</span>
 </code></pre></div>
+<h2 id="extract-sql-from-api-responses">Extract SQL from API responses<a class="headerlink" href="#extract-sql-from-api-responses" title="Permanent link">&para;</a></h2>
+<p>When the API calls back suggesting some sql blocks, we're going to detect them
+by converting the markdown response into a html and then checking the html
+blocks.</p>
 <p>And an <code>SQLExtractor</code> class to extract SQL from markdown. This class will be
 stacking all markdown blocks to be executed later.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span> <span class="nc">SQLExtractor</span> <span class="o">&lt;</span> <span class="no">Redcarpet</span><span class="o">::</span><span class="no">Render</span><span class="o">::</span><span class="no">Base</span>
-<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  <span class="kp">attr_reader</span> <span class="ss">:sql</span>
-<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  <span class="k">def</span> <span class="nf">block_code</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span>
-<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">if</span> <span class="n">language</span> <span class="o">==</span> <span class="s1">&#39;sql&#39;</span>
-<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>      <span class="vi">@sql</span> <span class="o">||=</span> <span class="o">[]</span>
-<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>      <span class="vi">@sql</span> <span class="o">&lt;&lt;</span> <span class="n">code</span>
-<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>      <span class="n">code</span>
-<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="k">else</span>
-<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>      <span class="s2">&quot;&quot;</span>
-<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="k">end</span>
-<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>  <span class="k">end</span>
-<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span> <span class="nc">SQLExtractor</span> <span class="o">&lt;</span> <span class="no">Redcarpet</span><span class="o">::</span><span class="no">Render</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  <span class="kp">attr_reader</span> <span class="ss">:sql</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  <span class="k">def</span> <span class="nf">block_code</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>    <span class="k">if</span> <span class="n">language</span> <span class="o">==</span> <span class="s1">&#39;sql&#39;</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>      <span class="vi">@sql</span> <span class="o">||=</span> <span class="o">[]</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>      <span class="vi">@sql</span> <span class="o">&lt;&lt;</span> <span class="n">code</span>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>      <span class="n">code</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>    <span class="k">else</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>      <span class="s2">&quot;&quot;</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>    <span class="k">end</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>  <span class="k">end</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="k">end</span>
 </code></pre></div>
+<h2 id="call-gpt4-api-from-the-ruby-code">Call GPT4 API from the Ruby code<a class="headerlink" href="#call-gpt4-api-from-the-ruby-code" title="Permanent link">&para;</a></h2>
 <p>The <code>call_gpt4_api</code> method is used to call the GPT-4 API with a prompt.
 At this moment we need to stack the following information:</p>
 <ol>
@@ -660,36 +525,40 @@ At this moment we need to stack the following information:</p>
 <li>Context: Previous User Input + AI Responses in the same topic.</li>
 <li>User Input: what user is asking now.</li>
 </ol>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span> <span class="nf">call_gpt4_api</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
-<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://api.openai.com/v1/chat/completions&quot;</span>
-<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  <span class="n">full_prompt</span> <span class="o">=</span> <span class="no">INSTRUCTIONS</span> <span class="o">+</span>
-<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">History: </span><span class="si">#{</span><span class="no">Conversation</span><span class="o">.</span><span class="n">history</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span>
-<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Input: </span><span class="si">#{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">&quot;</span>
-<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  <span class="n">body</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;model&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
-<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>      <span class="s2">&quot;max_tokens&quot;</span> <span class="o">=&gt;</span> <span class="mi">1000</span><span class="p">,</span>
-<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>      <span class="s2">&quot;temperature&quot;</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span>
-<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>      <span class="s2">&quot;messages&quot;</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="p">{</span><span class="s2">&quot;role&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span> <span class="o">=&gt;</span> <span class="n">full_prompt</span><span class="p">}</span><span class="o">]</span><span class="p">,</span>
-<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="p">}</span><span class="o">.</span><span class="n">to_json</span>
-<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>  <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;Content-Type&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span> <span class="s2">&quot;Authorization&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Bearer </span><span class="si">#{</span><span class="no">API_KEY</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">}</span>
-<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>  <span class="n">response</span> <span class="o">=</span> <span class="no">RestClient</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
-<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>  <span class="n">json_response</span> <span class="o">=</span> <span class="no">JSON</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
-<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>  <span class="n">response</span> <span class="o">=</span> <span class="n">json_response</span><span class="o">[</span><span class="s2">&quot;choices&quot;</span><span class="o">].</span><span class="n">first</span><span class="o">[</span><span class="s2">&quot;message&quot;</span><span class="o">][</span><span class="s2">&quot;content&quot;</span><span class="o">].</span><span class="n">strip</span>
-<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="k">rescue</span> <span class="no">RestClient</span><span class="o">::</span><span class="no">BadRequest</span>
-<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>  <span class="s2">&quot;Bad Request Error: </span><span class="si">#{</span><span class="vg">$!</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="k">rescue</span>
-<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>  <span class="s2">&quot;Error: </span><span class="si">#{</span><span class="vg">$!</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span> <span class="nf">call_gpt4_api</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://api.openai.com/v1/chat/completions&quot;</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>  <span class="n">full_prompt</span> <span class="o">=</span> <span class="no">INSTRUCTIONS</span> <span class="o">+</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">History: </span><span class="si">#{</span><span class="no">Conversation</span><span class="o">.</span><span class="n">history</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Input: </span><span class="si">#{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>  <span class="n">body</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;model&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+<a id="__codelineno-7-8" name="__codelineno-7-8" href="#__codelineno-7-8"></a>      <span class="s2">&quot;max_tokens&quot;</span> <span class="o">=&gt;</span> <span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-7-9" name="__codelineno-7-9" href="#__codelineno-7-9"></a>      <span class="s2">&quot;temperature&quot;</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-7-10" name="__codelineno-7-10" href="#__codelineno-7-10"></a>      <span class="s2">&quot;messages&quot;</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="p">{</span><span class="s2">&quot;role&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span> <span class="o">=&gt;</span> <span class="n">full_prompt</span><span class="p">}</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-7-11" name="__codelineno-7-11" href="#__codelineno-7-11"></a>    <span class="p">}</span><span class="o">.</span><span class="n">to_json</span>
+<a id="__codelineno-7-12" name="__codelineno-7-12" href="#__codelineno-7-12"></a>  <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;Content-Type&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span> <span class="s2">&quot;Authorization&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Bearer </span><span class="si">#{</span><span class="no">API_KEY</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">}</span>
+<a id="__codelineno-7-13" name="__codelineno-7-13" href="#__codelineno-7-13"></a>  <span class="n">response</span> <span class="o">=</span> <span class="no">RestClient</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+<a id="__codelineno-7-14" name="__codelineno-7-14" href="#__codelineno-7-14"></a>  <span class="n">json_response</span> <span class="o">=</span> <span class="no">JSON</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-7-15" name="__codelineno-7-15" href="#__codelineno-7-15"></a>  <span class="n">response</span> <span class="o">=</span> <span class="n">json_response</span><span class="o">[</span><span class="s2">&quot;choices&quot;</span><span class="o">].</span><span class="n">first</span><span class="o">[</span><span class="s2">&quot;message&quot;</span><span class="o">][</span><span class="s2">&quot;content&quot;</span><span class="o">].</span><span class="n">strip</span>
+<a id="__codelineno-7-16" name="__codelineno-7-16" href="#__codelineno-7-16"></a><span class="k">rescue</span> <span class="no">RestClient</span><span class="o">::</span><span class="no">BadRequest</span>
+<a id="__codelineno-7-17" name="__codelineno-7-17" href="#__codelineno-7-17"></a>  <span class="s2">&quot;Bad Request Error: </span><span class="si">#{</span><span class="vg">$!</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-7-18" name="__codelineno-7-18" href="#__codelineno-7-18"></a><span class="k">rescue</span>
+<a id="__codelineno-7-19" name="__codelineno-7-19" href="#__codelineno-7-19"></a>  <span class="s2">&quot;Error: </span><span class="si">#{</span><span class="vg">$!</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-7-20" name="__codelineno-7-20" href="#__codelineno-7-20"></a><span class="k">end</span>
 </code></pre></div>
-<p>The method try to execute the query and return high level error messages in case
+<h2 id="execute-queries-in-the-database">Execute queries in the database<a class="headerlink" href="#execute-queries-in-the-database" title="Permanent link">&para;</a></h2>
+<p>As the API responses can bring queries and the SQLExtractor can detect them, now
+it's time to have a method to be executing the SQL queries and returning error
+messages in case it fails, so the API can recursively try to fix the issue.</p>
+<p>The following method try to execute the query and return high level error messages in case
 the execution fails:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  <span class="k">begin</span>
-<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
-<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
-<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s2">&quot;Query Error: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
-<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  <span class="k">end</span>
-<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  <span class="k">begin</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>    <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>    <span class="s2">&quot;Query Error: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  <span class="k">end</span>
+<a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="k">end</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Truncating query results</p>
@@ -697,91 +566,93 @@ the execution fails:</p>
 heavy and then it really slows down the upstreaming and processing of the
 context. So, for now, I'm truncating the results in 10k characters.</p>
 <p>It reduced a lot the timeouts and still quite good and working well.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">json</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span>
-<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">results</span> <span class="o">&lt;&lt;</span> <span class="n">json</span>
-<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">if</span> <span class="n">json</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">10000</span>
-<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  <span class="n">json</span> <span class="o">=</span> <span class="n">json</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">10000</span><span class="o">]+</span><span class="s2">&quot;... (truncated)&quot;</span>
-<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="n">json</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="n">results</span> <span class="o">&lt;&lt;</span> <span class="n">json</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="k">if</span> <span class="n">json</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">10000</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>  <span class="n">json</span> <span class="o">=</span> <span class="n">json</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">10000</span><span class="o">]+</span><span class="s2">&quot;... (truncated)&quot;</span>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="k">end</span>
 </code></pre></div>
 </div>
+<h2 id="establishing-the-chat">Establishing the chat<a class="headerlink" href="#establishing-the-chat" title="Permanent link">&para;</a></h2>
+<p>In the high level, we need to keep interacting with the user until they give up.</p>
 <p>In <code>chat_mode</code> method, we loop to continuously get user input and interact with GPT-4:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span> <span class="nf">chat_mode</span>
-<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  <span class="n">info</span> <span class="no">WELCOME_INFO</span>
-<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  <span class="n">timeout</span> <span class="o">=</span> <span class="mi">300</span> <span class="c1"># Set the timeout in seconds</span>
-<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
-<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  <span class="kp">loop</span> <span class="k">do</span>
-<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="si">#{</span><span class="n">topic</span><span class="si">}</span><span class="s2">: &quot;</span>
-<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">input</span> <span class="o">=</span> <span class="k">if</span> <span class="no">IO</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">[</span><span class="no">STDIN</span><span class="o">]</span><span class="p">,</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
-<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>              <span class="no">STDIN</span><span class="o">.</span><span class="n">gets</span><span class="o">.</span><span class="n">chomp</span>
-<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>            <span class="k">else</span>
-<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>              <span class="nb">puts</span> <span class="s2">&quot;Timeout reached, exiting chat.&quot;</span>
-<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>              <span class="k">break</span>
-<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>            <span class="k">end</span>
-<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
-<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="k">case</span> <span class="n">input</span><span class="o">.</span><span class="n">downcase</span>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="k">when</span> <span class="s1">&#39;quit&#39;</span>
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>      <span class="nb">puts</span> <span class="s2">&quot;Exiting chat.&quot;</span>
-<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>      <span class="k">break</span>
-<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="k">when</span> <span class="s1">&#39;debug&#39;</span>
-<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>      <span class="nb">require</span> <span class="s2">&quot;pry&quot;</span><span class="p">;</span><span class="nb">binding</span><span class="o">.</span><span class="n">pry</span>
-<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>    <span class="k">else</span>
-<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>      <span class="n">with_no_logs</span> <span class="k">do</span>
-<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>        <span class="n">chat</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
-<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>      <span class="k">end</span>
-<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    <span class="k">end</span>
-<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>  <span class="k">end</span>
-<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span> <span class="nf">chat_mode</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  <span class="n">info</span> <span class="no">WELCOME_INFO</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>  <span class="n">timeout</span> <span class="o">=</span> <span class="mi">300</span> <span class="c1"># Set the timeout in seconds</span>
+<a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+<a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>  <span class="kp">loop</span> <span class="k">do</span>
+<a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>    <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="si">#{</span><span class="n">topic</span><span class="si">}</span><span class="s2">: &quot;</span>
+<a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a>    <span class="n">input</span> <span class="o">=</span> <span class="k">if</span> <span class="no">IO</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">[</span><span class="no">STDIN</span><span class="o">]</span><span class="p">,</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+<a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a>              <span class="no">STDIN</span><span class="o">.</span><span class="n">gets</span><span class="o">.</span><span class="n">chomp</span>
+<a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a>            <span class="k">else</span>
+<a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a>              <span class="nb">puts</span> <span class="s2">&quot;Timeout reached, exiting chat.&quot;</span>
+<a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a>              <span class="k">break</span>
+<a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>            <span class="k">end</span>
+<a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>
+<a id="__codelineno-10-14" name="__codelineno-10-14" href="#__codelineno-10-14"></a>    <span class="k">case</span> <span class="n">input</span><span class="o">.</span><span class="n">downcase</span>
+<a id="__codelineno-10-15" name="__codelineno-10-15" href="#__codelineno-10-15"></a>    <span class="k">when</span> <span class="s1">&#39;quit&#39;</span>
+<a id="__codelineno-10-16" name="__codelineno-10-16" href="#__codelineno-10-16"></a>      <span class="nb">puts</span> <span class="s2">&quot;Exiting chat.&quot;</span>
+<a id="__codelineno-10-17" name="__codelineno-10-17" href="#__codelineno-10-17"></a>      <span class="k">break</span>
+<a id="__codelineno-10-18" name="__codelineno-10-18" href="#__codelineno-10-18"></a>    <span class="k">when</span> <span class="s1">&#39;debug&#39;</span>
+<a id="__codelineno-10-19" name="__codelineno-10-19" href="#__codelineno-10-19"></a>      <span class="nb">require</span> <span class="s2">&quot;pry&quot;</span><span class="p">;</span><span class="nb">binding</span><span class="o">.</span><span class="n">pry</span>
+<a id="__codelineno-10-20" name="__codelineno-10-20" href="#__codelineno-10-20"></a>    <span class="k">else</span>
+<a id="__codelineno-10-21" name="__codelineno-10-21" href="#__codelineno-10-21"></a>      <span class="n">with_no_logs</span> <span class="k">do</span>
+<a id="__codelineno-10-22" name="__codelineno-10-22" href="#__codelineno-10-22"></a>        <span class="n">chat</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+<a id="__codelineno-10-23" name="__codelineno-10-23" href="#__codelineno-10-23"></a>      <span class="k">end</span>
+<a id="__codelineno-10-24" name="__codelineno-10-24" href="#__codelineno-10-24"></a>    <span class="k">end</span>
+<a id="__codelineno-10-25" name="__codelineno-10-25" href="#__codelineno-10-25"></a>  <span class="k">end</span>
+<a id="__codelineno-10-26" name="__codelineno-10-26" href="#__codelineno-10-26"></a><span class="k">end</span>
 </code></pre></div>
 <div class="admonition info">
 <p class="admonition-title">Colored markdown</p>
 <p>To parse Markdown and have a colored markdown in the command line, use the
 magical tty-markdown library:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  <span class="nb">puts</span> <span class="no">TTY</span><span class="o">::</span><span class="no">Markdown</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  <span class="nb">puts</span> <span class="no">TTY</span><span class="o">::</span><span class="no">Markdown</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a><span class="k">end</span>
 </code></pre></div>
 </div>
 <p>In <code>chat</code> method, we get the response from GPT-4, create a conversation record
 and then execute SQL queries from the markdown:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span> <span class="nf">chat</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
-<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  <span class="n">response</span> <span class="o">=</span> <span class="n">call_gpt4_api</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
-<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  <span class="n">with_no_logs</span> <span class="k">do</span>
-<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="no">Conversation</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">topic</span><span class="p">:</span> <span class="n">topic</span><span class="p">,</span>
-<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>                        <span class="ss">user_input</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
-<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>                        <span class="ss">ai_response</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
-<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>                        <span class="ss">ts</span><span class="p">:</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
-<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>  <span class="k">end</span>
-<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
-<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>  <span class="n">info</span><span class="p">(</span><span class="s2">&quot;**AI:** </span><span class="si">#{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
-<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>  <span class="n">queries</span> <span class="o">=</span> <span class="n">sql_from_markdown</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
-<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
-<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>  <span class="k">if</span> <span class="n">queries</span><span class="o">&amp;.</span><span class="n">any?</span>
-<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="n">output</span> <span class="o">=</span> <span class="n">run_queries</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
-<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
-<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    <span class="n">info</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    <span class="n">chat</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
-<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>  <span class="k">end</span>
-<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span> <span class="nf">chat</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  <span class="n">response</span> <span class="o">=</span> <span class="n">call_gpt4_api</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>  <span class="n">with_no_logs</span> <span class="k">do</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>    <span class="no">Conversation</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">topic</span><span class="p">:</span> <span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>                        <span class="ss">user_input</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>                        <span class="ss">ai_response</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>                        <span class="ss">ts</span><span class="p">:</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a>  <span class="k">end</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a>  <span class="n">info</span><span class="p">(</span><span class="s2">&quot;**AI:** </span><span class="si">#{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a>  <span class="n">queries</span> <span class="o">=</span> <span class="n">sql_from_markdown</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+<a id="__codelineno-12-13" name="__codelineno-12-13" href="#__codelineno-12-13"></a>
+<a id="__codelineno-12-14" name="__codelineno-12-14" href="#__codelineno-12-14"></a>  <span class="k">if</span> <span class="n">queries</span><span class="o">&amp;.</span><span class="n">any?</span>
+<a id="__codelineno-12-15" name="__codelineno-12-15" href="#__codelineno-12-15"></a>    <span class="n">output</span> <span class="o">=</span> <span class="n">run_queries</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+<a id="__codelineno-12-16" name="__codelineno-12-16" href="#__codelineno-12-16"></a>
+<a id="__codelineno-12-17" name="__codelineno-12-17" href="#__codelineno-12-17"></a>    <span class="n">info</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+<a id="__codelineno-12-18" name="__codelineno-12-18" href="#__codelineno-12-18"></a>    <span class="n">chat</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+<a id="__codelineno-12-19" name="__codelineno-12-19" href="#__codelineno-12-19"></a>  <span class="k">end</span>
+<a id="__codelineno-12-20" name="__codelineno-12-20" href="#__codelineno-12-20"></a><span class="k">end</span>
 </code></pre></div>
 <p>To run the queries, you can also eval some context like the <code>topic</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span> <span class="nf">run_queries</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
-<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  <span class="n">queries</span><span class="o">.</span><span class="n">each_with_index</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">query</span><span class="p">,</span><span class="n">i</span><span class="o">|</span>
-<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">sql</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/#\{(.*)\}/</span><span class="p">){</span><span class="nb">eval</span><span class="p">(</span><span class="vg">$1</span><span class="p">)}</span>
-<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
-<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">json</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span>
-<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="n">json</span> <span class="o">=</span> <span class="n">json</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">10000</span><span class="o">]+</span><span class="s2">&quot;... (truncated)&quot;</span> <span class="k">if</span> <span class="n">json</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">10000</span>
-<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="o">&lt;&lt;~</span><span class="dl">MARKDOWN</span>
-<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="sh">      Result from query #{i+1}:</span>
-<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="sh">      #{json}</span>
-<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="dl">    MARKDOWN</span>
-<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>  <span class="k">end</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="k">def</span> <span class="nf">run_queries</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+<a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>  <span class="n">queries</span><span class="o">.</span><span class="n">each_with_index</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">query</span><span class="p">,</span><span class="n">i</span><span class="o">|</span>
+<a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>    <span class="n">sql</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/#\{(.*)\}/</span><span class="p">){</span><span class="nb">eval</span><span class="p">(</span><span class="vg">$1</span><span class="p">)}</span>
+<a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>
+<a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>    <span class="n">json</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span>
+<a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>    <span class="n">json</span> <span class="o">=</span> <span class="n">json</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">10000</span><span class="o">]+</span><span class="s2">&quot;... (truncated)&quot;</span> <span class="k">if</span> <span class="n">json</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">10000</span>
+<a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>    <span class="o">&lt;&lt;~</span><span class="dl">MARKDOWN</span>
+<a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a><span class="sh">      Result from query #{i+1}:</span>
+<a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a><span class="sh">      #{json}</span>
+<a id="__codelineno-13-10" name="__codelineno-13-10" href="#__codelineno-13-10"></a><span class="dl">    MARKDOWN</span>
+<a id="__codelineno-13-11" name="__codelineno-13-11" href="#__codelineno-13-11"></a>  <span class="k">end</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-13-12" name="__codelineno-13-12" href="#__codelineno-13-12"></a><span class="k">end</span>
 </code></pre></div>
 <div class="admonition warning">
 <p class="admonition-title">eval is evil 😈</p>
 <p>Note that we're using:
-<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">eval</span><span class="p">(</span><span class="vg">$1</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">eval</span><span class="p">(</span><span class="vg">$1</span><span class="p">)</span>
 </code></pre></div>
 It will capture the result of the query param that is wrapped with <code>#{}</code>
 and execute it in the context. It's useful to guarantee we're filtereing by
@@ -790,49 +661,49 @@ production code make sure you use a more robust and safe approach for it.</p>
 </div>
 <p>We'll also define the <code>topic</code> which will be used as a command line argument or
 just assigning the USER name as the default topic to group conversations.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span> <span class="nf">topic</span>
-<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  <span class="no">ARGV</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">||</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;USER&#39;</span><span class="o">]</span>
-<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span> <span class="nf">topic</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>  <span class="no">ARGV</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">||</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;USER&#39;</span><span class="o">]</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="k">end</span>
 </code></pre></div>
 <p>The instructions described before are also avaialable in the same [example
 folder][example] and was used as a raw text. You can also override and test with
 different subjects and evolve from some in progress research as well.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span> <span class="nf">instructions</span>
-<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>  <span class="k">if</span> <span class="no">File</span><span class="o">.</span><span class="n">exists?</span><span class="p">(</span><span class="no">ARGV</span><span class="o">.</span><span class="n">last</span><span class="p">)</span>
-<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="no">ARGV</span><span class="o">.</span><span class="n">last</span>
-<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>  <span class="k">else</span>
-<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="s1">&#39;instructions.md&#39;</span>
-<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>  <span class="k">end</span>
-<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span> <span class="nf">instructions</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  <span class="k">if</span> <span class="no">File</span><span class="o">.</span><span class="n">exists?</span><span class="p">(</span><span class="no">ARGV</span><span class="o">.</span><span class="n">last</span><span class="p">)</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>    <span class="no">ARGV</span><span class="o">.</span><span class="n">last</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>  <span class="k">else</span>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>    <span class="s1">&#39;instructions.md&#39;</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>  <span class="k">end</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="k">end</span>
 </code></pre></div>
 <p>As a final step, setup the conversations table and enable the extension if
 necessary.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span> <span class="nf">setup_schema</span>
-<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="no">Logger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">STDOUT</span><span class="p">)</span>
-<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">establish_connection</span><span class="p">(</span><span class="no">PG_URI</span><span class="p">)</span>
-<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
-<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>  <span class="c1"># Create the events table if it doesn&#39;t exist</span>
-<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>  <span class="k">unless</span> <span class="no">Conversation</span><span class="o">.</span><span class="n">table_exists?</span>
-<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">instance_exec</span> <span class="k">do</span>
-<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>      <span class="n">execute</span> <span class="s2">&quot;CREATE EXTENSION IF NOT EXISTS timescaledb&quot;</span>
-<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>      <span class="n">create_table</span> <span class="ss">:conversations</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">hypertable</span><span class="p">:</span> <span class="p">{</span><span class="ss">time_column</span><span class="p">:</span> <span class="ss">:ts</span><span class="p">}</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
-<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>        <span class="n">t</span><span class="o">.</span><span class="n">timestamptz</span> <span class="ss">:ts</span><span class="p">,</span> <span class="ss">default</span><span class="p">:</span> <span class="s2">&quot;now()&quot;</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
-<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        <span class="n">t</span><span class="o">.</span><span class="n">string</span> <span class="ss">:topic</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
-<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>        <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:user_input</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
-<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>        <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:ai_response</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
-<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>      <span class="k">end</span>
-<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>    <span class="k">end</span>
-<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>  <span class="k">end</span>
-<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="k">end</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span> <span class="nf">setup_schema</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="no">Logger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">STDOUT</span><span class="p">)</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">establish_connection</span><span class="p">(</span><span class="no">PG_URI</span><span class="p">)</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>  <span class="c1"># Create the events table if it doesn&#39;t exist</span>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a>  <span class="k">unless</span> <span class="no">Conversation</span><span class="o">.</span><span class="n">table_exists?</span>
+<a id="__codelineno-17-7" name="__codelineno-17-7" href="#__codelineno-17-7"></a>    <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">instance_exec</span> <span class="k">do</span>
+<a id="__codelineno-17-8" name="__codelineno-17-8" href="#__codelineno-17-8"></a>      <span class="n">execute</span> <span class="s2">&quot;CREATE EXTENSION IF NOT EXISTS timescaledb&quot;</span>
+<a id="__codelineno-17-9" name="__codelineno-17-9" href="#__codelineno-17-9"></a>      <span class="n">create_table</span> <span class="ss">:conversations</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">hypertable</span><span class="p">:</span> <span class="p">{</span><span class="ss">time_column</span><span class="p">:</span> <span class="ss">:ts</span><span class="p">}</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+<a id="__codelineno-17-10" name="__codelineno-17-10" href="#__codelineno-17-10"></a>        <span class="n">t</span><span class="o">.</span><span class="n">timestamptz</span> <span class="ss">:ts</span><span class="p">,</span> <span class="ss">default</span><span class="p">:</span> <span class="s2">&quot;now()&quot;</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+<a id="__codelineno-17-11" name="__codelineno-17-11" href="#__codelineno-17-11"></a>        <span class="n">t</span><span class="o">.</span><span class="n">string</span> <span class="ss">:topic</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+<a id="__codelineno-17-12" name="__codelineno-17-12" href="#__codelineno-17-12"></a>        <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:user_input</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+<a id="__codelineno-17-13" name="__codelineno-17-13" href="#__codelineno-17-13"></a>        <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:ai_response</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+<a id="__codelineno-17-14" name="__codelineno-17-14" href="#__codelineno-17-14"></a>      <span class="k">end</span>
+<a id="__codelineno-17-15" name="__codelineno-17-15" href="#__codelineno-17-15"></a>    <span class="k">end</span>
+<a id="__codelineno-17-16" name="__codelineno-17-16" href="#__codelineno-17-16"></a>  <span class="k">end</span>
+<a id="__codelineno-17-17" name="__codelineno-17-17" href="#__codelineno-17-17"></a><span class="k">end</span>
 </code></pre></div>
 <p>The main method is where we establish the connection and start the chat mode and
 we can call it right after the definition in the body of the ruby file.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span> <span class="nf">main</span>
-<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>  <span class="n">setup_schema</span>
-<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>  <span class="n">chat_mode</span>
-<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">end</span>
-<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
-<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="n">main</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a><span class="k">def</span> <span class="nf">main</span>
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>  <span class="n">setup_schema</span>
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>  <span class="n">chat_mode</span>
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a><span class="k">end</span>
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a><span class="n">main</span>
 </code></pre></div>
 <h2 id="extra-capabilities">Extra capabilities<a class="headerlink" href="#extra-capabilities" title="Permanent link">&para;</a></h2>
 <p>I initially build it for queries but trying to request several database tasks, 
@@ -842,48 +713,48 @@ retention policies and also refresh continuous aggregates policies.</p>
 <p>I started trying this out. Asking it to enable compression, and here is the
 interaction output.</p>
 <p>The following example show an interaction which will execute the sql query:</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>User: enable compression for the conversations hypertable
-<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>AI: To enable compression for the “conversations” hypertable in TimescaleDB,
-<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>you would need to execute an ALTER TABLE command with the SET function to
-<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>enable compression. However, as an AI language model, I don’t have the ability
-<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>to execute SQL commands directly on a database.
-<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
-<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>Here’s an example of how you could do it:
-<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
-<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>    ALTER TABLE conversations SET (
-<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>      timescaledb.compress,
-<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>      timescaledb.compress_segmentby = &#39;user_input&#39;
-<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    );
-<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>
-<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>
-<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>This command will enable compression on the “conversations” hypertable and set the ‘user_input’ column as the segment by option. The ‘compress_segmentby’ option determines how the data will be ordered during compression, which can improve query performance.
-<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>
-<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>Please note that you should replace ‘user_input’ with the appropriate column name based on your specific use case. Also, remember to execute this command as a user with the necessary
-<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>privileges.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>User: enable compression for the conversations hypertable
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>AI: To enable compression for the “conversations” hypertable in TimescaleDB,
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>you would need to execute an ALTER TABLE command with the SET function to
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>enable compression. However, as an AI language model, I don’t have the ability
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>to execute SQL commands directly on a database.
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>Here’s an example of how you could do it:
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    ALTER TABLE conversations SET (
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>      timescaledb.compress,
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>      timescaledb.compress_segmentby = &#39;user_input&#39;
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>    );
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>This command will enable compression on the “conversations” hypertable and set the ‘user_input’ column as the segment by option. The ‘compress_segmentby’ option determines how the data will be ordered during compression, which can improve query performance.
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>Please note that you should replace ‘user_input’ with the appropriate column name based on your specific use case. Also, remember to execute this command as a user with the necessary
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>privileges.
 </code></pre></div>
 <p>The example from the output will be executed by the command line in the database
 that you're connected. And the API response also follow with more instructions
 and recursively interact in case multiple back and forth are necessary.</p>
 <h3 id="create-continuous-aggregates">Create continuous aggregates<a class="headerlink" href="#create-continuous-aggregates" title="Permanent link">&para;</a></h3>
 <p>Now, let's dive into <a href="https://docs.timescale.com/api/latest/continuous-aggregates/create_materialized_view/#continuous-aggregates">continuous aggregates</a> feature and ask to create the first materialized view for it.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>User: create a continuous aggregate materialized view summarizing number of
-<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>words from user_input and ai_response grouped by 1 hour.
-<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>AI: Sure, to create a continuous aggregate materialized view that summarizes
-<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>the number of words from user_input and ai_response grouped by 1 hour,
-<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>you can use the following SQL command:
-<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
-<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    CREATE MATERIALIZED VIEW conversation_summary
-<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    WITH (timescaledb.continuous) AS
-<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    SELECT time_bucket(INTERVAL &#39;1 hour&#39;, ts) AS one_hour,
-<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>        COUNT(*) AS total_conversations,
-<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>        SUM(LENGTH(user_input) - LENGTH(REPLACE(user_input, &#39; &#39;, &#39;&#39;)) + 1) AS user_input_words,
-<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>        SUM(LENGTH(ai_response) - LENGTH(REPLACE(ai_response, &#39; &#39;, &#39;&#39;)) + 1) AS ai_response_words
-<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>    FROM conversations
-<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    GROUP BY one_hour;
-<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>
-<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>This command creates a materialized view named conversation_summary that groups the conversations by each hour. It also calculates the number of words in user_input and ai_response by counting the number of spaces and adding 1 (assuming words are separated by a single space).
-<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>
-<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>Please note that this command should be executed by someone with the necessary permissions in the database. Also, the actual creation of the view might take some time depending on the size of the conversations table.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>User: create a continuous aggregate materialized view summarizing number of
+<a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>words from user_input and ai_response grouped by 1 hour.
+<a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>AI: Sure, to create a continuous aggregate materialized view that summarizes
+<a id="__codelineno-20-4" name="__codelineno-20-4" href="#__codelineno-20-4"></a>the number of words from user_input and ai_response grouped by 1 hour,
+<a id="__codelineno-20-5" name="__codelineno-20-5" href="#__codelineno-20-5"></a>you can use the following SQL command:
+<a id="__codelineno-20-6" name="__codelineno-20-6" href="#__codelineno-20-6"></a>
+<a id="__codelineno-20-7" name="__codelineno-20-7" href="#__codelineno-20-7"></a>    CREATE MATERIALIZED VIEW conversation_summary
+<a id="__codelineno-20-8" name="__codelineno-20-8" href="#__codelineno-20-8"></a>    WITH (timescaledb.continuous) AS
+<a id="__codelineno-20-9" name="__codelineno-20-9" href="#__codelineno-20-9"></a>    SELECT time_bucket(INTERVAL &#39;1 hour&#39;, ts) AS one_hour,
+<a id="__codelineno-20-10" name="__codelineno-20-10" href="#__codelineno-20-10"></a>        COUNT(*) AS total_conversations,
+<a id="__codelineno-20-11" name="__codelineno-20-11" href="#__codelineno-20-11"></a>        SUM(LENGTH(user_input) - LENGTH(REPLACE(user_input, &#39; &#39;, &#39;&#39;)) + 1) AS user_input_words,
+<a id="__codelineno-20-12" name="__codelineno-20-12" href="#__codelineno-20-12"></a>        SUM(LENGTH(ai_response) - LENGTH(REPLACE(ai_response, &#39; &#39;, &#39;&#39;)) + 1) AS ai_response_words
+<a id="__codelineno-20-13" name="__codelineno-20-13" href="#__codelineno-20-13"></a>    FROM conversations
+<a id="__codelineno-20-14" name="__codelineno-20-14" href="#__codelineno-20-14"></a>    GROUP BY one_hour;
+<a id="__codelineno-20-15" name="__codelineno-20-15" href="#__codelineno-20-15"></a>
+<a id="__codelineno-20-16" name="__codelineno-20-16" href="#__codelineno-20-16"></a>This command creates a materialized view named conversation_summary that groups the conversations by each hour. It also calculates the number of words in user_input and ai_response by counting the number of spaces and adding 1 (assuming words are separated by a single space).
+<a id="__codelineno-20-17" name="__codelineno-20-17" href="#__codelineno-20-17"></a>
+<a id="__codelineno-20-18" name="__codelineno-20-18" href="#__codelineno-20-18"></a>Please note that this command should be executed by someone with the necessary permissions in the database. Also, the actual creation of the view might take some time depending on the size of the conversations table.
 </code></pre></div>
 <p>You can also try to setup retention policies  or create new hypertables if you
 want. It seems very flexible and safe to use in a sandbox to explore data.</p>
