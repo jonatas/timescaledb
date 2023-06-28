@@ -1,17 +1,20 @@
+# Introduction to AI Agents
 
+Artificial Intelligence (AI) agents are programs capable of autonomous actions in an environment to meet specific goals. These agents can analyze their environment, make decisions, and execute actions independently. Many industries leverage AI to automate processes, improve customer interaction, provide personalized recommendations, and more.
 
-I'm going to share my saga from building my first agent and make it interact
-with the database. My objective is create a long term memory for your AI agent,
-and here is my first attempt to implement a naive "auto-gpt" SQL interface :)
+One common way of interacting with AI agents is through an Application Programming Interface (API). An API provides a set of rules and protocols for interacting with a software application. In the context of AI, APIs often allow developers to leverage complex machine learning models in their applications without needing to understand all the underlying details.
 
-Long story short, when you're using Chat GPT you can assign a role to your Chat
-GPT and be very specific about how you want to interact with it.
+Through APIs, we can instruct AI to play various roles within our business. For example, an AI agent could act as a customer service representative, answering common queries and providing information to customers 24/7. Alternatively, it could play a role in data analysis, interpreting raw data and providing valuable insights.
 
-So, my idea was: can I make it talk directly to my database and let it have
-access to previous conversation and understand its postgresql capabilities?
+# Converting Human Language to SQL Queries
 
-And the answer is yes! you can! I did it and I'll explain in details how it
-works.
+A fascinating application of AI is the capability to understand and interpret human language, a field known as Natural Language Processing (NLP). Using AI, we can convert natural language into structured queries, such as SQL, on the fly. This means we can interact with our databases using everyday language rather than needing to write complex queries.
+
+For example, a user could ask an AI agent, "How many users signed up in the last week?" The AI agent can convert this question into an SQL query to retrieve the answer from the database. This capability can dramatically simplify interactions with databases and make data more accessible to non-technical users.
+
+In this example, we used an AI (GPT-4 by OpenAI) to interact with the user, interpret the user's instructions, convert these instructions into SQL queries, and then execute these queries on a TimescaleDB database. This is an example of how AI can serve as a 'middle-man', simplifying the interface between humans and databases.
+
+# Using Open AI as a long term memory
 
 The process of long term memory is nothing else than stacking more chat
 conversation to the API, similar to what the chat.openai.com uses to group by
@@ -20,7 +23,12 @@ conversations by topic and building this space to save the context.
 Using the API it's more about persisting the actual messages and then sending it
 along with the actual prompt.
 
-Here is the initial instructions I'm sending to the API:
+# Setting up initial instructions to the AI agent
+
+Here is the initial instructions we'll always send to the API to guarantee it
+knows it has access to the database and it can execute queries or consult the
+catalog in case it does not know exactly the information that is necessary to
+achieve the result.
 
     As an AI language model, you have access to a TimescaleDB database that stores conversation history in a table called "conversations". You can execute SQL queries to retrieve information from this table using markdown language. Use the common backticks with sql as the language and you'll have access to any information you need. Results of multiple queries will be answered in the same order.
 
@@ -49,9 +57,23 @@ Here is the initial instructions I'm sending to the API:
     Then, with your responses wrapping you can also add additional information complimenting the example. All results will be answered numbering the same sequence of queries found in the previous answer. Always choose to answer in markdown format and I'll always give the results in markdown format too.
 
 
-This is a tutorial that explains how to use Ruby to interact with OpenAI's GPT-4 and
-TimescaleDB emulating a chat interface that can execute SQL code from API
-responses and build SQL commands and interact with a Postgresql using natural language.
+## Setup the environment
+
+Our plan is use Ruby to interact with OpenAI's GPT-4 and TimescaleDB. The program will
+be emulating a chat interface that can execute SQL code from API responses and build
+SQL commands and interact with a Postgresql using natural language.
+
+Make sure you have a `.envrc` file and a tool like [direnv](https://direnv.net).
+
+
+```bash
+export GPT4_KEY=<put-your-api-key-here>
+export PG_URI=postgres://jonatasdp@localhost:5432/chatgpt-demo
+```
+
+If you don't have the `GPT4_KEY`, you can get it [here](https://platform.openai.com/account/api-keys).
+
+Make sure you adjust the `PG_URI` with your postgresql instance connection, and if you don't have a database instance locally, you can also setup one on the [Timescale cloud](https://timescale.com/products#cloud) very easily.
 
 ## Requirements
 
@@ -89,6 +111,8 @@ API_KEY = ENV['GPT4_KEY']
 PG_URI = ENV['PG_URI'] || ARGV[ARGV.index("--pg-uri")]
 ```
 
+## Persist history in the conversation model
+
 We then define a `Conversation` class that interacts with TimescaleDB:
 
 ```ruby
@@ -98,6 +122,12 @@ class Conversation < ActiveRecord::Base
   ...
 end
 ```
+
+## Extract SQL from API responses
+
+When the API calls back suggesting some sql blocks, we're going to detect them
+by converting the markdown response into a html and then checking the html
+blocks.
 
 And an `SQLExtractor` class to extract SQL from markdown. This class will be
 stacking all markdown blocks to be executed later.
@@ -116,6 +146,8 @@ class SQLExtractor < Redcarpet::Render::Base
   end
 end
 ```
+
+## Call GPT4 API from the Ruby code
 
 The `call_gpt4_api` method is used to call the GPT-4 API with a prompt.
 At this moment we need to stack the following information:
@@ -147,7 +179,13 @@ rescue
 end
 ```
 
-The method try to execute the query and return high level error messages in case
+## Execute queries in the database
+
+As the API responses can bring queries and the SQLExtractor can detect them, now
+it's time to have a method to be executing the SQL queries and returning error
+messages in case it fails, so the API can recursively try to fix the issue.
+
+The following method try to execute the query and return high level error messages in case
 the execution fails:
 
 ```ruby
@@ -176,6 +214,9 @@ end
     end
     ```
 
+## Establishing the chat
+
+In the high level, we need to keep interacting with the user until they give up.
 
 In `chat_mode` method, we loop to continuously get user input and interact with GPT-4:
 
