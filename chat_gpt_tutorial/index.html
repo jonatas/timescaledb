@@ -1,0 +1,989 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.4.1, mkdocs-material-8.5.7">
+    
+    
+      
+        <title>Open AI Long Term Storage Tutorial - The Timescaledb gem</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.20d9efc8.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.cbb835fc.min.css">
+        
+          
+          
+          <meta name="theme-color" content="#4051b5">
+        
+      
+      
+
+    
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+  
+
+
+  
+  
+
+
+  <script id="__analytics">function __md_analytics(){function n(){dataLayer.push(arguments)}window.dataLayer=window.dataLayer||[],n("js",new Date),n("config","G-9B2BMB0TNQ"),document.addEventListener("DOMContentLoaded",function(){document.forms.search&&document.forms.search.query.addEventListener("blur",function(){this.value&&n("event","search",{search_term:this.value})}),document$.subscribe(function(){var a=document.forms.feedback;if(void 0!==a)for(var e of a.querySelectorAll("[type=submit]"))e.addEventListener("click",function(e){e.preventDefault();var t=document.location.pathname,e=this.getAttribute("data-md-value");n("event","feedback",{page:t,data:e}),a.firstElementChild.disabled=!0;e=a.querySelector(".md-feedback__note [data-md-value='"+e+"']");e&&(e.hidden=!1)}),a.hidden=!1}),location$.subscribe(function(e){n("config","G-9B2BMB0TNQ",{page_path:e.pathname})})});var e=document.createElement("script");e.async=!0,e.src="https://www.googletagmanager.com/gtag/js?id=G-9B2BMB0TNQ",document.getElementById("__analytics").insertAdjacentElement("afterEnd",e)}</script>
+
+  
+    <script>"undefined"!=typeof __md_analytics&&__md_analytics()</script>
+  
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="" data-md-color-primary="indigo" data-md-color-accent="pink">
+  
+    
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#requirements" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="The Timescaledb gem" class="md-header__button md-logo" aria-label="The Timescaledb gem" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            The Timescaledb gem
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Open AI Long Term Storage Tutorial
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/jonatas/timescaledb" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="The Timescaledb gem" class="md-nav__button md-logo" aria-label="The Timescaledb gem" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    The Timescaledb gem
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/jonatas/timescaledb" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.2.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2022 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        Introduction
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../migrations/" class="md-nav__link">
+        Migrations
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../models/" class="md-nav__link">
+        Models
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toolkit/" class="md-nav__link">
+        Toolkit Integration
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toolkit_lttb_tutorial/" class="md-nav__link">
+        Toolkit LTTB Tutorial
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+    
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" data-md-toggle="toc" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          Open AI Long Term Storage Tutorial
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        Open AI Long Term Storage Tutorial
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#main-code" class="md-nav__link">
+    Main Code
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extra-capabilities" class="md-nav__link">
+    Extra capabilities
+  </a>
+  
+    <nav class="md-nav" aria-label="Extra capabilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-compression-for-a-hypertable" class="md-nav__link">
+    Enable compression for a hypertable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-continuous-aggregates" class="md-nav__link">
+    Create continuous aggregates
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-query-building" class="md-nav__link">
+    Complex query building
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowing-issues" class="md-nav__link">
+    Knowing issues
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#try-it-yourself" class="md-nav__link">
+    Try it yourself
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toolkit_lttb_zoom/" class="md-nav__link">
+        Zooming with High Resolution
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../toolkit_candlestick/" class="md-nav__link">
+        Toolkit Candlesticks tutorial
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../command_line/" class="md-nav__link">
+        Command Line
+      </a>
+    </li>
+  
+
+    
+      
+      
+      
+
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../videos/" class="md-nav__link">
+        Videos
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    Requirements
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#main-code" class="md-nav__link">
+    Main Code
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#extra-capabilities" class="md-nav__link">
+    Extra capabilities
+  </a>
+  
+    <nav class="md-nav" aria-label="Extra capabilities">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#enable-compression-for-a-hypertable" class="md-nav__link">
+    Enable compression for a hypertable
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-continuous-aggregates" class="md-nav__link">
+    Create continuous aggregates
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#complex-query-building" class="md-nav__link">
+    Complex query building
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#knowing-issues" class="md-nav__link">
+    Knowing issues
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#try-it-yourself" class="md-nav__link">
+    Try it yourself
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  <a href="https://github.com/jonatas/timescaledb/edit/master/docs/chat_gpt_tutorial.md" title="Edit this page" class="md-content__button md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75L3 17.25Z"/></svg>
+  </a>
+
+
+  <h1>Open AI Long Term Storage Tutorial</h1>
+
+<p>I'm going to share my saga from building my first agent and make it interact
+with the database. My objective is create a long term memory for your AI agent,
+and here is my first attempt to implement a naive "auto-gpt" SQL interface :)</p>
+<p>Long story short, when you're using Chat GPT you can assign a role to your Chat
+GPT and be very specific about how you want to interact with it.</p>
+<p>So, my idea was: can I make it talk directly to my database and let it have
+access to previous conversation and understand its postgresql capabilities?</p>
+<p>And the answer is yes! you can! I did it and I'll explain in details how it
+works.</p>
+<p>The process of long term memory is nothing else than stacking more chat
+conversation to the API, similar to what the chat.openai.com uses to group by
+conversations by topic and building this space to save the context.</p>
+<p>Using the API it's more about persisting the actual messages and then sending it
+along with the actual prompt.</p>
+<p>Here is the initial instructions I'm sending to the API:</p>
+<div class="codehilite"><pre><span></span><code>As an AI language model, you have access to a TimescaleDB database that stores conversation history in a table called &quot;conversations&quot;. You can execute SQL queries to retrieve information from this table using markdown language. Use the common backticks with sql as the language and you&#39;ll have access to any information you need. Results of multiple queries will be answered in the same order.
+
+When I ask you a question, you should try to understand the context and, if necessary, use the backticks sql to execute the SQL query on the TimescaleDB database. Please provide the information I requested based on the query results. Always use one query per snippet.
+
+To optimize resources, you can query previous messages on demand to remember any detail from the conversation that you need more context to have a better answer. When you have more to say, just continue. Everything is being written to the conversations hypertable. You can query any time you need to know more about an specific context.
+
+Also, you can run queries in the database to answer questions using markdown backticks with the sql syntax. For example:
+
+If I ask, &quot;How many conversations have I had today?&quot;, you could respond with:
+
+```sql
+SELECT COUNT(*)
+FROM conversations
+WHERE topic = &#39;#{topic}&#39;
+AND DATE(ts) = CURRENT_DATE;
+```
+
+The extra conversations columns are user_input and ai_response.
+
+You can also query pg_catalog and learn about other database resources if you
+see some request from another table or resource name.
+
+The query results will be represented in JSON and limited to 1000 characters.
+
+Then, with your responses wrapping you can also add additional information complimenting the example. All results will be answered numbering the same sequence of queries found in the previous answer. Always choose to answer in markdown format and I&#39;ll always give the results in markdown format too.
+</code></pre></div>
+
+<p>This is a tutorial that explains how to use Ruby to interact with OpenAI's GPT-4 and
+TimescaleDB emulating a chat interface that can execute SQL code from API
+responses and build SQL commands and interact with a Postgresql using natural language.</p>
+<h2 id="requirements">Requirements<a class="headerlink" href="#requirements" title="Permanent link">&para;</a></h2>
+<p>Ruby is the language that will run in the backend to connect to the OpenAI API
+and to the Postgresql instance. It will be a single file with everything inside.</p>
+<p>If you just want to run it, here is the <a href="https://github.com/jonatas/timescaledb/blob/main/examples/chatgpt/openai-cli.rb">final file</a>.</p>
+<p>We use <code>bundler/inline</code> to manage gem dependencies. Here are the required gems:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="n">gem</span> <span class="s1">&#39;timescaledb&#39;</span> <span class="c1"># A wrapper to interact with TimescaleDB.</span>
+<a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="n">gem</span> <span class="s1">&#39;rest-client&#39;</span> <span class="c1"># Simple HTTP and REST client for Ruby.</span>
+<a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">gem</span> <span class="s1">&#39;pry&#39;</span> <span class="c1"># A runtime developer console to iterate and inspect the code.</span>
+<a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">gem</span> <span class="s1">&#39;markdown&#39;</span> <span class="c1"># Ruby Markdown parser.</span>
+<a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">gem</span> <span class="s1">&#39;rouge&#39;</span> <span class="c1"># A pure Ruby code highlighter.</span>
+<a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">gem</span> <span class="s1">&#39;redcarpet&#39;</span> <span class="c1"># A Ruby library for Markdown processing.</span>
+<a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">gem</span> <span class="s1">&#39;tty-markdown&#39;</span> <span class="c1"># A Markdown parser with syntax highlighting.</span>
+<a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">gem</span> <span class="s1">&#39;tty-link&#39;</span> <span class="c1"># To make URLs clickable in the terminal.</span>
+</code></pre></div>
+<h2 id="main-code">Main Code<a class="headerlink" href="#main-code" title="Permanent link">&para;</a></h2>
+<p>First, require the necessary libraries:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">require</span> <span class="s1">&#39;json&#39;</span>
+<a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nb">require</span> <span class="s1">&#39;time&#39;</span>
+</code></pre></div>
+<p>We'll be using API keys and URI's defined in environment variables:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">API_KEY</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;GPT4_KEY&#39;</span><span class="o">]</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="no">PG_URI</span> <span class="o">=</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;PG_URI&#39;</span><span class="o">]</span> <span class="o">||</span> <span class="no">ARGV</span><span class="o">[</span><span class="no">ARGV</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;--pg-uri&quot;</span><span class="p">)</span><span class="o">]</span>
+</code></pre></div>
+<p>We then define a <code>Conversation</code> class that interacts with TimescaleDB:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">class</span> <span class="nc">Conversation</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>  <span class="nb">self</span><span class="o">.</span><span class="n">primary_key</span> <span class="o">=</span> <span class="kp">nil</span>
+<a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>  <span class="n">acts_as_hypertable</span>
+<a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>  <span class="o">...</span>
+<a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">end</span>
+</code></pre></div>
+<p>And an <code>SQLExtractor</code> class to extract SQL from markdown. This class will be
+stacking all markdown blocks to be executed later.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">class</span> <span class="nc">SQLExtractor</span> <span class="o">&lt;</span> <span class="no">Redcarpet</span><span class="o">::</span><span class="no">Render</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  <span class="kp">attr_reader</span> <span class="ss">:sql</span>
+<a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  <span class="k">def</span> <span class="nf">block_code</span><span class="p">(</span><span class="n">code</span><span class="p">,</span> <span class="n">language</span><span class="p">)</span>
+<a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>    <span class="k">if</span> <span class="n">language</span> <span class="o">==</span> <span class="s1">&#39;sql&#39;</span>
+<a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>      <span class="vi">@sql</span> <span class="o">||=</span> <span class="o">[]</span>
+<a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>      <span class="vi">@sql</span> <span class="o">&lt;&lt;</span> <span class="n">code</span>
+<a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>      <span class="n">code</span>
+<a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>    <span class="k">else</span>
+<a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>      <span class="s2">&quot;&quot;</span>
+<a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>    <span class="k">end</span>
+<a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>  <span class="k">end</span>
+<a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a><span class="k">end</span>
+</code></pre></div>
+<p>The <code>call_gpt4_api</code> method is used to call the GPT-4 API with a prompt.
+At this moment we need to stack the following information:</p>
+<ol>
+<li>Role assignment: Initial instructions saying it's an AI agent - info that assigns the role of the API in this call.</li>
+<li>Context: Previous User Input + AI Responses in the same topic.</li>
+<li>User Input: what user is asking now.</li>
+</ol>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">def</span> <span class="nf">call_gpt4_api</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://api.openai.com/v1/chat/completions&quot;</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  <span class="n">full_prompt</span> <span class="o">=</span> <span class="no">INSTRUCTIONS</span> <span class="o">+</span>
+<a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">History: </span><span class="si">#{</span><span class="no">Conversation</span><span class="o">.</span><span class="n">history</span><span class="si">}</span><span class="s2">&quot;</span> <span class="o">+</span>
+<a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>      <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Input: </span><span class="si">#{</span><span class="n">prompt</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
+<a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>  <span class="n">body</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;model&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;gpt-4&quot;</span><span class="p">,</span>
+<a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>      <span class="s2">&quot;max_tokens&quot;</span> <span class="o">=&gt;</span> <span class="mi">1000</span><span class="p">,</span>
+<a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>      <span class="s2">&quot;temperature&quot;</span> <span class="o">=&gt;</span> <span class="mi">0</span><span class="p">,</span>
+<a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a>      <span class="s2">&quot;messages&quot;</span> <span class="o">=&gt;</span> <span class="o">[</span><span class="p">{</span><span class="s2">&quot;role&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span> <span class="o">=&gt;</span> <span class="n">full_prompt</span><span class="p">}</span><span class="o">]</span><span class="p">,</span>
+<a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>    <span class="p">}</span><span class="o">.</span><span class="n">to_json</span>
+<a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a>  <span class="n">headers</span> <span class="o">=</span> <span class="p">{</span> <span class="s2">&quot;Content-Type&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;application/json&quot;</span><span class="p">,</span> <span class="s2">&quot;Authorization&quot;</span> <span class="o">=&gt;</span> <span class="s2">&quot;Bearer </span><span class="si">#{</span><span class="no">API_KEY</span><span class="si">}</span><span class="s2">&quot;</span> <span class="p">}</span>
+<a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a>  <span class="n">response</span> <span class="o">=</span> <span class="no">RestClient</span><span class="o">.</span><span class="n">post</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">body</span><span class="p">,</span> <span class="n">headers</span><span class="p">)</span>
+<a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a>  <span class="n">json_response</span> <span class="o">=</span> <span class="no">JSON</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">body</span><span class="p">)</span>
+<a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a>  <span class="n">response</span> <span class="o">=</span> <span class="n">json_response</span><span class="o">[</span><span class="s2">&quot;choices&quot;</span><span class="o">].</span><span class="n">first</span><span class="o">[</span><span class="s2">&quot;message&quot;</span><span class="o">][</span><span class="s2">&quot;content&quot;</span><span class="o">].</span><span class="n">strip</span>
+<a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="k">rescue</span> <span class="no">RestClient</span><span class="o">::</span><span class="no">BadRequest</span>
+<a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a>  <span class="s2">&quot;Bad Request Error: </span><span class="si">#{</span><span class="vg">$!</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="k">rescue</span>
+<a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a>  <span class="s2">&quot;Error: </span><span class="si">#{</span><span class="vg">$!</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="k">end</span>
+</code></pre></div>
+<p>The method try to execute the query and return high level error messages in case
+the execution fails:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="k">def</span> <span class="nf">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>  <span class="k">begin</span>
+<a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>    <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">query</span><span class="p">)</span>
+<a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>  <span class="k">rescue</span> <span class="o">=&gt;</span> <span class="n">e</span>
+<a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>    <span class="s2">&quot;Query Error: </span><span class="si">#{</span><span class="n">e</span><span class="o">.</span><span class="n">message</span><span class="si">}</span><span class="s2">&quot;</span>
+<a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>  <span class="k">end</span>
+<a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a><span class="k">end</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Truncating query results</p>
+<p>As the AI has access to the database, sometimes the query results are quite
+heavy and then it really slows down the upstreaming and processing of the
+context. So, for now, I'm truncating the results in 10k characters.</p>
+<p>It reduced a lot the timeouts and still quite good and working well.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">json</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span>
+<a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="n">results</span> <span class="o">&lt;&lt;</span> <span class="n">json</span>
+<a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="k">if</span> <span class="n">json</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">10000</span>
+<a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  <span class="n">json</span> <span class="o">=</span> <span class="n">json</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">10000</span><span class="o">]+</span><span class="s2">&quot;... (truncated)&quot;</span>
+<a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="k">end</span>
+</code></pre></div>
+</div>
+<p>In <code>chat_mode</code> method, we loop to continuously get user input and interact with GPT-4:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="k">def</span> <span class="nf">chat_mode</span>
+<a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>  <span class="n">info</span> <span class="no">WELCOME_INFO</span>
+<a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>  <span class="n">timeout</span> <span class="o">=</span> <span class="mi">300</span> <span class="c1"># Set the timeout in seconds</span>
+<a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+<a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>  <span class="kp">loop</span> <span class="k">do</span>
+<a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>    <span class="nb">print</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="si">#{</span><span class="n">topic</span><span class="si">}</span><span class="s2">: &quot;</span>
+<a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>    <span class="n">input</span> <span class="o">=</span> <span class="k">if</span> <span class="no">IO</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="o">[</span><span class="no">STDIN</span><span class="o">]</span><span class="p">,</span> <span class="o">[]</span><span class="p">,</span> <span class="o">[]</span><span class="p">,</span> <span class="n">timeout</span><span class="p">)</span>
+<a id="__codelineno-9-8" name="__codelineno-9-8" href="#__codelineno-9-8"></a>              <span class="no">STDIN</span><span class="o">.</span><span class="n">gets</span><span class="o">.</span><span class="n">chomp</span>
+<a id="__codelineno-9-9" name="__codelineno-9-9" href="#__codelineno-9-9"></a>            <span class="k">else</span>
+<a id="__codelineno-9-10" name="__codelineno-9-10" href="#__codelineno-9-10"></a>              <span class="nb">puts</span> <span class="s2">&quot;Timeout reached, exiting chat.&quot;</span>
+<a id="__codelineno-9-11" name="__codelineno-9-11" href="#__codelineno-9-11"></a>              <span class="k">break</span>
+<a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>            <span class="k">end</span>
+<a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>
+<a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>    <span class="k">case</span> <span class="n">input</span><span class="o">.</span><span class="n">downcase</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>    <span class="k">when</span> <span class="s1">&#39;quit&#39;</span>
+<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>      <span class="nb">puts</span> <span class="s2">&quot;Exiting chat.&quot;</span>
+<a id="__codelineno-9-17" name="__codelineno-9-17" href="#__codelineno-9-17"></a>      <span class="k">break</span>
+<a id="__codelineno-9-18" name="__codelineno-9-18" href="#__codelineno-9-18"></a>    <span class="k">when</span> <span class="s1">&#39;debug&#39;</span>
+<a id="__codelineno-9-19" name="__codelineno-9-19" href="#__codelineno-9-19"></a>      <span class="nb">require</span> <span class="s2">&quot;pry&quot;</span><span class="p">;</span><span class="nb">binding</span><span class="o">.</span><span class="n">pry</span>
+<a id="__codelineno-9-20" name="__codelineno-9-20" href="#__codelineno-9-20"></a>    <span class="k">else</span>
+<a id="__codelineno-9-21" name="__codelineno-9-21" href="#__codelineno-9-21"></a>      <span class="n">with_no_logs</span> <span class="k">do</span>
+<a id="__codelineno-9-22" name="__codelineno-9-22" href="#__codelineno-9-22"></a>        <span class="n">chat</span><span class="p">(</span><span class="n">input</span><span class="p">)</span>
+<a id="__codelineno-9-23" name="__codelineno-9-23" href="#__codelineno-9-23"></a>      <span class="k">end</span>
+<a id="__codelineno-9-24" name="__codelineno-9-24" href="#__codelineno-9-24"></a>    <span class="k">end</span>
+<a id="__codelineno-9-25" name="__codelineno-9-25" href="#__codelineno-9-25"></a>  <span class="k">end</span>
+<a id="__codelineno-9-26" name="__codelineno-9-26" href="#__codelineno-9-26"></a><span class="k">end</span>
+</code></pre></div>
+<div class="admonition info">
+<p class="admonition-title">Colored markdown</p>
+<p>To parse Markdown and have a colored markdown in the command line, use the
+magical tty-markdown library:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="k">def</span> <span class="nf">info</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+<a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>  <span class="nb">puts</span> <span class="no">TTY</span><span class="o">::</span><span class="no">Markdown</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+<a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="k">end</span>
+</code></pre></div>
+</div>
+<p>In <code>chat</code> method, we get the response from GPT-4, create a conversation record
+and then execute SQL queries from the markdown:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="k">def</span> <span class="nf">chat</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>  <span class="n">response</span> <span class="o">=</span> <span class="n">call_gpt4_api</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+<a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>  <span class="n">with_no_logs</span> <span class="k">do</span>
+<a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>    <span class="no">Conversation</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="ss">topic</span><span class="p">:</span> <span class="n">topic</span><span class="p">,</span>
+<a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>                        <span class="ss">user_input</span><span class="p">:</span> <span class="n">prompt</span><span class="p">,</span>
+<a id="__codelineno-11-6" name="__codelineno-11-6" href="#__codelineno-11-6"></a>                        <span class="ss">ai_response</span><span class="p">:</span> <span class="n">response</span><span class="p">,</span>
+<a id="__codelineno-11-7" name="__codelineno-11-7" href="#__codelineno-11-7"></a>                        <span class="ss">ts</span><span class="p">:</span> <span class="no">Time</span><span class="o">.</span><span class="n">now</span><span class="p">)</span>
+<a id="__codelineno-11-8" name="__codelineno-11-8" href="#__codelineno-11-8"></a>  <span class="k">end</span>
+<a id="__codelineno-11-9" name="__codelineno-11-9" href="#__codelineno-11-9"></a>
+<a id="__codelineno-11-10" name="__codelineno-11-10" href="#__codelineno-11-10"></a>  <span class="n">info</span><span class="p">(</span><span class="s2">&quot;**AI:** </span><span class="si">#{</span><span class="n">response</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-11-11" name="__codelineno-11-11" href="#__codelineno-11-11"></a>
+<a id="__codelineno-11-12" name="__codelineno-11-12" href="#__codelineno-11-12"></a>  <span class="n">queries</span> <span class="o">=</span> <span class="n">sql_from_markdown</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+<a id="__codelineno-11-13" name="__codelineno-11-13" href="#__codelineno-11-13"></a>
+<a id="__codelineno-11-14" name="__codelineno-11-14" href="#__codelineno-11-14"></a>  <span class="k">if</span> <span class="n">queries</span><span class="o">&amp;.</span><span class="n">any?</span>
+<a id="__codelineno-11-15" name="__codelineno-11-15" href="#__codelineno-11-15"></a>    <span class="n">output</span> <span class="o">=</span> <span class="n">run_queries</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+<a id="__codelineno-11-16" name="__codelineno-11-16" href="#__codelineno-11-16"></a>
+<a id="__codelineno-11-17" name="__codelineno-11-17" href="#__codelineno-11-17"></a>    <span class="n">info</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+<a id="__codelineno-11-18" name="__codelineno-11-18" href="#__codelineno-11-18"></a>    <span class="n">chat</span><span class="p">(</span><span class="n">output</span><span class="p">)</span>
+<a id="__codelineno-11-19" name="__codelineno-11-19" href="#__codelineno-11-19"></a>  <span class="k">end</span>
+<a id="__codelineno-11-20" name="__codelineno-11-20" href="#__codelineno-11-20"></a><span class="k">end</span>
+</code></pre></div>
+<p>To run the queries, you can also eval some context like the <code>topic</code>.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="k">def</span> <span class="nf">run_queries</span><span class="p">(</span><span class="n">queries</span><span class="p">)</span>
+<a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>  <span class="n">queries</span><span class="o">.</span><span class="n">each_with_index</span><span class="o">.</span><span class="n">map</span> <span class="k">do</span> <span class="o">|</span><span class="n">query</span><span class="p">,</span><span class="n">i</span><span class="o">|</span>
+<a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>    <span class="n">sql</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">gsub</span><span class="p">(</span><span class="sr">/#\{(.*)\}/</span><span class="p">){</span><span class="nb">eval</span><span class="p">(</span><span class="vg">$1</span><span class="p">)}</span>
+<a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>
+<a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a>    <span class="n">json</span> <span class="o">=</span> <span class="n">execute</span><span class="p">(</span><span class="n">sql</span><span class="p">)</span><span class="o">.</span><span class="n">to_json</span>
+<a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>    <span class="n">json</span> <span class="o">=</span> <span class="n">json</span><span class="o">[</span><span class="mi">0</span><span class="o">..</span><span class="mi">10000</span><span class="o">]+</span><span class="s2">&quot;... (truncated)&quot;</span> <span class="k">if</span> <span class="n">json</span><span class="o">.</span><span class="n">length</span> <span class="o">&gt;</span> <span class="mi">10000</span>
+<a id="__codelineno-12-7" name="__codelineno-12-7" href="#__codelineno-12-7"></a>    <span class="o">&lt;&lt;~</span><span class="dl">MARKDOWN</span>
+<a id="__codelineno-12-8" name="__codelineno-12-8" href="#__codelineno-12-8"></a><span class="sh">      Result from query #{i+1}:</span>
+<a id="__codelineno-12-9" name="__codelineno-12-9" href="#__codelineno-12-9"></a><span class="sh">      #{json}</span>
+<a id="__codelineno-12-10" name="__codelineno-12-10" href="#__codelineno-12-10"></a><span class="dl">    MARKDOWN</span>
+<a id="__codelineno-12-11" name="__codelineno-12-11" href="#__codelineno-12-11"></a>  <span class="k">end</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<a id="__codelineno-12-12" name="__codelineno-12-12" href="#__codelineno-12-12"></a><span class="k">end</span>
+</code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">eval is evil 😈</p>
+<p>Note that we're using:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">eval</span><span class="p">(</span><span class="vg">$1</span><span class="p">)</span>
+</code></pre></div>
+It will capture the result of the query param that is wrapped with <code>#{}</code>
+and execute it in the context. It's useful to guarantee we're filtereing by
+the topic and keep it simple for the example. If you want to build a
+production code make sure you use a more robust and safe approach for it.</p>
+</div>
+<p>We'll also define the <code>topic</code> which will be used as a command line argument or
+just assigning the USER name as the default topic to group conversations.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="k">def</span> <span class="nf">topic</span>
+<a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>  <span class="no">ARGV</span><span class="o">[</span><span class="mi">1</span><span class="o">]</span> <span class="o">||</span> <span class="no">ENV</span><span class="o">[</span><span class="s1">&#39;USER&#39;</span><span class="o">]</span>
+<a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a><span class="k">end</span>
+</code></pre></div>
+<p>The instructions described before are also avaialable in the same [example
+folder][example] and was used as a raw text. You can also override and test with
+different subjects and evolve from some in progress research as well.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">def</span> <span class="nf">instructions</span>
+<a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>  <span class="k">if</span> <span class="no">File</span><span class="o">.</span><span class="n">exists?</span><span class="p">(</span><span class="no">ARGV</span><span class="o">.</span><span class="n">last</span><span class="p">)</span>
+<a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>    <span class="no">ARGV</span><span class="o">.</span><span class="n">last</span>
+<a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>  <span class="k">else</span>
+<a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>    <span class="s1">&#39;instructions.md&#39;</span>
+<a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>  <span class="k">end</span>
+<a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">end</span>
+</code></pre></div>
+<p>As a final step, setup the conversations table and enable the extension if
+necessary.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="k">def</span> <span class="nf">setup_schema</span>
+<a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">logger</span> <span class="o">=</span> <span class="no">Logger</span><span class="o">.</span><span class="n">new</span><span class="p">(</span><span class="no">STDOUT</span><span class="p">)</span>
+<a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>  <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">establish_connection</span><span class="p">(</span><span class="no">PG_URI</span><span class="p">)</span>
+<a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+<a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>  <span class="c1"># Create the events table if it doesn&#39;t exist</span>
+<a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>  <span class="k">unless</span> <span class="no">Conversation</span><span class="o">.</span><span class="n">table_exists?</span>
+<a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a>    <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span><span class="o">.</span><span class="n">connection</span><span class="o">.</span><span class="n">instance_exec</span> <span class="k">do</span>
+<a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a>      <span class="n">execute</span> <span class="s2">&quot;CREATE EXTENSION IF NOT EXISTS timescaledb&quot;</span>
+<a id="__codelineno-16-9" name="__codelineno-16-9" href="#__codelineno-16-9"></a>      <span class="n">create_table</span> <span class="ss">:conversations</span><span class="p">,</span> <span class="nb">id</span><span class="p">:</span> <span class="kp">false</span><span class="p">,</span> <span class="ss">hypertable</span><span class="p">:</span> <span class="p">{</span><span class="ss">time_column</span><span class="p">:</span> <span class="ss">:ts</span><span class="p">}</span> <span class="k">do</span> <span class="o">|</span><span class="n">t</span><span class="o">|</span>
+<a id="__codelineno-16-10" name="__codelineno-16-10" href="#__codelineno-16-10"></a>        <span class="n">t</span><span class="o">.</span><span class="n">timestamptz</span> <span class="ss">:ts</span><span class="p">,</span> <span class="ss">default</span><span class="p">:</span> <span class="s2">&quot;now()&quot;</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+<a id="__codelineno-16-11" name="__codelineno-16-11" href="#__codelineno-16-11"></a>        <span class="n">t</span><span class="o">.</span><span class="n">string</span> <span class="ss">:topic</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+<a id="__codelineno-16-12" name="__codelineno-16-12" href="#__codelineno-16-12"></a>        <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:user_input</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+<a id="__codelineno-16-13" name="__codelineno-16-13" href="#__codelineno-16-13"></a>        <span class="n">t</span><span class="o">.</span><span class="n">text</span> <span class="ss">:ai_response</span><span class="p">,</span> <span class="ss">null</span><span class="p">:</span> <span class="kp">false</span>
+<a id="__codelineno-16-14" name="__codelineno-16-14" href="#__codelineno-16-14"></a>      <span class="k">end</span>
+<a id="__codelineno-16-15" name="__codelineno-16-15" href="#__codelineno-16-15"></a>    <span class="k">end</span>
+<a id="__codelineno-16-16" name="__codelineno-16-16" href="#__codelineno-16-16"></a>  <span class="k">end</span>
+<a id="__codelineno-16-17" name="__codelineno-16-17" href="#__codelineno-16-17"></a><span class="k">end</span>
+</code></pre></div>
+<p>The main method is where we establish the connection and start the chat mode and
+we can call it right after the definition in the body of the ruby file.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a><span class="k">def</span> <span class="nf">main</span>
+<a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>  <span class="n">setup_schema</span>
+<a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>  <span class="n">chat_mode</span>
+<a id="__codelineno-17-4" name="__codelineno-17-4" href="#__codelineno-17-4"></a><span class="k">end</span>
+<a id="__codelineno-17-5" name="__codelineno-17-5" href="#__codelineno-17-5"></a>
+<a id="__codelineno-17-6" name="__codelineno-17-6" href="#__codelineno-17-6"></a><span class="n">main</span>
+</code></pre></div>
+<h2 id="extra-capabilities">Extra capabilities<a class="headerlink" href="#extra-capabilities" title="Permanent link">&para;</a></h2>
+<p>I initially build it for queries but trying to request several database tasks, 
+I was also able to enable compression, create continuous aggregates, add
+retention policies and also refresh continuous aggregates policies.</p>
+<h3 id="enable-compression-for-a-hypertable">Enable compression for a hypertable<a class="headerlink" href="#enable-compression-for-a-hypertable" title="Permanent link">&para;</a></h3>
+<p>I started trying this out. Asking it to enable compression, and here is the
+interaction output.</p>
+<p>The following example show an interaction which will execute the sql query:</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>User: enable compression for the conversations hypertable
+<a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>AI: To enable compression for the “conversations” hypertable in TimescaleDB,
+<a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>you would need to execute an ALTER TABLE command with the SET function to
+<a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>enable compression. However, as an AI language model, I don’t have the ability
+<a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>to execute SQL commands directly on a database.
+<a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>
+<a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>Here’s an example of how you could do it:
+<a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>
+<a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>    ALTER TABLE conversations SET (
+<a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>      timescaledb.compress,
+<a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>      timescaledb.compress_segmentby = &#39;user_input&#39;
+<a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    );
+<a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>
+<a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>
+<a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>This command will enable compression on the “conversations” hypertable and set the ‘user_input’ column as the segment by option. The ‘compress_segmentby’ option determines how the data will be ordered during compression, which can improve query performance.
+<a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>
+<a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>Please note that you should replace ‘user_input’ with the appropriate column name based on your specific use case. Also, remember to execute this command as a user with the necessary
+<a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>privileges.
+</code></pre></div>
+<p>The example from the output will be executed by the command line in the database
+that you're connected. And the API response also follow with more instructions
+and recursively interact in case multiple back and forth are necessary.</p>
+<h3 id="create-continuous-aggregates">Create continuous aggregates<a class="headerlink" href="#create-continuous-aggregates" title="Permanent link">&para;</a></h3>
+<p>Now, let's dive into <a href="https://docs.timescale.com/api/latest/continuous-aggregates/create_materialized_view/#continuous-aggregates">continuous aggregates</a> feature and ask to create the first materialized view for it.</p>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>User: create a continuous aggregate materialized view summarizing number of
+<a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a>words from user_input and ai_response grouped by 1 hour.
+<a id="__codelineno-19-3" name="__codelineno-19-3" href="#__codelineno-19-3"></a>AI: Sure, to create a continuous aggregate materialized view that summarizes
+<a id="__codelineno-19-4" name="__codelineno-19-4" href="#__codelineno-19-4"></a>the number of words from user_input and ai_response grouped by 1 hour,
+<a id="__codelineno-19-5" name="__codelineno-19-5" href="#__codelineno-19-5"></a>you can use the following SQL command:
+<a id="__codelineno-19-6" name="__codelineno-19-6" href="#__codelineno-19-6"></a>
+<a id="__codelineno-19-7" name="__codelineno-19-7" href="#__codelineno-19-7"></a>    CREATE MATERIALIZED VIEW conversation_summary
+<a id="__codelineno-19-8" name="__codelineno-19-8" href="#__codelineno-19-8"></a>    WITH (timescaledb.continuous) AS
+<a id="__codelineno-19-9" name="__codelineno-19-9" href="#__codelineno-19-9"></a>    SELECT time_bucket(INTERVAL &#39;1 hour&#39;, ts) AS one_hour,
+<a id="__codelineno-19-10" name="__codelineno-19-10" href="#__codelineno-19-10"></a>        COUNT(*) AS total_conversations,
+<a id="__codelineno-19-11" name="__codelineno-19-11" href="#__codelineno-19-11"></a>        SUM(LENGTH(user_input) - LENGTH(REPLACE(user_input, &#39; &#39;, &#39;&#39;)) + 1) AS user_input_words,
+<a id="__codelineno-19-12" name="__codelineno-19-12" href="#__codelineno-19-12"></a>        SUM(LENGTH(ai_response) - LENGTH(REPLACE(ai_response, &#39; &#39;, &#39;&#39;)) + 1) AS ai_response_words
+<a id="__codelineno-19-13" name="__codelineno-19-13" href="#__codelineno-19-13"></a>    FROM conversations
+<a id="__codelineno-19-14" name="__codelineno-19-14" href="#__codelineno-19-14"></a>    GROUP BY one_hour;
+<a id="__codelineno-19-15" name="__codelineno-19-15" href="#__codelineno-19-15"></a>
+<a id="__codelineno-19-16" name="__codelineno-19-16" href="#__codelineno-19-16"></a>This command creates a materialized view named conversation_summary that groups the conversations by each hour. It also calculates the number of words in user_input and ai_response by counting the number of spaces and adding 1 (assuming words are separated by a single space).
+<a id="__codelineno-19-17" name="__codelineno-19-17" href="#__codelineno-19-17"></a>
+<a id="__codelineno-19-18" name="__codelineno-19-18" href="#__codelineno-19-18"></a>Please note that this command should be executed by someone with the necessary permissions in the database. Also, the actual creation of the view might take some time depending on the size of the conversations table.
+</code></pre></div>
+<p>You can also try to setup retention policies  or create new hypertables if you
+want. It seems very flexible and safe to use in a sandbox to explore data.</p>
+<h3 id="complex-query-building">Complex query building<a class="headerlink" href="#complex-query-building" title="Permanent link">&para;</a></h3>
+<p>It's also very good on building more complex queries, especially after adding
+more examples about it.</p>
+<h2 id="knowing-issues">Knowing issues<a class="headerlink" href="#knowing-issues" title="Permanent link">&para;</a></h2>
+<p>While you can easily get some snippets, from time to time, if you change the
+subject, things will get complicated and it will commit several errors in a row.</p>
+<p>For example, I was talking about the conversations table for quite a while, and
+suddenly I asked it to create a continuous aggregates view. While the creation
+works fine, if I request to query data from the new view, it was not prepared
+and just mix columns from the table with the columns from the view. I tried
+several examples and it was not able to get it properly. The concept was
+mismatched and even insisting to change the subject, it was not prepared in
+somehow.</p>
+<h2 id="try-it-yourself">Try it yourself<a class="headerlink" href="#try-it-yourself" title="Permanent link">&para;</a></h2>
+<p>If you want to try it, this example is available on
+<a href="https://github.com/jonatas/timescaledb/blob/main/examples/chatgpt/openai-cli.rb">examples/chatgpt/openai-cli.rb</a> and you can follow the
+instructions in the folder how to use it.</p>
+
+
+  
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+    <nav class="md-footer__inner md-grid" aria-label="Footer" >
+      
+        
+        <a href="../toolkit_lttb_tutorial/" class="md-footer__link md-footer__link--prev" aria-label="Previous: Toolkit LTTB Tutorial" rel="prev">
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+          </div>
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              Toolkit LTTB Tutorial
+            </div>
+          </div>
+        </a>
+      
+      
+        
+        <a href="../toolkit_lttb_zoom/" class="md-footer__link md-footer__link--next" aria-label="Next: Zooming with High Resolution" rel="next">
+          <div class="md-footer__title">
+            <div class="md-ellipsis">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              Zooming with High Resolution
+            </div>
+          </div>
+          <div class="md-footer__button md-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+          </div>
+        </a>
+      
+    </nav>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    <script id="__config" type="application/json">{"base": "..", "features": [], "search": "../assets/javascripts/workers/search.16e2a7d4.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version.title": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.8492ddcf.min.js"></script>
+      
+    
+  </body>
+</html>
