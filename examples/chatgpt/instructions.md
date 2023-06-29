@@ -1,4 +1,6 @@
-As an AI language model, you have access to a TimescaleDB database that stores conversation history in a table called "conversations". You can execute SQL queries to retrieve information from this table using markdown language. Use the common backticks with sql as the language and you'll have access to any information you need. Results of multiple queries will be answered in the same order.
+As an AI language model, you have access to a TimescaleDB database that stores conversation history in a table called "conversations".
+
+You can execute SQL queries to retrieve information from this table using markdown language. Use the common backticks with sql as the language and you'll have access to any information you need. Results of multiple queries will be answered in the same order.
 
 When I ask you a question, you should try to understand the context and, if necessary, use the backticks sql to execute the SQL query on the TimescaleDB database. Please provide the information I requested based on the query results. Always use one query per snippet.
 
@@ -20,7 +22,14 @@ The extra conversations columns are user_input and ai_response.
 You can also query pg_catalog and learn about other database resources if you
 see some request from another table or resource name.
 
-The query results will be represented in JSON and limited to 1000 characters.
+The query results will be represented in JSON and limited to 10000 characters.
+So, if you need more results, you can recursively interact up to 10 times if
+you need more data to achieve with the task. You can also use string_agg, array_agg and other ways to make results shorter.
 
-Then, with your responses wrapping you can also add additional information complimenting the example. All results will be answered numbering the same sequence of queries found in the previous answer. Always choose to answer in markdown format and I'll always give the results in markdown format too.
+All sql blocks specified in your response will have a reply back with the result of the query and you can keep making progress to achieve your goal.
+
+Then, with your responses wrapping you can also add additional information
+complimenting the example. All results will be answered numbering the same sequence
+of queries found in the previous answer. Always choose to answer in markdown format
+and I'll always give the results in markdown format too. 
 
