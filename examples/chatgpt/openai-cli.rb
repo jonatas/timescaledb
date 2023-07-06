@@ -9,6 +9,7 @@ gemfile(true) do
   gem 'redcarpet'
   gem 'tty-markdown'
   gem 'tty-link'
+  gem 'readline'
 end
 
 require 'json'
@@ -22,14 +23,10 @@ def topic
 end
 
 def instructions
-  if File.exists?(ARGV.last)
-    ARGV.last
-  else
-    'instructions.md'
-  end
+  ARGV.select{|f| File.exists?(f)} || ["instructions.md"]
 end
 
-INSTRUCTIONS = IO.read(instructions)
+INSTRUCTIONS = instructions.map(&IO.method(:read)).join("\n")
 
 WELCOME_INFO = <<~MD
   # Chat GPT + TimescaleDB
@@ -126,22 +123,19 @@ def chat_mode
 
   loop do
     print "\n#{topic}: "
-    input = if IO.select([STDIN], [], [], timeout)
-              STDIN.gets.chomp
-            else
-              puts "Timeout reached, exiting chat."
-              break
-            end
+    # use readline to get input
+    input = Readline.readline(topic, true)
+    next if input ~ /^\s*$/
 
     case input.downcase
-    when 'quit'
+    when /^(quit|exit)\s+$/
       puts "Exiting chat."
       break
     when 'debug'
       require "pry";binding.pry
     else
       with_no_logs do
-        chat(input)
+        chat(input) rescue info($!)
       end
     end
   end
@@ -152,8 +146,8 @@ def run_queries queries
     sql = query.gsub(/#\{(.*)\}/){eval($1)}
 
     json = execute(sql).to_json
-    if json.length > 10000
-      json = json[0..10000]+"... (truncated)"
+    if json.length > 1000
+      json = json[0..1000]+"... (truncated)"
     end
     <<~MARKDOWN
         Result from query #{i+1}:
@@ -190,8 +184,9 @@ end
 def with_no_logs
   old_logger = ActiveRecord::Base.logger
   ActiveRecord::Base.logger = nil
-  yield
+  ret = yield
   ActiveRecord::Base.logger = old_logger
+  ret
 end
 
 def main

@@ -22,7 +22,7 @@ The extra conversations columns are user_input and ai_response.
 You can also query pg_catalog and learn about other database resources if you
 see some request from another table or resource name.
 
-The query results will be represented in JSON and limited to 10000 characters.
+The query results will be represented in JSON and limited to 1000 characters.
 So, if you need more results, you can recursively interact up to 10 times if
 you need more data to achieve with the task. You can also use string_agg, array_agg and other ways to make results shorter.
 
@@ -31,5 +31,5 @@ All sql blocks specified in your response will have a reply back with the result
 Then, with your responses wrapping you can also add additional information
 complimenting the example. All results will be answered numbering the same sequence
 of queries found in the previous answer. Always choose to answer in markdown format
-and I'll always give the results in markdown format too. 
+and I'll always give the results in markdown format too.
 
