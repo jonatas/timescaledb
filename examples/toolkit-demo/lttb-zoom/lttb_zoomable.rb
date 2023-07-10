@@ -7,6 +7,7 @@ gemfile(true) do
   gem 'sinatra', require: false
   gem 'sinatra-reloader'
   gem 'sinatra-cross_origin'
+  gem 'puma'
 end
 
 require 'timescaledb/toolkit'
@@ -24,7 +25,7 @@ def download_weather_dataset size: :small
   unless VALID_SIZES.include?(size)
     fail "Invalid size: #{size}. Valids are #{VALID_SIZES}"
   end
-  url = "https://timescaledata.blob.core.windows.net/datasets/weather_#{size}.tar.gz"
+  url = "https://assets.timescale.com/docs/downloads/weather_#{size}.tar.gz"
   puts "fetching #{size} weather dataset..."
   system "wget \"#{url}\""
   puts "done!"
@@ -32,7 +33,7 @@ end
 
 def setup size: :small
   file = "weather_#{size}.tar.gz"
-  download_weather_dataset(size: size) unless File.exists? file
+  download_weather_dataset(size: size)# unless File.exists? file
   puts "extracting #{file}"
   system "tar -xvzf #{file} "
   puts "creating data structures"
@@ -55,6 +56,7 @@ ActiveRecord::Base.connection.instance_exec do
   if !Condition.table_exists?  || Condition.count.zero?
 
     setup size: :big
+    binding.pry
   end
 end
 

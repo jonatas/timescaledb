@@ -272,7 +272,7 @@ SQL
     end
   end
 
-  describe 'ohlc' do
+  describe 'candlestick' do
     before(:each) do
       con.add_toolkit_to_search_path!
       if con.table_exists?(:ticks)
@@ -281,6 +281,7 @@ SQL
       con.create_table :ticks, hypertable: hypertable_options, id: false do |t|
         t.text :symbol
         t.decimal :price
+        t.decimal :volume
         t.timestamp :time
       end
     end
@@ -319,7 +320,7 @@ SQL
 
     context "when call ohlc without segment_by" do
       let(:ohlcs) do
-        model.where(symbol: "FIRST").ohlc(timeframe: '1w', segment_by: nil)
+        model.where(symbol: "FIRST").candlestick(timeframe: '1w', segment_by: nil)
       end
 
       it "process open, high, low, close" do
@@ -347,7 +348,7 @@ SQL
       end
 
       let!(:ohlcs) do
-        model.ohlc(timeframe: '1w', segment_by: :symbol)
+        model.candlestick(timeframe: '1w', segment_by: :symbol)
       end
 
       it "process open, high, low, close" do

@@ -28,6 +28,7 @@ nav:
   - Models: models.md
   - Toolkit Integration: toolkit.md
   - Toolkit LTTB Tutorial: toolkit_lttb_tutorial.md
+  - Open AI Long Term Storage Tutorial: chat_gpt_tutorial.md
   - Zooming with High Resolution: toolkit_lttb_zoom.md
   - Toolkit Candlesticks tutorial: toolkit_candlestick.md
   - Command Line: command_line.md
