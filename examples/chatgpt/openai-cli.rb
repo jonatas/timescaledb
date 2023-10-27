@@ -1,6 +1,7 @@
 require 'bundler/inline'
 
 gemfile(true) do
+  source 'https://rubygems.org'
   gem 'timescaledb', path: '../../' #git: 'https://github.com/jonatas/timescaledb.git'
   gem 'rest-client'
   gem 'pry'
@@ -10,12 +11,16 @@ gemfile(true) do
   gem 'tty-markdown'
   gem 'tty-link'
   gem 'readline'
+  gem 'ruby-openai'
 end
 
 require 'json'
 require 'time'
 
-API_KEY = ENV['GPT4_KEY']
+OpenAI.configure do |config|
+  config.access_token = ENV["GPT4_KEY"]
+end
+
 PG_URI = ENV['PG_URI'] || ARGV[ARGV.index("--pg-uri")]
 
 def topic
@@ -23,7 +28,7 @@ def topic
 end
 
 def instructions
-  ARGV.select{|f| File.exists?(f)} || ["instructions.md"]
+  ARGV.select{|f| File.exist?(f)} || ["instructions.md"]
 end
 
 INSTRUCTIONS = instructions.map(&IO.method(:read)).join("\n")
@@ -82,26 +87,23 @@ def sql_from_markdown(content)
   extractor.sql
 end
 
+def client
+  OpenAI::Client.new
+end
+
 
 def call_gpt4_api(prompt)
-  url = "https://api.openai.com/v1/chat/completions"
   full_prompt = INSTRUCTIONS +
       "\nHistory: #{Conversation.history}" +
       "\nInput: #{prompt}"
-
-  body = { "model" => "gpt-4",
-      "max_tokens" => 1000,
-      "temperature" => 0,
-      "messages" => [{"role" => "user", "content" => full_prompt}],
-    }.to_json
-  headers = { "Content-Type" => "application/json", "Authorization" => "Bearer #{API_KEY}" }
-  response = RestClient.post(url, body, headers)
-  json_response = JSON.parse(response.body)
-  response = json_response["choices"].first["message"]["content"].strip
-rescue RestClient::BadRequest
-  "Bad Request Error: #{$!.message}"
-rescue
-  "Error: #{$!.message}"
+  response = client.chat(
+    parameters: {
+        model: "gpt-4",
+        max_tokens: 1000,
+        messages: [{ role: "user", content: full_prompt}],
+        temperature: 0,
+    })
+  response.dig("choices", 0, "message", "content").strip
 end
 
 def execute(query)
@@ -125,7 +127,7 @@ def chat_mode
     print "\n#{topic}: "
     # use readline to get input
     input = Readline.readline(topic, true)
-    next if input ~ /^\s*$/
+    next if input =~ /^\s*$/
 
     case input.downcase
     when /^(quit|exit)\s+$/
