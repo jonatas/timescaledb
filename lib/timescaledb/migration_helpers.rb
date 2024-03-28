@@ -87,6 +87,7 @@ module Timescaledb
     # @option finalized [Boolean] Override the WITH clause 'timescaledb.finalized'
     #
     # @see https://docs.timescale.com/api/latest/continuous-aggregates/create_materialized_view/
+    # @see https://docs.timescale.com/api/latest/continuous-aggregates/add_continuous_aggregate_policy/
     #
     # @example
     #   create_continuous_aggregate(:activity_counts, query: <<-SQL, refresh_policies: { schedule_interval: "INTERVAL '1 hour'" })
