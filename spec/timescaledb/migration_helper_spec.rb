@@ -118,7 +118,7 @@ RSpec.describe Timescaledb::MigrationHelpers, database_cleaner_strategy: :trunca
       expect(model.continuous_aggregates.first.jobs).to be_empty
     end
 
-    context 'when use refresh policies'do
+    context 'when using refresh policies' do
       let(:options) do
         {
           with_data: false,
@@ -136,6 +136,65 @@ RSpec.describe Timescaledb::MigrationHelpers, database_cleaner_strategy: :trunca
         end.to change { model.continuous_aggregates.count }.from(0).to(1)
 
         expect(model.continuous_aggregates.first.jobs).not_to be_empty
+      end
+    end
+
+    context 'when overriding WITH clauses' do
+      let(:options) do
+        {
+          materialized_only: true,
+          create_group_indexes: true,
+          finalized: true
+        }
+      end
+
+      before do
+        allow(ActiveRecord::Base.connection).to(receive(:execute).and_call_original)
+      end
+
+      specify do
+        expect do
+          create_caggs
+        end.to change { model.continuous_aggregates.count }.from(0).to(1)
+      end
+
+      context 'when overriding WITH clause timescaledb.materialized_only' do
+        let(:options) do
+          {
+            materialized_only: true
+          }
+        end
+
+        specify do
+          create_caggs
+          expect(ActiveRecord::Base.connection).to have_received(:execute).with(include('timescaledb.materialized_only=true'))
+        end
+      end
+
+      context 'when overriding WITH clause timescaledb.create_group_indexes' do
+        let(:options) do
+          {
+            create_group_indexes: true
+          }
+        end
+
+        specify do
+          create_caggs
+          expect(ActiveRecord::Base.connection).to have_received(:execute).with(include('timescaledb.create_group_indexes=true'))
+        end
+      end
+
+      context 'when overriding WITH clause timescaledb.finalized' do
+        let(:options) do
+          {
+            finalized: true
+          }
+        end
+
+        specify do
+          create_caggs
+          expect(ActiveRecord::Base.connection).to have_received(:execute).with(include('timescaledb.finalized=true'))
+        end
       end
     end
   end

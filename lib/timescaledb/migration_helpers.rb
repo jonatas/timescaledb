@@ -59,11 +59,11 @@ module Timescaledb
 
       if compress_segmentby
         execute <<~SQL
-        ALTER TABLE #{table_name} SET (
-          timescaledb.compress,
-          timescaledb.compress_orderby = '#{compress_orderby}',
-          timescaledb.compress_segmentby = '#{compress_segmentby}'
-        )
+          ALTER TABLE #{table_name} SET (
+            timescaledb.compress,
+            timescaledb.compress_orderby = '#{compress_orderby}',
+            timescaledb.compress_segmentby = '#{compress_segmentby}'
+          )
         SQL
       end
       if compression_interval
@@ -82,7 +82,11 @@ module Timescaledb
     # @option refresh_policies [String] start_offset: INTERVAL or integer
     # @option refresh_policies [String] end_offset: INTERVAL or integer
     # @option refresh_policies [String] schedule_interval: INTERVAL
+    # @option materialized_only [Boolean] Override the WITH clause 'timescaledb.materialized_only'
+    # @option create_group_indexes [Boolean] Override the WITH clause 'timescaledb.create_group_indexes'
+    # @option finalized [Boolean] Override the WITH clause 'timescaledb.finalized'
     #
+    # @see https://docs.timescale.com/api/latest/continuous-aggregates/create_materialized_view/
     # @see https://docs.timescale.com/api/latest/continuous-aggregates/add_continuous_aggregate_policy/
     #
     # @example
@@ -97,14 +101,18 @@ module Timescaledb
     def create_continuous_aggregate(table_name, query, **options)
       execute <<~SQL
         CREATE MATERIALIZED VIEW #{table_name}
-        WITH (timescaledb.continuous) AS
+        WITH (
+          timescaledb.continuous
+          #{build_with_clause_option_string(:materialized_only, options)}
+          #{build_with_clause_option_string(:create_group_indexes, options)}
+          #{build_with_clause_option_string(:finalized, options)}
+        ) AS
         #{query.respond_to?(:to_sql) ? query.to_sql : query}
-        WITH #{"NO" unless options[:with_data]} DATA;
+        WITH #{'NO' unless options[:with_data]} DATA;
       SQL
 
       create_continuous_aggregate_policy(table_name, **(options[:refresh_policies] || {}))
     end
-
 
     #  Drop a new continuous aggregate.
     #
@@ -139,6 +147,18 @@ module Timescaledb
 
     def remove_retention_policy(table_name)
       execute "SELECT remove_retention_policy('#{table_name}')"
+    end
+
+    private
+
+    # Build a string for the WITH clause of the CREATE MATERIALIZED VIEW statement.
+    # When the option is omitted, this method returns an empty string, which allows this gem to use the
+    # defaults provided by TimescaleDB.
+    def build_with_clause_option_string(option_key, options)
+      return '' unless options.key?(option_key)
+
+      value = options[option_key] ? 'true' : 'false'
+      ",timescaledb.#{option_key}=#{value}"
     end
   end
 end

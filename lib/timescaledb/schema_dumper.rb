@@ -112,19 +112,20 @@ module Timescaledb
     def timescale_continuous_aggregates(stream)
       return unless Timescaledb::ContinuousAggregates.table_exists?
 
-      Timescaledb::ContinuousAggregates.all.each do |aggregate|
-        opts = if (refresh_policy = aggregate.jobs.refresh_continuous_aggregate.first)
-                 interval = timescale_interval(refresh_policy.schedule_interval)
-                 end_offset = timescale_interval(refresh_policy.config["end_offset"])
-                 start_offset = timescale_interval(refresh_policy.config["start_offset"])
-                 %Q[, refresh_policies: { start_offset: "#{start_offset}", end_offset: "#{end_offset}", schedule_interval: "#{interval}"}]
-               else
-                 ""
-               end
+      Timescaledb::ContinuousAggregates.all.find_each do |aggregate|
+        refresh_policies_opts = if (refresh_policy = aggregate.jobs.refresh_continuous_aggregate.first)
+          interval = timescale_interval(refresh_policy.schedule_interval)
+          end_offset = timescale_interval(refresh_policy.config["end_offset"])
+          start_offset = timescale_interval(refresh_policy.config["start_offset"])
+          %(refresh_policies: { start_offset: "#{start_offset}", end_offset: "#{end_offset}", schedule_interval: "#{interval}"})
+        else
+          ""
+        end
 
+        with_clause_opts = "materialized_only: #{aggregate[:materialized_only]}, finalized: #{aggregate[:finalized]}"
         stream.puts <<~AGG.indent(2)
-          create_continuous_aggregate("#{aggregate.view_name}", <<-SQL#{opts})
-            #{aggregate.view_definition.strip.gsub(/;$/, "")}
+          create_continuous_aggregate("#{aggregate.view_name}", <<-SQL, #{refresh_policies_opts}, #{with_clause_opts})
+            #{aggregate.view_definition.strip.gsub(/;$/, '')}
           SQL
         AGG
         stream.puts

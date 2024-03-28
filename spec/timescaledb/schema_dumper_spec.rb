@@ -51,7 +51,7 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
 
   it "dumps a create_continuous_aggregate for a view in the database" do
     con.execute("DROP MATERIALIZED VIEW IF EXISTS event_counts")
-    con.create_continuous_aggregate(:event_counts, query)
+    con.create_continuous_aggregate(:event_counts, query, materialized_only: true, finalized: true)
 
     if defined?(Scenic)
       Scenic.load # Normally this happens in a railtie, but we aren't loading a full rails env here
@@ -62,6 +62,8 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
     dump = dump_output
 
     expect(dump).to include 'create_continuous_aggregate("event_counts"'
+    expect(dump).to include 'materialized_only: true, finalized: true'
+
     expect(dump).not_to include 'create_view "event_counts"' # Verify Scenic ignored this view
     expect(dump).to include 'create_view "searches", sql_definition: <<-SQL' if defined?(Scenic)
 
