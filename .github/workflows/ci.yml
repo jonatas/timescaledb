@@ -14,8 +14,9 @@ jobs:
       matrix:
         ruby: [ '3.1.2' ]
         database:
-          - 'pg14.6-ts2.9.0-patroni-static-primary-latest'
-          - 'pg13.9-ts2.9-latest'
+          - 'pg16.2-ts2.14.2-all'
+          - 'pg15.6-ts2.14.2-all'
+          - 'pg14.11-ts2.14.2-all'
 
     services:
       database:

@@ -223,8 +223,6 @@ module Timescaledb
           when :partitioning_func, :associated_schema_name,
                :associated_table_prefix, :time_partitioning_func
             named_notation_sql(name: option, value: quote(value))
-          when :replication_factor
-            named_notation_sql(name: option, value: value)
           end
         end.compact
       end
