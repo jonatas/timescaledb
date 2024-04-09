@@ -47,7 +47,6 @@ RSpec.describe Timescaledb::MigrationHelpers, database_cleaner_strategy: :trunca
           "compression_enabled"=>true,
           "hypertable_name"=>"migration_tests",
           "hypertable_schema" => "public",
-          "is_distributed" => false,
           "num_chunks" => 0,
           "num_dimensions" => 1,
           "tablespaces" => nil})

@@ -96,7 +96,6 @@ Tick.hypertable
  num_dimensions: 1,
  num_chunks: 1,
  compression_enabled: false,
- is_distributed: false,
  tablespaces: nil>
 ```
 

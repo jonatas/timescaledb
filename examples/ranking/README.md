@@ -58,9 +58,6 @@ When the model contains the `acts_as_hypertable` macro, it's possible to navigat
  # num_dimensions: 1,
  # num_chunks: 2,
  # compression_enabled: true,
- # is_distributed: false,
- # replication_factor: nil,
- # data_nodes: nil,
  # tablespaces: nil>
 ```
 
