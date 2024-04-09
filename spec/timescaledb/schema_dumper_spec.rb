@@ -7,6 +7,27 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
                   count(*) as value").group("1,2")
   end
 
+  context "schema" do
+    it "should include the timescaledb extension" do
+      dump = dump_output
+      expect(dump).to include 'enable_extension "timescaledb"'
+      expect(dump).to include 'enable_extension "timescaledb-toolkit"'
+    end
+
+    it "should skip internal schemas" do
+      dump = dump_output
+      expect(dump).not_to include 'create_schema "_timescaledb_cache"'
+      expect(dump).not_to include 'create_schema "_timescaledb_config"'
+      expect(dump).not_to include 'create_schema "_timescaledb_catalog"'
+      expect(dump).not_to include 'create_schema "_timescaledb_debug"'
+      expect(dump).not_to include 'create_schema "_timescaledb_functions"'
+      expect(dump).not_to include 'create_schema "_timescaledb_internal"'
+      expect(dump).not_to include 'create_schema "timescaledb_experimental"'
+      expect(dump).not_to include 'create_schema "timescaledb_information"'
+      expect(dump).not_to include 'create_schema "toolkit_experimental"'
+    end
+  end
+
   context "hypertables" do
     let(:sorted_hypertables) do
       %w[events hypertable_with_custom_time_column hypertable_with_no_options

@@ -2,15 +2,42 @@ require 'active_record/connection_adapters/postgresql_adapter'
 require 'active_support/core_ext/string/indent'
 
 module Timescaledb
+  # Schema dumper overrides default schema dumper to include:
+  # * hypertables
+  # * retention policies
+  # * continuous aggregates
+  # * compression settings
   module SchemaDumper
     def tables(stream)
       super # This will call #table for each table in the database
-
       return unless Timescaledb::Hypertable.table_exists?
 
       timescale_hypertables(stream)
       timescale_retention_policies(stream)
       timescale_continuous_aggregates(stream) # Define these before any Scenic views that might use them
+    end
+
+    # Ignores Timescale related schemas when dumping the schema
+    IGNORE_SCHEMAS = %w[
+      _timescaledb_cache
+      _timescaledb_config
+      _timescaledb_catalog
+      _timescaledb_debug
+      _timescaledb_functions
+      _timescaledb_internal
+      timescaledb_experimental
+      timescaledb_information
+      toolkit_experimental
+    ]
+
+    def schemas(stream)
+      schema_names = @connection.schema_names - ["public", *IGNORE_SCHEMAS]
+      if schema_names.any?
+        schema_names.sort.each do |name|
+          stream.puts "  create_schema #{name.inspect}"
+        end
+        stream.puts
+      end
     end
 
     def timescale_hypertables(stream)
