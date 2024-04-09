@@ -11,7 +11,7 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
     it "should include the timescaledb extension" do
       dump = dump_output
       expect(dump).to include 'enable_extension "timescaledb"'
-      expect(dump).to include 'enable_extension "timescaledb-toolkit"'
+      expect(dump).to include 'enable_extension "timescaledb_toolkit"'
     end
 
     it "should skip internal schemas" do
