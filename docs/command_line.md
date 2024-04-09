@@ -97,8 +97,6 @@ Tick.hypertable
  num_chunks: 1,
  compression_enabled: false,
  is_distributed: false,
- replication_factor: nil,
- data_nodes: nil,
  tablespaces: nil>
 ```
 
@@ -119,8 +117,7 @@ unknown OID 2206: failed to recognize type of 'primary_dimension_type'. It will 
   range_start_integer: nil,
   range_end_integer: nil,
   is_compressed: false,
-  chunk_tablespace: nil,
-  data_nodes: nil>]
+  chunk_tablespace: nil>]
 ```
 
 > Chunks are created by partitioning the hypertable data into one

@@ -40,14 +40,6 @@ RSpec.describe Timescaledb::Database do
       end
     end
 
-    context 'when passing integer params' do
-      it 'returns expected SQL' do
-        expect(
-          described_class.create_hypertable_sql('events', 'created_at', replication_factor: 3)
-        ).to eq("SELECT create_hypertable('events', 'created_at', replication_factor => 3);")
-      end
-    end
-
     context 'when passing string params' do
       it 'returns expected SQL' do
         optional_params = {
@@ -67,7 +59,6 @@ RSpec.describe Timescaledb::Database do
       it 'returns expected SQL' do
         optional_params = {
           if_not_exists: true,
-          replication_factor: 3,
           partitioning_column: 'category',
           number_partitions: 3,
           partitioning_func: 'category_func',
@@ -76,7 +67,7 @@ RSpec.describe Timescaledb::Database do
 
         expect(
           described_class.create_hypertable_sql('events', 'created_at', **optional_params)
-        ).to eq("SELECT create_hypertable('events', 'created_at', 'category', 3, if_not_exists => 'TRUE', replication_factor => 3, partitioning_func => 'category_func', distributed => 'FALSE');")
+        ).to eq("SELECT create_hypertable('events', 'created_at', 'category', 3, if_not_exists => 'TRUE', partitioning_func => 'category_func', distributed => 'FALSE');")
       end
     end
   end
