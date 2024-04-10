@@ -33,6 +33,18 @@ To get all the chunks from a model's hypertable, you can use `.chunks`.
 Event.chunks # => [#<Timescaledb::Chunk>, ...]
 ```
 
+!!! warning
+    The `chunks` method is only available when you use the `acts_as_hypertable` macro.
+    By default, the macro will define several scopes and class methods to help you
+    to inspect timescaledb metadata like chunks and hypertable metadata.
+    You can disable this behavior by passing `skip_association_scopes`:
+    ```ruby
+    class Event < ActiveRecord::Base
+      acts_as_hypertable skip_association_scopes: true
+    end
+    Event.chunks # => NoMethodError
+    ```
+
 ### Hypertable metadata
 
 To get the models' hypertable metadata, you can use `.hypertable`.
@@ -69,6 +81,13 @@ When you enable ActsAsHypertable on your model, we include a few default scopes.
 
 All time-related scopes respect your application's timezone.
 
+!!! warning
+    To disable these scopes, pass `skip_default_scopes: true` to the `acts_as_hypertable` macro.
+    ```ruby
+    class Event < ActiveRecord::Base
+      acts_as_hypertable skip_default_scopes: true
+    end
+    ```
 
 ## Scenic integration
 
