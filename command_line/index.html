@@ -545,10 +545,7 @@ It contains several methods inherited from the <code>acts_as_hypertable</code> m
 <a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a> <span class="ss">num_dimensions</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
 <a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a> <span class="ss">num_chunks</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
 <a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a> <span class="ss">compression_enabled</span><span class="p">:</span> <span class="kp">false</span><span class="p">,</span>
-<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a> <span class="ss">is_distributed</span><span class="p">:</span> <span class="kp">false</span><span class="p">,</span>
-<a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a> <span class="ss">replication_factor</span><span class="p">:</span> <span class="kp">nil</span><span class="p">,</span>
-<a id="__codelineno-8-11" name="__codelineno-8-11" href="#__codelineno-8-11"></a> <span class="ss">data_nodes</span><span class="p">:</span> <span class="kp">nil</span><span class="p">,</span>
-<a id="__codelineno-8-12" name="__codelineno-8-12" href="#__codelineno-8-12"></a> <span class="ss">tablespaces</span><span class="p">:</span> <span class="kp">nil</span><span class="o">&gt;</span>
+<a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a> <span class="ss">tablespaces</span><span class="p">:</span> <span class="kp">nil</span><span class="o">&gt;</span>
 </code></pre></div>
 <p>The core of the hypertables is the fragmentation of the data into chunks, the child tables that distribute the data. You can check all chunks directly from the hypertable relation.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="no">Tick</span><span class="o">.</span><span class="n">hypertable</span><span class="o">.</span><span class="n">chunks</span>
@@ -565,8 +562,7 @@ It contains several methods inherited from the <code>acts_as_hypertable</code> m
 <a id="__codelineno-9-12" name="__codelineno-9-12" href="#__codelineno-9-12"></a>  <span class="ss">range_start_integer</span><span class="p">:</span> <span class="kp">nil</span><span class="p">,</span>
 <a id="__codelineno-9-13" name="__codelineno-9-13" href="#__codelineno-9-13"></a>  <span class="ss">range_end_integer</span><span class="p">:</span> <span class="kp">nil</span><span class="p">,</span>
 <a id="__codelineno-9-14" name="__codelineno-9-14" href="#__codelineno-9-14"></a>  <span class="ss">is_compressed</span><span class="p">:</span> <span class="kp">false</span><span class="p">,</span>
-<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>  <span class="ss">chunk_tablespace</span><span class="p">:</span> <span class="kp">nil</span><span class="p">,</span>
-<a id="__codelineno-9-16" name="__codelineno-9-16" href="#__codelineno-9-16"></a>  <span class="ss">data_nodes</span><span class="p">:</span> <span class="kp">nil</span><span class="o">&gt;]</span>
+<a id="__codelineno-9-15" name="__codelineno-9-15" href="#__codelineno-9-15"></a>  <span class="ss">chunk_tablespace</span><span class="p">:</span> <span class="kp">nil</span><span class="o">&gt;]</span>
 </code></pre></div>
 <blockquote>
 <p>Chunks are created by partitioning the hypertable data into one

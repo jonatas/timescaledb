@@ -573,14 +573,26 @@ model:</p>
 <p>To get all the chunks from a model's hypertable, you can use <code>.chunks</code>.</p>
 <div class="highlight"><pre><span></span><code><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="no">Event</span><span class="o">.</span><span class="n">chunks</span> <span class="c1"># =&gt; [#&lt;Timescaledb::Chunk&gt;, ...]</span>
 </code></pre></div>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>The <code>chunks</code> method is only available when you use the <code>acts_as_hypertable</code> macro.
+By default, the macro will define several scopes and class methods to help you
+to inspect timescaledb metadata like chunks and hypertable metadata.
+You can disable this behavior by passing <code>skip_association_scopes</code>:
+<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">class</span> <span class="nc">Event</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>  <span class="n">acts_as_hypertable</span> <span class="ss">skip_association_scopes</span><span class="p">:</span> <span class="kp">true</span>
+<a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">end</span>
+<a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="no">Event</span><span class="o">.</span><span class="n">chunks</span> <span class="c1"># =&gt; NoMethodError</span>
+</code></pre></div></p>
+</div>
 <h3 id="hypertable-metadata">Hypertable metadata<a class="headerlink" href="#hypertable-metadata" title="Permanent link">&para;</a></h3>
 <p>To get the models' hypertable metadata, you can use <code>.hypertable</code>.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="no">Event</span><span class="o">.</span><span class="n">hypertable</span> <span class="c1"># =&gt; #&lt;Timescaledb::Hypertable&gt;</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">Event</span><span class="o">.</span><span class="n">hypertable</span> <span class="c1"># =&gt; #&lt;Timescaledb::Hypertable&gt;</span>
 </code></pre></div>
 <p>To get hypertable metadata for all hypertables: <code>Timescaledb.hypertables</code>.</p>
 <h3 id="compression-settings">Compression Settings<a class="headerlink" href="#compression-settings" title="Permanent link">&para;</a></h3>
 <p>Compression settings are accessible through the hypertable.</p>
-<div class="highlight"><pre><span></span><code><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="no">Event</span><span class="o">.</span><span class="n">hypertable</span><span class="o">.</span><span class="n">compression_settings</span> <span class="c1"># =&gt; [#&lt;Timescaledb::CompressionSettings&gt;, ...]</span>
+<div class="highlight"><pre><span></span><code><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="no">Event</span><span class="o">.</span><span class="n">hypertable</span><span class="o">.</span><span class="n">compression_settings</span> <span class="c1"># =&gt; [#&lt;Timescaledb::CompressionSettings&gt;, ...]</span>
 </code></pre></div>
 <p>To get compression settings for all hypertables: <code>Timescaledb.compression_settings</code>.</p>
 <h3 id="scopes">Scopes<a class="headerlink" href="#scopes" title="Permanent link">&para;</a></h3>
@@ -624,6 +636,14 @@ model:</p>
 </tbody>
 </table>
 <p>All time-related scopes respect your application's timezone.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>To disable these scopes, pass <code>skip_default_scopes: true</code> to the <code>acts_as_hypertable</code> macro.
+<div class="highlight"><pre><span></span><code><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">class</span> <span class="nc">Event</span> <span class="o">&lt;</span> <span class="no">ActiveRecord</span><span class="o">::</span><span class="no">Base</span>
+<a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  <span class="n">acts_as_hypertable</span> <span class="ss">skip_default_scopes</span><span class="p">:</span> <span class="kp">true</span>
+<a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">end</span>
+</code></pre></div></p>
+</div>
 <h2 id="scenic-integration">Scenic integration<a class="headerlink" href="#scenic-integration" title="Permanent link">&para;</a></h2>
 <p>The <a href="https://github.com/scenic-views/scenic">Scenic</a> gem is easy to
 manage database view definitions for a Rails application. Unfortunately, TimescaleDB's continuous aggregates are more complex than regular PostgreSQL views, and the schema dumper included with Scenic can't dump a complete definition.</p>
