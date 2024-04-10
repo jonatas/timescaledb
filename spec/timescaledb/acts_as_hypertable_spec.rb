@@ -13,6 +13,48 @@ RSpec.describe Timescaledb::ActsAsHypertable do
     end
   end
 
+  describe "#define_association_scopes" do
+    context "when the model is a hypertable" do
+      it "defines the association scopes" do
+        expect(Event).to respond_to(:chunks)
+        expect(Event).to respond_to(:hypertable)
+        expect(Event).to respond_to(:jobs)
+        expect(Event).to respond_to(:job_stats)
+        expect(Event).to respond_to(:compression_settings)
+        expect(Event).to respond_to(:continuous_aggregates)
+      end
+    end
+    context "when model skips association scopes" do
+      it "does not define the association scopes" do
+        expect(HypertableSkipAllScopes).not_to respond_to(:chunks)
+        expect(HypertableSkipAllScopes).not_to respond_to(:hypertable)
+        expect(HypertableSkipAllScopes).not_to respond_to(:jobs)
+        expect(HypertableSkipAllScopes).not_to respond_to(:job_stats)
+        expect(HypertableSkipAllScopes).not_to respond_to(:compression_settings)
+        expect(HypertableSkipAllScopes).not_to respond_to(:continuous_aggregates)
+      end
+    end
+  end
+
+  describe 'when model skips default scopes' do
+    context "when the model is a hypertable" do
+      it "defines the association scopes" do
+        expect(Event).to respond_to(:previous_month)
+        expect(Event).to respond_to(:previous_week)
+      end
+    end
+
+    it 'does not define the default scopes' do
+      expect(HypertableSkipAllScopes).not_to respond_to(:previous_month)
+      expect(HypertableSkipAllScopes).not_to respond_to(:previous_week)
+      expect(HypertableSkipAllScopes).not_to respond_to(:this_month)
+      expect(HypertableSkipAllScopes).not_to respond_to(:this_week)
+      expect(HypertableSkipAllScopes).not_to respond_to(:yesterday)
+      expect(HypertableSkipAllScopes).not_to respond_to(:today)
+      expect(HypertableSkipAllScopes).not_to respond_to(:last_hour)
+    end
+  end
+
   describe ".hypertable_options" do
     context "when non-default options are set" do
       let(:model) { HypertableWithCustomTimeColumn }

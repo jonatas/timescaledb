@@ -42,6 +42,9 @@ module Timescaledb
     #     acts_as_hypertable time_column: :timestamp
     #   end
     #
+    # @param [Hash] options The options to initialize your macro with.
+    # @option options [Boolean] :skip_association_scopes to avoid `.hypertable`, `.chunks` and other scopes related to metadata.
+    # @option options [Boolean] :skip_default_scopes to avoid the generation of default time related scopes like `last_hour`, `last_week`, `yesterday` and so on...
     def acts_as_hypertable(options = {})
       return if acts_as_hypertable?
 
@@ -53,8 +56,8 @@ module Timescaledb
       hypertable_options.merge!(options)
       normalize_hypertable_options
 
-      define_association_scopes
-      define_default_scopes
+      define_association_scopes unless options[:skip_association_scopes]
+      define_default_scopes unless options[:skip_default_scopes]
     end
   end
 end
