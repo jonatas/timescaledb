@@ -29,6 +29,11 @@ module Timescaledb
       create_hypertable(table_name, **options[:hypertable]) if options.key?(:hypertable)
     end
 
+    # Override the valid_table_definition_options to include hypertable.
+    def valid_table_definition_options # :nodoc:
+      super + [:hypertable]
+    end
+
     # Setup hypertable from options
     # @see create_table with the hypertable options.
     def create_hypertable(table_name,
