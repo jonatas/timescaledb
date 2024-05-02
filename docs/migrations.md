@@ -25,6 +25,18 @@ end
 This example shows a ticks table grouping ticks as OHLCV histograms for every
 minute.
 
+First make sure you have the model with the `acts_as_hypertable` method to be
+able to extract the query from it.
+
+```ruby
+class Tick < ActiveRecord::Base
+  self.table_name = 'ticks'
+  acts_as_hypertable
+end
+```
+
+Then, inside your migration:
+
 ```ruby
 hypertable_options = {
   time_column: 'created_at',
@@ -38,11 +50,6 @@ create_table :ticks, hypertable: hypertable_options, id: false do |t|
   t.decimal :price
   t.integer :volume
   t.timestamps
-end
-Tick = Class.new(ActiveRecord::Base) do
-  self.table_name = 'ticks'
-  self.primary_key = 'symbol'
-  acts_as_hypertable
 end
 
 query = Tick.select(<<~QUERY)
@@ -72,5 +79,22 @@ If you need more details, please check this [blog post][1].
 If you're interested in candlesticks and need to get the OHLC values, take a look
 at the [toolkit ohlc](/toolkit_ohlc) function that do the same but through a
 function that can be reusing candlesticks from smaller timeframes.
+
+!!! note "Disable ddl transactions in your migration to start with data"
+
+    If you want to start `with_data: true`, remember that you'll need to
+    `disable_ddl_transaction!` in your migration file.
+
+    ```ruby
+    class CreateCaggsWithData < ActiveRecord::Migration[7.0]
+      disable_ddl_transaction!
+
+      def change
+        create_continuous_aggregate('ohlc_1m', query, with_data: true)
+        # ...
+      end
+    end
+    ```
+
 
 [1]: https://ideia.me/timescale-continuous-aggregates-with-ruby
