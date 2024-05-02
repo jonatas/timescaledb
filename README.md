@@ -368,6 +368,16 @@ Event.hypertable.compression_settings # => [#<Timescaledb::CompressionSettings>,
 
 To get compression settings for all hypertables: `Timescaledb.compression_settings`.
 
+### Skip association scopes
+
+If you don't want to overload your model, you can skip the `.hypertable` and other association scopes by passing `skip_association_scopes: true` to the `acts_as_hypertable` macro.
+
+```ruby
+class Event < ActiveRecord::Base
+  acts_as_hypertable time_column: "time", skip_association_scopes: true
+end
+```
+
 ### Scopes
 
 The `acts_as_hypertable` macro can be very useful to generate some extra scopes
@@ -401,6 +411,16 @@ class Condition < ActiveRecord::Base
   acts_as_time_vector time_column: "time",
     value_column: "temperature",
     segment_by: "device_id"
+end
+```
+
+### Skip default scopes
+
+You can skip the default scopes by passing `skip_default_scopes: true` to the `acts_as_hypertable` macro.
+
+```ruby
+class Condition < ActiveRecord::Base
+  acts_as_hypertable time_column: "time", skip_default_scopes: true
 end
 ```
 
