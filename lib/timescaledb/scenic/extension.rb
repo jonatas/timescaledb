@@ -68,5 +68,5 @@ module Timescaledb
 end
 
 
-Scenic::Adapters::Postgres.include(Timescaledb::Scenic::Extension)
-ActiveRecord::ConnectionAdapters::AbstractAdapter.include(Timescaledb::Scenic::MigrationHelpers)
+Scenic::Adapters::Postgres.prepend(Timescaledb::Scenic::Extension)
+ActiveRecord::ConnectionAdapters::AbstractAdapter.prepend(Timescaledb::Scenic::MigrationHelpers)

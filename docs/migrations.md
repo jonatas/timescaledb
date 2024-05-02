@@ -73,4 +73,21 @@ If you're interested in candlesticks and need to get the OHLC values, take a loo
 at the [toolkit ohlc](/toolkit_ohlc) function that do the same but through a
 function that can be reusing candlesticks from smaller timeframes.
 
+!!! note "Disable ddl transactions in your migration to start with data"
+
+    If you want to start `with_data: true`, remember that you'll need to
+    `disable_ddl_transaction!` in your migration file.
+
+    ```ruby
+    class CreateTicks < ActiveRecord::Migration[6.0]
+      disable_ddl_transaction!
+
+      def change
+        create_continuous_aggregate('ohlc_1m', query, with_data: true)
+        # ...
+      end
+    end
+    ```
+
+
 [1]: https://ideia.me/timescale-continuous-aggregates-with-ruby
