@@ -1,6 +1,11 @@
 require 'singleton'
 
 module Timescaledb
+  # Minimal connection setup for Timescaledb directly with the PG.
+  # The concept is use a singleton component that can query
+  # independently of the ActiveRecord::Base connections.
+  # This is useful for the extension and hypertable metadata.
+  # It can also #use_connection from active record if needed.
   class Connection
     include Singleton
 
@@ -32,6 +37,12 @@ module Timescaledb
     # @param [Boolean] True if the connection singleton was configured, otherwise returns false.
     def connected?
       !@config.nil?
+    end
+
+    # Override the connection with a raw PG connection.
+    # @param [PG::Connection] connection The raw PG connection.
+    def use_connection connection
+      @connection = connection
     end
 
     private
