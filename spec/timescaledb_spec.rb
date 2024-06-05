@@ -3,6 +3,16 @@ RSpec.describe Timescaledb do
     expect(Timescaledb::VERSION).not_to be nil
   end
 
+  describe ".extension" do
+    describe ".installed?" do
+      it { expect(Timescaledb.extension.installed?).to be_truthy }
+    end
+
+    describe ".version" do
+      it { expect(Timescaledb.extension.version).not_to be_empty }
+    end
+  end
+
   describe ".chunks" do
     subject { Timescaledb.chunks }
 

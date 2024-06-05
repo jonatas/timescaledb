@@ -7,14 +7,29 @@ module Timescaledb
   # * retention policies
   # * continuous aggregates
   # * compression settings
+  # It also ignores Timescale related schemas when dumping the schema.
+  # It also ignores dumping options as extension is not installed or no hypertables are available.
   module SchemaDumper
     def tables(stream)
       super # This will call #table for each table in the database
-      return unless Timescaledb::Hypertable.table_exists?
 
-      timescale_hypertables(stream)
-      timescale_retention_policies(stream)
-      timescale_continuous_aggregates(stream) # Define these before any Scenic views that might use them
+      if exports_timescaledb_metadata?
+        timescale_hypertables(stream)
+        timescale_retention_policies(stream)
+        timescale_continuous_aggregates(stream) # Define these before any Scenic views that might use them
+      end
+    end
+
+    # Ignore dumps in case DB is not eligible for TimescaleDB metadata.
+    # @return [Boolean] true if the extension is installed and hypertables are available, otherwise false.
+    private def exports_timescaledb_metadata?
+      # Note it's safe to use the raw connection here because we're only reading from the database
+      # and not modifying it. We're also on the same connection pool as ActiveRecord::Base.
+      # The dump process also runs standalone, so we don't need to worry about the connection being
+      # used elsewhere.
+      Timescaledb.use_connection @connection.raw_connection
+
+      Timescaledb.extension.installed? && Timescaledb.hypertables.any?
     end
 
     # Ignores Timescale related schemas when dumping the schema

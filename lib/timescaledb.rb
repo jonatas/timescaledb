@@ -17,10 +17,19 @@ require_relative 'timescaledb/schema_dumper'
 require_relative 'timescaledb/stats'
 require_relative 'timescaledb/stats_report'
 require_relative 'timescaledb/migration_helpers'
+require_relative 'timescaledb/extension'
 require_relative 'timescaledb/version'
 
 module Timescaledb
   module_function
+
+  def connection
+    Connection.instance
+  end
+
+  def extension
+    Extension
+  end
 
   def chunks
     Chunk.all
