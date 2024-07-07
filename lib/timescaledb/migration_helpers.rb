@@ -49,7 +49,7 @@ module Timescaledb
       original_logger = ActiveRecord::Base.logger
       ActiveRecord::Base.logger = Logger.new(STDOUT)
 
-      options = ["chunk_time_interval => INTERVAL '#{chunk_time_interval}'"]
+      options = ["chunk_time_interval => #{chunk_time_interval_clause(chunk_time_interval)}"]
       options += hypertable_options.map { |k, v| "#{k} => #{quote(v)}" }
 
       arguments = [
@@ -164,6 +164,14 @@ module Timescaledb
 
       value = options[option_key] ? 'true' : 'false'
       ",timescaledb.#{option_key}=#{value}"
+    end
+
+    def chunk_time_interval_clause(chunk_time_interval)
+      if chunk_time_interval.is_a?(Numeric)
+        chunk_time_interval
+      else
+        "INTERVAL '#{chunk_time_interval}'"
+      end
     end
   end
 end
