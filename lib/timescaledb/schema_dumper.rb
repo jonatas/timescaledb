@@ -159,14 +159,14 @@ module Timescaledb
           interval = timescale_interval(refresh_policy.schedule_interval)
           end_offset = timescale_interval(refresh_policy.config["end_offset"])
           start_offset = timescale_interval(refresh_policy.config["start_offset"])
-          %(refresh_policies: { start_offset: "#{start_offset}", end_offset: "#{end_offset}", schedule_interval: "#{interval}"})
+          %(refresh_policies: { start_offset: "#{start_offset}", end_offset: "#{end_offset}", schedule_interval: "#{interval}"}, )
         else
           ""
         end
 
         with_clause_opts = "materialized_only: #{aggregate[:materialized_only]}, finalized: #{aggregate[:finalized]}"
         stream.puts <<~AGG.indent(2)
-          create_continuous_aggregate("#{aggregate.view_name}", <<-SQL, #{refresh_policies_opts}, #{with_clause_opts})
+          create_continuous_aggregate("#{aggregate.view_name}", <<-SQL, #{refresh_policies_opts}#{with_clause_opts})
             #{aggregate.view_definition.strip.gsub(/;$/, '')}
           SQL
         AGG
