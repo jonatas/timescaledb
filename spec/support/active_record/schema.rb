@@ -39,6 +39,11 @@ def setup_tables
       options: { time_column: 'timestamp' }
     )
 
+    create_table(:hypertable_with_id_partitioning, hypertable: {
+      time_column: 'id',
+      chunk_time_interval: 1_000_000
+    })
+
     create_table(:non_hypertables) do |t|
       t.string :name
     end

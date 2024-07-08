@@ -78,7 +78,7 @@ module Timescaledb
 
       options = {
         time_column: time.column_name,
-        chunk_time_interval: time.time_interval.inspect,
+        chunk_time_interval: time.time_interval ? time.time_interval.inspect : time.integer_interval,
         **timescale_compression_settings_for(hypertable),
         **timescale_space_partition_for(hypertable),
         **timescale_index_options_for(hypertable)

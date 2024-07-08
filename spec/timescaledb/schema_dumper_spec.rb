@@ -123,6 +123,17 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
       expect(dump).to include "create_default_indexes: false"
     end
 
+    it "extracts integer chunk_time_interval" do
+      options = { time_column: :id, chunk_time_interval: 10000 }
+      con.create_table :schema_tests, hypertable: options do |t|
+        t.timestamps
+      end
+
+      dump = dump_output
+
+      expect(dump).to include "chunk_time_interval: 10000"
+    end
+
     context "compress_segmentby" do
       before(:each) do
         con.drop_table :segmentby_tests, force: :cascade if con.table_exists?(:segmentby_tests)
