@@ -278,7 +278,7 @@ Compression policy is used to compress data in a hypertable. You can enable the 
 ```ruby
 class AddCompressionPolicy < ActiveRecord::Migration[7.0]
   def up
-    add_compression_policy('events', INTERVAL '7 days')
+    add_compression_policy('events', '7 days')
   end
 
   def down
@@ -295,7 +295,7 @@ You can enable the retention policy for a hypertable by using the `add_retention
 ```ruby
 class AddRetentionPolicy < ActiveRecord::Migration[7.0]
   def up
-    add_retention_policy('events', INTERVAL '6 months')
+    add_retention_policy('events', '6 months')
   end
 
   def down
