@@ -4,7 +4,7 @@ Here you can find the changes to the project that may be relevant to you.
 
 # 2026-02-22
 
-* Fixed ability to run `RAILS_ENV=test rails db:schema:load` when database contains nested caggs (pending PR)
+* Fixed ability to run `RAILS_ENV=test rails db:schema:load` when database contains nested caggs (#130)
   * `create_table` and `drop_table` now fetches dependent materialized caggs views and drops them if `force: :cascade` is passed as an option. 
 
 # 2025-02-18
