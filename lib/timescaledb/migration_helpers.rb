@@ -25,11 +25,36 @@ module Timescaledb
     #    t.timestamps
     #  end
     def create_table(table_name, id: :primary_key, primary_key: nil, force: nil, **options)
+      drop_dependent_timescale_views table_name, force: force, **options
       super
       create_hypertable(table_name, **options[:hypertable]) if options.key?(:hypertable)
     end
 
-    # Override the valid_table_definition_options to include hypertable.
+    def drop_table(table_name, **options)
+      drop_dependent_timescale_views table_name, force: options && options[:force]
+      super
+    end
+
+    def drop_dependent_timescale_views(table_name, force: nil, **options)
+      force = force || options && options[:force]
+
+      # if force and cascade, find all dependent views and drop them before dropping the table
+      return unless force == :cascade && drops_dependent_timescale_views?
+
+      # fetch dependent continuous aggregate views for the table being dropped
+      dependent_views = select_values(<<~SQL)
+        SELECT c.view_name
+        FROM timescaledb_information.continuous_aggregates c
+        WHERE c.hypertable_name = '#{table_name}'
+        AND c.hypertable_schema = current_schema()
+      SQL
+
+      dependent_views.each do |view|
+        execute "DROP MATERIALIZED VIEW IF EXISTS #{quote_column_name(view)} CASCADE"
+      end
+    end
+
+      # Override the valid_table_definition_options to include hypertable.
     def valid_table_definition_options # :nodoc:
       super + [:hypertable]
     end
@@ -182,6 +207,14 @@ module Timescaledb
     end
 
     private
+
+    # Checks if the timescale extension is installed and if there are any hypertables in the database.
+    # If both conditions are true, then we need to look for dependent continuous aggregate views and drop them before
+    # dropping the hypertable.
+    # @see +#create_table+ with force: :cascade option.
+    def drops_dependent_timescale_views?
+      Timescaledb.extension.installed? && Timescaledb.hypertables.any?
+    end
 
     # Build a string for the WITH clause of the CREATE MATERIALIZED VIEW statement.
     # When the option is omitted, this method returns an empty string, which allows this gem to use the
