@@ -1,4 +1,116 @@
 RSpec.describe Timescaledb::MigrationHelpers, database_cleaner_strategy: :truncation do
+
+  describe ".drop_table" do
+    before(:all) do
+      # make sure to drop the table before testing so that we can test
+      ActiveRecord::Base.connection.drop_table(:migration_tests, if_exists: true, force: :cascade)
+    end
+
+    let(:con) { ActiveRecord::Base.connection }
+
+    subject(:drop_table) do
+      con.drop_table :migration_tests, if_exists: true, force: :cascade
+    end
+
+    let(:hypertable_options) do
+      {
+        time_column: 'created_at',
+        chunk_time_interval: '1 min',
+        compress_segmentby: 'identifier',
+        compress_orderby: 'created_at',
+        compress_after: '7 days'
+      }
+    end
+
+    it 'drops table as normal' do
+      con.create_table :migration_tests, hypertable: hypertable_options, id: false do |t|
+        t.string :identifier
+        t.jsonb :payload
+        t.timestamps
+      end
+
+      expect(Timescaledb::Hypertable.find_by(hypertable_name: :migration_tests)).not_to be_nil
+      expect(con.table_exists?(:migration_tests)).to be true
+
+      drop_table
+
+      expect(Timescaledb::Hypertable.find_by(hypertable_name: :migration_tests)).to be_nil
+      expect(con.table_exists?(:migration_tests)).to be false
+    end
+
+    context 'when there are dependent continuous aggregates' do
+
+        let(:model_with_nested_caggs) do
+          MigrationTests = Class.new(ActiveRecord::Base) do
+            self.table_name = 'migration_tests'
+            acts_as_hypertable
+          end
+        end
+
+        let(:create_table_with_nested_caggs) do
+          con.create_table :migration_tests, hypertable: hypertable_options, id: false do |t|
+            t.string :identifier
+            t.jsonb :payload
+            t.timestamps
+          end
+
+          query = model_with_nested_caggs.select("time_bucket('1 minute', created_at) as bucket_1_min, identifier, COUNT(*) as count")
+                                         .group("identifier, bucket_1_min")
+
+          cagg_options = {
+            with_data: false,
+            refresh_policies: {
+              start_offset: "INTERVAL '30 days'", end_offset: "INTERVAL '1 minute'",
+              schedule_interval: "INTERVAL '1 minute'"
+            }
+          }
+
+          con.create_continuous_aggregate('migration_cagg', query, **cagg_options)
+
+          # second cagg is simply nested on top of the first cagg with a larger time bucket.
+          query = <<~SQL
+            SELECT time_bucket('1 hour', bucket_1_min) as bucket_1_hour, identifier, COUNT(*) as count
+            FROM migration_cagg
+            GROUP BY identifier, bucket_1_hour
+          SQL
+          con.create_continuous_aggregates 'migration_cagg_2', query, with_data: true
+        end
+
+        # Create table with nested caggs
+        before(:each) do
+          create_table_with_nested_caggs
+        end
+
+        before(:each) do
+          allow(ActiveRecord::Base.connection).to receive(:execute).and_call_original
+        end
+
+        it 'drops dependent continuous aggregates' do
+          # confirm we actually generated the expected sql
+          expect(ActiveRecord::Base.connection)
+            .to receive(:execute)
+                  .with(/DROP MATERIALIZED VIEW IF EXISTS "migration_cagg" CASCADE/)
+                  .once
+
+          # confirm both table and caggs exist before testing
+          expect(Timescaledb::Hypertable.find_by(hypertable_name: :migration_tests)).not_to be_nil
+          expect(con.table_exists?(:migration_tests)).to be true
+
+          expect(con.execute("SELECT to_regclass('migration_cagg')").first['to_regclass']).not_to be_nil
+          expect(con.execute("SELECT to_regclass('migration_cagg_2')").first['to_regclass']).not_to be_nil
+
+          drop_table
+
+          expect(Timescaledb::Hypertable.find_by(hypertable_name: :migration_tests)).to be_nil
+          expect(con.table_exists?(:migration_tests)).to be false
+
+          expect(con.execute("SELECT to_regclass('migration_cagg')").first['to_regclass']).to be_nil
+          expect(con.execute("SELECT to_regclass('migration_cagg_2')").first['to_regclass']).to be_nil
+        end
+      end
+
+  end
+
   describe ".create_table" do
     let(:con) { ActiveRecord::Base.connection }
 
@@ -48,6 +160,77 @@ RSpec.describe Timescaledb::MigrationHelpers, database_cleaner_strategy: :trunca
           "num_chunks" => 0,
           "num_dimensions" => 1,
           "tablespaces" => nil})
+      end
+    end
+
+    context 'with force: cascade' do
+      context 'when there are dependent continuous aggregates' do
+
+        let(:model_with_nested_caggs) do
+          MigrationTests = Class.new(ActiveRecord::Base) do
+            self.table_name = 'migration_tests'
+            acts_as_hypertable
+          end
+        end
+
+        let(:create_table_with_nested_caggs) do
+          con.create_table :migration_tests, hypertable: hypertable_options, id: false do |t|
+            t.string :identifier
+            t.jsonb :payload
+            t.timestamps
+          end
+
+          query = model_with_nested_caggs.select("time_bucket('1 minute', created_at) as bucket_1_min, identifier, COUNT(*) as count")
+                                         .group("identifier, bucket_1_min")
+
+          cagg_options = {
+            with_data: false,
+            refresh_policies: {
+              start_offset: "INTERVAL '30 days'", end_offset: "INTERVAL '1 minute'",
+              schedule_interval: "INTERVAL '1 minute'"
+            }
+          }
+
+          con.create_continuous_aggregate('migration_cagg', query, **cagg_options)
+
+          # second cagg is simply nested on top of the first cagg with a larger time bucket.
+          query = <<~SQL
+            SELECT time_bucket('1 hour', bucket_1_min) as bucket_1_hour, identifier, COUNT(*) as count
+            FROM migration_cagg
+            GROUP BY identifier, bucket_1_hour
+          SQL
+          con.create_continuous_aggregates 'migration_cagg_2', query, with_data: true
+        end
+
+        # Create table with nested caggs
+        before(:each) do
+          create_table_with_nested_caggs
+        end
+
+        before(:each) do
+          allow(ActiveRecord::Base.connection).to receive(:execute).and_call_original
+        end
+
+        it 'drops dependent continuous aggregates' do
+          # confirm we actually generated the expected sql
+          expect(ActiveRecord::Base.connection)
+            .to receive(:execute)
+            .with(/DROP MATERIALIZED VIEW IF EXISTS "migration_cagg" CASCADE/)
+            .once
+
+          # make sure that any new create_table with force: :cascade does not raise an exception due to dependent objects
+          expect {
+            con.create_table :migration_tests, force: :cascade, hypertable: hypertable_options, id: false do |t|
+              t.string :identifier
+              t.jsonb :payload
+              t.timestamps
+            end
+          }.not_to raise_exception
+
+          # expect the table still exists
+          expect(Timescaledb::Hypertable.find_by(hypertable_name: :migration_tests)).not_to be_nil
+
+        end
       end
     end
   end
