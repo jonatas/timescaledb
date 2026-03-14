@@ -51,7 +51,11 @@ module Timescaledb
       def continuous_aggregates(options = {})
         @time_column = options[:time_column] || self.time_column
         @timeframes = options[:timeframes] || [:minute, :hour, :day, :week, :month, :year]
-        
+        @timezone_aware = options.fetch(:timezone_aware, false)
+        # Custom interval strings for timeframe names that don't follow '1 <name>' convention.
+        # Example: { halfhour: '30 minutes' } makes the 'halfhour' timeframe use INTERVAL '30 minutes'.
+        @timeframe_intervals = options[:timeframe_intervals] || {}
+
         scopes = options[:scopes] || []
         @aggregates = {}
 
@@ -127,26 +131,48 @@ module Timescaledb
 
       private
 
+      # Builds the SQL interval string for a timeframe.
+      # Uses @timeframe_intervals for custom mappings (e.g. halfhour => '30 minutes'),
+      # otherwise falls back to '1 <timeframe>' (e.g. hour => '1 hour').
+      def interval_for(timeframe)
+        custom = @timeframe_intervals[timeframe]
+        custom ? "'#{custom}'" : "'1 #{timeframe}'"
+      end
+
+      # Extracts the aggregated column aliases from the cagg's select clause.
+      # Returns only the aliases that are NOT plain dimension columns (i.e. not
+      # in group_by), so we know which columns to wrap in SUM() for TZ rebucketing.
+      def tz_aggregate_aliases(config)
+        dims = Array(config[:group_by]).map(&:to_s)
+        config[:select].to_s
+          .scan(/\bas\s+(\w+)/i)
+          .flatten
+          .reject { |a| dims.include?(a) }
+      end
+
       def define_continuous_aggregate_classes
-        base_model = self
+        base_model      = self
+        tz_aware        = @timezone_aware
+
         @aggregates.each do |aggregate_name, config|
           previous_timeframe = nil
           @timeframes.each do |timeframe|
             _table_name = "#{aggregate_name}_per_#{timeframe}"
-            class_name = "#{aggregate_name}_per_#{timeframe}".classify
+            class_name  = "#{aggregate_name}_per_#{timeframe}".classify
+
             const_set(class_name, Class.new(base_model) do
               class << self
-                attr_accessor :config, :timeframe, :base_query, :base_model, :previous_timeframe, :interval, :aggregate_name, :prev_klass
+                attr_accessor :config, :timeframe, :base_query, :base_model,
+                              :previous_timeframe, :interval, :aggregate_name, :prev_klass
               end
 
-              self.table_name = _table_name
-              self.config = config
-              self.timeframe = timeframe
+              self.table_name        = _table_name
+              self.config            = config
+              self.timeframe         = timeframe
               self.previous_timeframe = previous_timeframe
-              self.aggregate_name = aggregate_name
-
-              self.interval = "'1 #{timeframe.to_s}'"
-              self.base_model = base_model
+              self.aggregate_name    = aggregate_name
+              self.interval          = base_model.send(:interval_for, timeframe)
+              self.base_model        = base_model
 
               def self.prev_klass
                 base_model.const_get("#{aggregate_name}_per_#{previous_timeframe}".classify)
@@ -161,7 +187,7 @@ module Timescaledb
                     "SELECT #{tb} as #{time_column}, #{select_clause} FROM \"#{prev_klass.table_name}\" GROUP BY #{[tb, *config[:group_by]].join(', ')}"
                   else
                     scope = base_model.public_send(config[:scope_name])
-                    config[:select] = scope.select_values.select{|e|!e.downcase.start_with?("time_bucket")}.join(', ')
+                    config[:select]   = scope.select_values.select{|e|!e.downcase.start_with?("time_bucket")}.join(', ')
                     config[:group_by] = scope.group_values
                     config[:where] =
                       if scope.where_values_hash.present?
@@ -170,7 +196,7 @@ module Timescaledb
                         scope.where_clause.ast.to_sql
                       end
 
-                    sql = "SELECT #{tb} as #{time_column}, #{config[:select]}"
+                    sql  = "SELECT #{tb} as #{time_column}, #{config[:select]}"
                     sql += " FROM \"#{base_model.table_name}\""
                     sql += " WHERE #{config[:where]}" if config[:where]
                     sql += " GROUP BY #{[tb, *config[:group_by]].join(', ')}"
@@ -194,7 +220,57 @@ module Timescaledb
               def self.refresh_policy
                 config[:refresh_policy]&.dig(timeframe)
               end
+
+              if tz_aware
+                # Capture the generated class name and base model so the scope lambda
+                # can resolve them at call time. Rails evaluates scope lambdas with
+                # `self` bound to the AR relation, not the class, so we need explicit
+                # closure references to reach base_query and connection.
+                _class_name = class_name
+                _base_model = base_model
+
+                # Returns a relation that rebuckets this cagg's pre-aggregated rows
+                # into local calendar days for the given IANA timezone.
+                #
+                # Use the finest-granularity cagg (e.g. 30-min) for correct day
+                # boundaries: the daily cagg buckets by UTC midnight, which straddles
+                # local calendar days for any non-UTC zone.
+                #
+                # Benchmarking showed this subquery scope outperforms a permanent SQL
+                # VIEW because the time_column predicate stays in the inner query where
+                # the planner can apply chunk exclusion.
+                scope :in_timezone, ->(tz) {
+                  generated_klass = _base_model.const_get(_class_name)
+                  generated_klass.base_query unless config[:group_by]
+
+                  conn     = _base_model.connection
+                  tz_safe  = conn.quote(tz)
+                  tz_date  = "(%s AT TIME ZONE %s)::date" % [_base_model.time_column, tz_safe]
+                  dims_sql = config[:group_by].join(', ')
+                  agg_sql  = _base_model.send(:tz_aggregate_aliases, config)
+                             .map { |a| "SUM(#{a}) AS #{a}" }
+                             .join(', ')
+
+                  # Wrap in a derived table so chained .where(local_date: ...) works —
+                  # PostgreSQL forbids referencing SELECT aliases in the same query's
+                  # WHERE, but they become real columns once exposed through a subquery.
+                  inner_sql = <<~SQL.squish
+                    SELECT #{tz_date} AS local_date,
+                           #{tz_safe} AS timezone,
+                           #{dims_sql},
+                           #{agg_sql}
+                    FROM "#{table_name}"
+                    GROUP BY #{tz_date}, #{dims_sql}
+                    ORDER BY #{tz_date}
+                  SQL
+
+                  unscoped
+                    .select(Arel.sql('*'))
+                    .from(Arel.sql("(#{inner_sql}) AS #{table_name}"))
+                }
+              end
             end)
+
             previous_timeframe = timeframe
           end
         end

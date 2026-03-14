@@ -57,3 +57,29 @@ end
 
 class NonHypertable < ActiveRecord::Base
 end
+
+# Model used by continuous_aggregates_timezone_spec.rb
+# Demonstrates timezone_aware: true and custom timeframe_intervals.
+class HypertableWithTimezoneAwareCaggs < ActiveRecord::Base
+  extend  Timescaledb::ActsAsHypertable
+  include Timescaledb::ContinuousAggregatesHelper
+
+  acts_as_hypertable time_column: 'ts'
+
+  scope :metrics, -> {
+    select("organization_id, sum(value) as total, count(*) as row_count")
+      .group("organization_id")
+  }
+
+  continuous_aggregates(
+    time_column:         'ts',
+    scopes:              [:metrics],
+    timeframes:          [:halfhour, :day],
+    timeframe_intervals: { halfhour: '30 minutes' },
+    timezone_aware:      true,
+    refresh_policy: {
+      halfhour: { start_offset: '3 hours', end_offset: '30 minutes', schedule_interval: '30 minutes' },
+      day:      { start_offset: '3 days',  end_offset: '1 hour',     schedule_interval: '1 hour'     }
+    }
+  )
+end
