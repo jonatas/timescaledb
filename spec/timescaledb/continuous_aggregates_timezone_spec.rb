@@ -28,7 +28,7 @@ RSpec.describe 'timezone_aware continuous_aggregates' do
       create_table(:hypertable_with_timezone_aware_caggs, id: false, hypertable: {
         time_column: 'ts', chunk_time_interval: '1 day'
       }) do |t|
-        t.timestamptz :ts,              null: false
+        t.column      :ts, :timestamptz, null: false
         t.bigint      :organization_id, null: false, default: 1
         t.float       :value,           null: false, default: 0.0
       end
