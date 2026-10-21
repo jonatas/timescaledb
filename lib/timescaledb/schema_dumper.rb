@@ -73,6 +73,8 @@ module Timescaledb
       end
     end
 
+    private
+
     def timescale_reorder_policies(stream)
       jobs = Timescaledb::Job.where(proc_name: "policy_reorder").order(:hypertable_name).to_a
       return if jobs.empty?
@@ -82,8 +84,6 @@ module Timescaledb
         stream.puts %Q[  add_reorder_policy #{job.hypertable_name.inspect}, #{job.config["index_name"].inspect}]
       end
     end
-
-    private
 
     def timescale_hypertable(hypertable, stream)
       time = hypertable.main_dimension

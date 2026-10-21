@@ -157,8 +157,6 @@ module Timescaledb
       execute "SELECT remove_retention_policy('#{table_name}')"
     end
 
-    # Reorder chunks by an index on the hypertable.
-    #
     # @see https://docs.timescale.com/api/latest/hypertable/add_reorder_policy/
     def add_reorder_policy(table_name, index_name)
       execute "SELECT add_reorder_policy(#{quote(table_name)}, #{quote(index_name)})"

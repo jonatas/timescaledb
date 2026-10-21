@@ -73,7 +73,7 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
         con.add_reorder_policy("events", "events_created_at_idx")
       end
       after do
-        con.remove_reorder_policy("events")
+        con.execute("SELECT remove_reorder_policy('events', if_exists => true)")
       end
 
       it "add reorder policies after hypertables" do
