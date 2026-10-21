@@ -304,6 +304,25 @@ class AddRetentionPolicy < ActiveRecord::Migration[7.0]
 end
 ```
 
+### Reorder policy
+
+Reorder policy is used to rewrite the chunks of a hypertable, except the two most recent ones, in the order of one of its indexes, so rows that are queried together are stored together.
+You can enable the reorder policy for a hypertable by using the `add_reorder_policy` function.
+
+```ruby
+class AddReorderPolicy < ActiveRecord::Migration[7.0]
+  def up
+    add_reorder_policy('events', 'index_events_on_identifier_and_created_at')
+  end
+
+  def down
+    remove_reorder_policy('events')
+  end
+end
+```
+
+Reorder policies are included in `db/schema.rb`. The dumped line records the hypertable and index only. Job settings changed with `alter_job`, such as `schedule_interval`, aren't dumped, the same as for retention and compression policies.
+
 ### Chunks
 
 To get all the chunks from a model's hypertable, you can use `.chunks`.

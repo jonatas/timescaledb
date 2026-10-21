@@ -52,6 +52,32 @@ RSpec.describe Timescaledb::MigrationHelpers, database_cleaner_strategy: :trunca
     end
   end
 
+  describe ".add_reorder_policy" do
+    let(:con) { ActiveRecord::Base.connection }
+    let(:reorder_jobs) { Timescaledb::Job.where(hypertable_name: "events", proc_name: "policy_reorder") }
+
+    after(:each) do
+      con.execute("SELECT remove_reorder_policy('events', if_exists => true)")
+    end
+
+    it "adds a reorder policy on the given index" do
+      con.add_reorder_policy(:events, :events_created_at_idx)
+
+      expect(reorder_jobs.map { |job| job.config["index_name"] }).to eq(["events_created_at_idx"])
+    end
+  end
+
+  describe ".remove_reorder_policy" do
+    let(:con) { ActiveRecord::Base.connection }
+    let(:reorder_jobs) { Timescaledb::Job.where(hypertable_name: "events", proc_name: "policy_reorder") }
+
+    it "removes the reorder policy" do
+      con.add_reorder_policy(:events, :events_created_at_idx)
+
+      expect { con.remove_reorder_policy(:events) }.to change { reorder_jobs.count }.to(0)
+    end
+  end
+
   describe ".create_caggs" do
     let(:con) { ActiveRecord::Base.connection }
 
