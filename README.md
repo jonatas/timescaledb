@@ -321,7 +321,7 @@ class AddReorderPolicy < ActiveRecord::Migration[7.0]
 end
 ```
 
-Reorder policies are included in `db/schema.rb`. As with the other policies, only the index is dumped, not job settings changed with `alter_job`.
+Reorder policies are included in `db/schema.rb`. The dumped line records the hypertable and index only. Job settings changed with `alter_job`, such as `schedule_interval`, aren't dumped, the same as for retention and compression policies.
 
 ### Chunks
 
