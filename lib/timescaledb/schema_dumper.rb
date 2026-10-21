@@ -5,6 +5,7 @@ module Timescaledb
   # Schema dumper overrides default schema dumper to include:
   # * hypertables
   # * retention policies
+  # * reorder policies
   # * continuous aggregates
   # * compression settings
   # It also ignores Timescale related schemas when dumping the schema.
@@ -16,6 +17,7 @@ module Timescaledb
       if exports_timescaledb_metadata?
         timescale_hypertables(stream)
         timescale_retention_policies(stream)
+        timescale_reorder_policies(stream)
         timescale_continuous_aggregates(stream) # Define these before any Scenic views that might use them
       end
     end
@@ -71,6 +73,16 @@ module Timescaledb
       end
     end
 
+    def timescale_reorder_policies(stream)
+      if sorted_hypertables.any? { |hypertable| hypertable.jobs.exists?(proc_name: "policy_reorder") }
+        stream.puts # Insert a blank line above the reorder policies, for readability
+      end
+
+      sorted_hypertables.each do |hypertable|
+        timescale_reorder_policy(hypertable, stream)
+      end
+    end
+
     private
 
     def timescale_hypertable(hypertable, stream)
@@ -91,6 +103,12 @@ module Timescaledb
     def timescale_retention_policy(hypertable, stream)
       hypertable.jobs.where(proc_name: "policy_retention").each do |job|
         stream.puts %Q[  create_retention_policy "#{job.hypertable_name}", drop_after: "#{job.config["drop_after"]}"]
+      end
+    end
+
+    def timescale_reorder_policy(hypertable, stream)
+      hypertable.jobs.where(proc_name: "policy_reorder").each do |job|
+        stream.puts %Q[  add_reorder_policy #{job.hypertable_name.inspect}, #{job.config["index_name"].inspect}]
       end
     end
 

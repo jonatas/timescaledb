@@ -67,6 +67,22 @@ RSpec.describe Timescaledb::SchemaDumper, database_cleaner_strategy: :truncation
         expect(index).to be > last_hypertable
       end
     end
+
+    context "with reorder policies" do
+      before do
+        con.add_reorder_policy("events", "events_created_at_idx")
+      end
+      after do
+        con.remove_reorder_policy("events")
+      end
+
+      it "add reorder policies after hypertables" do
+        dump = dump_output
+        last_hypertable = dump.index(%|create_hypertable "#{sorted_hypertables.last}"|)
+        index = dump.index(%|add_reorder_policy "events", "events_created_at_idx"|)
+        expect(index).to be > last_hypertable
+      end
+    end
   end
 
   let(:dump_output) do
